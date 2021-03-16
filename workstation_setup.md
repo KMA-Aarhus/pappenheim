@@ -45,7 +45,7 @@ NOTE: if black screen after restart, switch monitor cable ports.
    ubuntu-drivers devices
    ```
 
-If not, then install drivers and reboot:
+1.1. If not, then install drivers and reboot:
 
    ```
    sudo ubuntu-drivers autoinstall
