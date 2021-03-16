@@ -168,7 +168,7 @@ sudo apt install typora # add add channel first
 
 ```
 
-Consider holding the current version of minion/minknow
+Consider holding the current version of minion/minknow. This will make sure that no incompatibilities can arise when apt does automatic updates in the background.
 ```
 sudo apt-mark hold minion-nc
 ```
