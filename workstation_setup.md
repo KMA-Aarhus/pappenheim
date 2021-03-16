@@ -167,4 +167,8 @@ sudo apt install sublime-text # add channel first
 sudo apt install typora # add add channel first
 
 ```
-  
+
+Consider holding the current version of minion/minknow
+```
+sudo apt-mark hold minion-nc
+```
