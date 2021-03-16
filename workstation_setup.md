@@ -63,10 +63,6 @@ If not, then install drivers and reboot:
 
 
 
-**References**
-
-- https://gist.github.com/bendangnuksung/981408031699e0ddc50a6f6fdcf185c2
-- https://medium.com/@naomi.fridman/install-conda-tensorflow-gpu-and-keras-on-ubuntu-18-04-1b403e740e25
 
 ### Install MinION software and Guppy-gpu basecaller
 
