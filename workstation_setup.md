@@ -53,9 +53,9 @@ If not, then install drivers and reboot:
    
 2. Make sure the CUDA drivers are installed as well
 
-     ```
-     sudo apt install nvcc
-     ```
+   ```
+   sudo apt install nvcc
+   ```
 
 4. Check nvidia driver is working
 
