@@ -1,8 +1,8 @@
 # Workstation setup
 
-### Install Ubuntu 18
+### Install Ubuntu 20 LTS
 
-1. Download Ubuntu 18 ISO image
+1. Download Ubuntu 20 ISO image
 2. Make a bootable Ubuntu USB stick by following these instructions.
 3. Turn off the workstation.
 4. Insert the bootable USB.
@@ -33,7 +33,6 @@ NOTE: if black screen after restart, switch monitor cable ports.
    sudo apt upgrade
    ```
 
-### Install Nvidia and CUDA drivers
 
 ### Install Nvidia and CUDA drivers
 
