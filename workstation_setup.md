@@ -101,6 +101,12 @@ sudo apt install sublime-text # add channel first
 sudo apt install typora # add add channel first
 
 ```
+Install rampart
+
+Set an alias for starting rampart
+```alias start_rampart='{ sleep 5; firefox localhost:3000 & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --basecalledPath'```
+
+
 
 Consider holding the current version of minion/minknow. This will make sure that no incompatibilities can arise when apt does automatic updates in the background.
 ```
