@@ -94,17 +94,21 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
 
 Disable printer discovery: https://cirovladimir.wordpress.com/2019/02/11/ubuntu-18-04-disable-network-printer-auto-discovery/
 
-Install useful software:
+Install latest versions useful software:
 ``` 
 sudo apt install git vim
-sudo apt install sublime-text # add channel first
-sudo apt install typora # add add channel first
-
 ```
+
+Install miniconda 3
+
+Install sublime text https://www.sublimetext.com/3
+
+Install typora https://typora.io/
+
 Install rampart
 
 Set an alias for starting rampart
-```alias start_rampart='{ sleep 5; firefox localhost:3000 & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --basecalledPath'```
+```alias start_rampart='{ sleep 5; firefox localhost:3000 & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'```
 
 
 
