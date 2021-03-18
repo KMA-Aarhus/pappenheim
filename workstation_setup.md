@@ -1,8 +1,8 @@
 # Workstation setup
 
-### Install Ubuntu 20 LTS
+### Install Ubuntu LTS
 
-1. Download Ubuntu 20 ISO image
+1. Download latest Ubuntu LTS (long term support) ISO image
 2. Make a bootable Ubuntu USB stick by following these instructions.
 3. Turn off the workstation.
 4. Insert the bootable USB.
