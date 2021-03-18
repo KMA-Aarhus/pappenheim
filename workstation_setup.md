@@ -81,7 +81,7 @@ Notice: You may have to restart the computer between some of these steps. Who kn
      ```
      sudo /opt/ont/minknow/bin/config_editor --conf application --filename /opt/ont/minknow/conf/app_conf \
          --set guppy.server_executable="/path/to/guppy/bin/guppy_basecall_server" \
-         --set guppy.client_executable="/path/to/guppy/bin/guppy_basecaller" \
+         --set guppy.client_executable="/path/to/guppy/bin/guppy_basecall_client" \
          --set guppy.gpu_calling=1 \
          --set guppy.num_threads=3 \
          --set guppy.ipc_threads=2
