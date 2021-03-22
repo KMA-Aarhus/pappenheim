@@ -8,28 +8,41 @@ Pipeline til sekventering af SARS-CoV-2 på lokale workstations med realtidsbase
 ## Installation 
 
 
+Install conda by downloading and following the [instructions](https://docs.conda.io/en/latest/miniconda.html):
 ```
-# Install conda by downloading and following the instructions:
+cd
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 chmod +x Miniconda3-latest-Linux-x86_64.sh
 ./Miniconda3-latest-Linux-x86_64.sh
+```
 
-# Install snakemake
-mamba create -c conda-forge -c bioconda -n snakemake snakemake
+Clone this repository and install snakemake
+
+```
+cd 
+# Install snakemake using conda
+conda install -c conda-forge -c bioconda snakemake
 ```
 
 
-## Brug pipelinen
+## Usage
+
+Hav en csv-fil klar til kørslen. Denne fil indeholder information om barcodes og samplenames.
+
 ```
-conda activate snakemake
-snakemake --help
-
-# Hav et ark med metadata klar til kørslen:
-echo "
+barcode,sample
+NB01,R012938
+NB02,R382988
+NB03,R328837
 ```
 
+Denne fil gives til pipelinen ved kørslen:
+
+```
+snakemake --samplesheet path/to/above/file.csv
+```
+
+Hvis der er problemer med inputtet, gives en advarsel.
+Ellers starter pipelinen og skulle gerne passe sig selv.
 
 
- - [Installer conda](https://conda.io/projects/conda/en/latest/user-guide/install/linux.html)
- - Installer (https://snakemake.readthedocs.io/en/stable/getting_started/installation.html)
- - 
