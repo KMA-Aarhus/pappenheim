@@ -45,6 +45,6 @@ snakemake --samplesheet path/to/above/file.csv
 Hvis der er problemer med inputtet, gives en advarsel.
 Ellers starter pipelinen og skulle gerne passe sig selv.
 
-Efterhånden som genomerne bliver behandlet kommer outputtet i en mappe ved navn "output"
+Efterhånden som genomerne bliver behandlet kommer outputtet i en mappe ved navn "output".
 
 
