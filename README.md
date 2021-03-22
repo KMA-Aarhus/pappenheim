@@ -36,11 +36,14 @@ NB02,R382988
 NB03,R328837
 ```
 
-Denne fil gives til pipelinen ved kørslen:
+Denne fil gives til pipelinen ved kørslen ved argumentet `--samplesheet`
+Der skal også specificeres en kørselsmappe fra minknow, hvor de basecallede fastq filer ligger. Denne gives ved argumentet `--rundir`.
 
 ```
-snakemake --samplesheet path/to/above/file.csv
+snakemake --samplesheet path/to/above/file.csv --rundir path/to/minknow-output/
 ```
+
+
 
 Hvis der er problemer med inputtet, gives en advarsel.
 Ellers starter pipelinen og skulle gerne passe sig selv.
