@@ -1,4 +1,4 @@
-# ONT-SARS-CoV-2 (Work in progress)
+# Pappenheim ONT-SARS-CoV-2 (Work in progress)
 Pipeline til sekventering af SARS-CoV-2 på lokale workstations med realtidsbasecalling. Pipelinen er baseret på snakemake og bruger i videste omfang conda. Alle mellemværende outputs er lang-pivoterede.
 
 
