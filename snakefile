@@ -1,4 +1,5 @@
 
+__author__ = "Carl Mathias Kobel"
 # snakemake --samplesheet path/to/samplesheet.ods --rundir path/to/minknowoutput/
 
 import sys
