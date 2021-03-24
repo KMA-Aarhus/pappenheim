@@ -90,6 +90,9 @@ Notice: You may have to restart the computer between some of these steps. Who kn
 
    
 NOTE: If the installation worked correctly, `Guppy basecaller server` should be reserving a part of the GPU card and Guppy should be recognised by MinKnow. If not, MinKnow will not commence sequencing and give `Internal error` after the flow cell has reached sequencing temperature. This issue is usually caused by software incompatibility  and can often be solved by installing a different version of Guppy.
+
+  4. Install rampart by following the (official instructions)[https://github.com/artic-network/rampart/blob/master/docs/installation.md#install-from-conda].
+
    
 ### Miscellaneous
 
@@ -106,7 +109,6 @@ Install sublime text https://www.sublimetext.com/3
 
 Install typora https://typora.io/
 
-Install rampart
 
 Set an alias for starting rampart
 ```alias start_rampart='{ sleep 5; firefox localhost:3000 & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'```
