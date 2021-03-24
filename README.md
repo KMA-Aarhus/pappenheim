@@ -27,7 +27,7 @@ Pipeline til sekventering af SARS-CoV-2 på lokale workstations med realtidsbase
     git clone https://github.com/KMA-Aarhus/pappenheim.git
 
     # Install snakemake using conda
-    # If you wish to install the package NOT in the base environment, create an environment, activate it, before running the following line.
+    # If you wish to install the package NOT in the base environment, create an environment, activate it, before running the following line:
     mamba env update --file pappenheim/environment.yaml 
     ```
 
