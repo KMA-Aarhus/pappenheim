@@ -1,7 +1,7 @@
 # Workstation setup
 
 ### Install Ubuntu LTS
-alias start_rampart='{ $(sleep 3; firefox localhost:3000) & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'
+
 
 1. Download latest Ubuntu LTS (long term support) ISO image
 2. Make a bootable Ubuntu USB stick.
@@ -104,7 +104,9 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
 
     * After following the install instructions, and checking that the install is successfull, add a QnD alias to the shell-environment.
     ```
-    echo 
+    echo "alias start_rampart='{ $(sleep 3; firefox localhost:3000) & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'" >> ~/.bashrc
+    source ~/.bashrc
+    ```
    
 ### Miscellaneous
 
