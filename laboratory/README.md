@@ -21,7 +21,7 @@ Når biblioteket er færdiglavet, og flowcellen skal til at pakkes ud, kan denne
          1. Da det tager mindst et døgn at gennemføre en sekventeringskørsel, er der ikke fare for duplikater, og det er derfor tilstrækkeligt at bruge datoen alene, som batch-identifikation. 
       2. Verificer at der i **Positions**-tabellen står "FLO-MIN106" under **Flow cell type**
       3. Feltet **Sample ID** skal forblive tomt.
-      5. Tryk på **Load saved settings** og vælg "ontseqX SARS-CoV-2" hvor X er maskinens ID (A eller Z). Maskinens navn kan ses på det klistermærke der står på skærmen. Tryk på **Load**.
+      5. Tryk på **Load saved settings** og vælg "ontseqX SARS-CoV-2" hvor X er maskinens ID ("a" eller "z"). Maskinens navn kan ses på det klistermærke der står på skærmen. Tryk på **Load**.
          1. Der kommer en pop-up som spørger om du ønsker at loade kit "SQK-LSK109", vælg **Yes**.
       6. Vælg **Skip to end >>** og tjek at alle instillingerne er som på den printede seddel som hænger på skærmen (TODO: ikke printet i skrivende stund.)
       7. Tryk til sidst på **▶ Start**-knappen nede i højre hjørne.
