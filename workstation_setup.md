@@ -91,7 +91,15 @@ Notice: You may have to restart the computer between some of these steps. Who kn
    
 NOTE: If the installation worked correctly, `Guppy basecaller server` should be reserving a part of the GPU card and Guppy should be recognised by MinKnow. If not, MinKnow will not commence sequencing and give `Internal error` after the flow cell has reached sequencing temperature. This issue is usually caused by software incompatibility  and can often be solved by installing a different version of Guppy.
 
-  4. Install rampart by following the [official instructions](https://github.com/artic-network/rampart/blob/master/docs/installation.md#install-from-conda).
+  4. Install miniconda3:
+  ```
+  cd
+  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+  chmod +x Miniconda3-latest-Linux-x86_64.sh
+  ./Miniconda3-latest-Linux-x86_64.sh
+  ```
+
+  5. Install rampart by following the [official instructions](https://github.com/artic-network/rampart/blob/master/docs/installation.md#install-from-conda).
 
    
 ### Miscellaneous
