@@ -18,7 +18,7 @@ Når biblioteket er færdiglavet, og flowcellen skal til at pakkes ud, kan denne
    2. Åbn **MinKNOW** igen, som vi tidligere brugte til at lave flow-cellecheck med.
    3. Vælg **Start** og derefter **Start sequencing**.
       1. På side **1. Positions** skrives `YYYY-MM-DD` (fx `2021-03-15`) i **Experiment name**-feltet.
-         1. Da det tager mindst et døgn at køre et en sekventering, er der ikke fare for duplikater, og det er derfor tilstrækkeligt at bruge datoen alene, som batch-identifikation. 
+         1. Da det tager mindst et døgn at gennemføre en sekventeringskørsel, er der ikke fare for duplikater, og det er derfor tilstrækkeligt at bruge datoen alene, som batch-identifikation. 
       2. Verificer at der i **Positions**-tabellen står "FLO-MIN106" under **Flow cell type**
       3. Feltet **Sample ID** skal forblive tomt.
       5. Tryk på **Load saved settings** og vælg "ontseqX SARS-CoV-2" hvor X er maskinens ID (A eller Z). Maskinens navn kan ses på det klistermærke der står på skærmen. Tryk på **Load**.
