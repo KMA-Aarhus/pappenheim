@@ -97,7 +97,7 @@ Disable printer discovery: https://cirovladimir.wordpress.com/2019/02/11/ubuntu-
 
 Install latest versions useful software:
 ``` 
-sudo apt install git vim
+sudo apt install git vim tree
 ```
 
 Install miniconda 3
