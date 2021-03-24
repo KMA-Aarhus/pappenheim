@@ -8,7 +8,8 @@ Pipeline til sekventering af SARS-CoV-2 på lokale workstations med realtidsbase
 ## Installation 
 
 
-Install conda by downloading and following the [instructions](https://docs.conda.io/en/latest/miniconda.html):
+Install conda:
+
 We recommend to use mamba (instead of conda) for installing packages onto the miniconda environment system.
 ```
 cd
