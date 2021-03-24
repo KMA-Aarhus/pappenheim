@@ -25,3 +25,16 @@ Når biblioteket er færdiglavet, og flowcellen skal til at pakkes ud, kan denne
          3. Feltet **Sample ID** skal forblive tomt.
          4. Tryk på **Load saved settings** og vælg "ontseqX SARS-CoV-2" hvor X er maskinens ID (A eller Z). Maskinens navn kan ses på det klistermærke der står på skærmen. Tryk på **Load**.
             1. Der kommer en pop-up som spørger om du ønsker at loade kit "SQK-LSK109", vælg **Yes**.
+         5. Vælg **Skip to end >>** og tjek at alle instillingerne er som på den printede seddel som hænger på skærmen (TODO: ikke printet i skrivende stund.)
+         6. Tryk til sidst på **▶ Start**-knappen nede i højre hjørne.
+         7. Gå nu ind i **Experiments** (venstre menu) og hold øje med **Run state** for den startede kørsel.
+         8. Du vil se følgende meddelelser: Heating to N degrees, Performing MUX scan, 
+         9. Gå ind i **System messages (venstre menu)** og tjek at der ikke er nogle advarsler eller fejlmeddelelser. Hvis du ser en advarselsmeddelelse, er du meget velkommen til at skrive en mail til  carkob@rm.dk om problemet.
+         10. Når **Run state** viser "Active", kan du klikke ind på kørslens undersider. Her kan du se generelle statistikker omkring kørslen, og få en ide om hvor mange porer der er aktive. Tjek eventuelt at **Read length histogram** viser en nogenlunde symmetrisk fordeling omkring 540b. Under siden **Barcode hits** kan du se fordelingen af reads på de forskellige barcodes. Denne fordeling skulle gerne følge prøvernes CT-værdier eller Qubit-DNA-mængder.
+   4. Hvis du er tilfreds med kørslens statistikker, kan du starte **Pappenheim**-pipelinen. Pappenheim mapper de sekventerede reads til et SARS-CoV-2 referencegenom, således at vi på længere sigt kan kalde varianter. Pappenheim startes i terminalen og er udelukkende tekstbaseret. 
+      1. Før du starter pappenheim, skal du have et *sample sheet* i xlsx-format klar. Dette *sample sheet* skal som minimum indeholde to kolonner: **Barcode** og **Sample ID**. Det er ligemeget hvilken rækkefølge kolonnerne er i, og det er også ligemeget hvilke andre kolonner der er tilstede i dit *sample sheet*. Det eneste der er vigtigt er, at pappenheim får mulighed for at regne ud hvilke barcodes der passer sammen med hvilke prøver. Du kan overføre dit *sample sheet* til computeren enten ved at bruge et USB-stik eller ved at sende dig selv en mail og åbne den i computerens browser. Når du har dit *sample sheet* klar på computeren, er du klar til at fortsætte til næste trin:
+      2. Åbn et **Terminal**-vindue ved at klikke på **Terminal**-ikonet i venstre side af skærmen. Ikonet skulle gerne ligge under MinKNOW-ikonet. Hvis ikke du kan finde dette ikon, så tryk på windows-tasten (på tastaturet) og søg efter terminal.
+
+
+
+Hvis der opstår 
