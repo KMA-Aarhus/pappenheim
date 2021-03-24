@@ -79,28 +79,29 @@ Notice: You may have to restart the computer between some of these steps. Who kn
    
 3. Then map the guppy-gpu installation to the MinKNOWN guppy folder:
 
-     ```
-     sudo /opt/ont/minknow/bin/config_editor --conf application --filename /opt/ont/minknow/conf/app_conf \
-         --set guppy.server_executable="/path/to/guppy/bin/guppy_basecall_server" \
-         --set guppy.client_executable="/path/to/guppy/bin/guppy_basecall_client" \
-         --set guppy.gpu_calling=1 \
-         --set guppy.num_threads=3 \
-         --set guppy.ipc_threads=2
-     ```
+   ```
+   sudo /opt/ont/minknow/bin/config_editor --conf application --filename /opt/ont/minknow/conf/app_conf \
+       --set guppy.server_executable="/path/to/guppy/bin/guppy_basecall_server" \
+       --set guppy.client_executable="/path/to/guppy/bin/guppy_basecall_client" \
+       --set guppy.gpu_calling=1 \
+       --set guppy.num_threads=3 \
+       --set guppy.ipc_threads=2
+   ```
 
  Restart the minknow service or restart the computer, for minknow to register the changes. 
    
 NOTE: If the installation worked correctly, `Guppy basecaller server` should be reserving a part of the GPU card and Guppy should be recognised by MinKnow. If not, MinKnow will not commence sequencing and give `Internal error` after the flow cell has reached sequencing temperature. This issue is usually caused by software incompatibility  and can often be solved by installing a different version of Guppy.
 
-  4. Install Miniconda3:
-  ```
-  cd
-  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-  chmod +x Miniconda3-latest-Linux-x86_64.sh
-  ./Miniconda3-latest-Linux-x86_64.sh
-  ```
+4. Install Miniconda3:
+   
+    ```
+    cd
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    chmod +x Miniconda3-latest-Linux-x86_64.sh
+    ./Miniconda3-latest-Linux-x86_64.sh
+    ```
 
-  5. Install rampart by following the [official instructions](https://github.com/artic-network/rampart/blob/master/docs/installation.md#install-from-conda).
+5. Install rampart by following the [official instructions](https://github.com/artic-network/rampart/blob/master/docs/installation.md#install-from-conda).
 
    
 ### Miscellaneous
