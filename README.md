@@ -24,8 +24,8 @@ cd ~
 git clone https://github.com/KMA-Aarhus/pappenheim.git
 
 # Install snakemake using conda
+# If you wish to install the package NOT in the base environment, create an environment, activate it, and then run the following line.
 conda env update --file pappenheim/environment.yaml 
-# conda install -c conda-forge -c bioconda snakemake
 ```
 
 
