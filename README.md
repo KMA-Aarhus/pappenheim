@@ -19,7 +19,10 @@ chmod +x Miniconda3-latest-Linux-x86_64.sh
 Clone this repository and install snakemake
 
 ```
-cd 
+# install pappenheim in the home directory
+cd ~
+git clone git@github.com:KMA-Aarhus/pappenheim.git
+
 # Install snakemake using conda
 conda install -c conda-forge -c bioconda snakemake
 ```
