@@ -24,7 +24,7 @@ cd ~
 git clone https://github.com/KMA-Aarhus/pappenheim.git
 
 # Install snakemake using conda
-conda env update --file pappenheim/environment.yml 
+conda env update --file pappenheim/environment.yaml 
 # conda install -c conda-forge -c bioconda snakemake
 ```
 
