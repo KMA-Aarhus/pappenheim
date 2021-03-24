@@ -21,7 +21,7 @@ Clone this repository and install snakemake
 ```
 # install pappenheim in the home directory
 cd ~
-git clone git@github.com:KMA-Aarhus/pappenheim.git
+git clone https://github.com/KMA-Aarhus/pappenheim.git
 
 # Install snakemake using conda
 conda install -c conda-forge -c bioconda snakemake
