@@ -21,7 +21,7 @@ import glob
 monkey_mode = True
 
 # TODO: These variables should be set from the command line
-samplesheet = "testdata/5351_seq_2021-03-09_NEB.xlsx"
+samplesheet = "../testdata/5351_seq_2021-03-09_NEB.xlsx"
 rundir = "../../GenomeDK/clinmicrocore/BACKUP/nanopore_sarscov2/COVID19-AUH-20210316-NEB/rawdata/20210316_1259_MN34697_FAP10653_02939c92/"
 
 
