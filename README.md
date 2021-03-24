@@ -9,11 +9,13 @@ Pipeline til sekventering af SARS-CoV-2 på lokale workstations med realtidsbase
 
 
 Install conda by downloading and following the [instructions](https://docs.conda.io/en/latest/miniconda.html):
+We recommend to use mamba (instead of conda) for installing packages onto the miniconda environment system.
 ```
 cd
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 chmod +x Miniconda3-latest-Linux-x86_64.sh
 ./Miniconda3-latest-Linux-x86_64.sh
+conda install mamba -n base -c conda-forge
 ```
 
 Clone this repository and install snakemake
@@ -25,7 +27,7 @@ git clone https://github.com/KMA-Aarhus/pappenheim.git
 
 # Install snakemake using conda
 # If you wish to install the package NOT in the base environment, create an environment, activate it, and then run the following line.
-conda env update --file pappenheim/environment.yaml 
+mamba env update --file pappenheim/environment.yaml 
 ```
 
 
