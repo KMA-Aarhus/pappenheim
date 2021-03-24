@@ -1,6 +1,7 @@
 # Workstation setup
 
 ### Install Ubuntu LTS
+alias start_rampart='{ $(sleep 3; firefox localhost:3000) & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'
 
 1. Download latest Ubuntu LTS (long term support) ISO image
 2. Make a bootable Ubuntu USB stick.
