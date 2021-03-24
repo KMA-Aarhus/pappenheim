@@ -54,4 +54,11 @@ Ellers starter pipelinen og skulle gerne passe sig selv.
 
 Efterhånden som genomerne bliver behandlet kommer outputtet i en mappe ved navn "output".
 
+Der vil være en mappe med hvert isolat hvor der findes reads.
+Der vil være en pangolin batch-kørsel.
+Der vil være en nextclade batch-kørsel.
+
+Pangolin og Nextclade kørslerne vil blive integreret med input metadata, og uploades i sidste ende til GenomeDK serveren.
+På GenomeDK sker patientdata-integrationen, og derefter uploades hele baduljen til SSI.
+
 
