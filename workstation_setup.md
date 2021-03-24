@@ -42,27 +42,27 @@ NOTE: if black screen after restart, switch monitor cable ports.
 
 1. Check that the graphics driver is installed
 
-   ```
-   ubuntu-drivers devices
-   ```
+    ```
+    ubuntu-drivers devices
+    ```
 
 1.1. If not, then install drivers and reboot:
 
-   ```
-   sudo ubuntu-drivers autoinstall
-   ```
+    ```
+    sudo ubuntu-drivers autoinstall
+    ```
    
 2. Make sure the CUDA drivers are installed as well
 
-   ```
-   sudo apt install nvcc
-   ```
+    ```
+    sudo apt install nvcc
+    ```
 
 4. Check nvidia driver is working
 
-   ```
-   nvidia-smi
-   ```
+    ```
+    nvidia-smi
+    ```
 
 Notice: You may have to restart the computer between some of these steps. Who knows.
 
