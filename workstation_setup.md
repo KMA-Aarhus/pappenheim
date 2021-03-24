@@ -94,7 +94,7 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
 4. Install Miniconda3:
    
     ```
-    cd
+    cd ~
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
     chmod +x Miniconda3-latest-Linux-x86_64.sh
     ./Miniconda3-latest-Linux-x86_64.sh
