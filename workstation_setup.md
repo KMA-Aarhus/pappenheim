@@ -31,8 +31,12 @@ NOTE: if black screen after restart, switch monitor cable ports.
 
 1. Update Ubuntu packages by running the following command in a terminal:
    ```
+   # Update the OS and packages
    sudo apt update
    sudo apt upgrade
+   
+   # Install latest versions useful software:
+   sudo apt install git vim tree htop
    ```
 
 
@@ -115,10 +119,7 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
 
 Disable printer discovery: https://cirovladimir.wordpress.com/2019/02/11/ubuntu-18-04-disable-network-printer-auto-discovery/
 
-Install latest versions useful software:
-``` 
-sudo apt install git vim tree
-```
+
 
 Install miniconda 3
 
