@@ -101,6 +101,9 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
 
 5. Install rampart by following the [official instructions](https://github.com/artic-network/rampart/blob/master/docs/installation.md#install-from-conda).
 
+    * After following the install instructions, and checking that the install is successfull, add a QnD alias to the shell-environment.
+    ```
+    echo 
    
 ### Miscellaneous
 
@@ -118,8 +121,6 @@ Install sublime text https://www.sublimetext.com/3
 Install typora https://typora.io/
 
 
-Set an alias for starting rampart
-```alias start_rampart='{ sleep 5; firefox localhost:3000 & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'```
 
 
 
