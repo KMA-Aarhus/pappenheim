@@ -3,16 +3,17 @@
 ### Install Ubuntu LTS
 
 1. Download latest Ubuntu LTS (long term support) ISO image
-2. Make a bootable Ubuntu USB stick by following these instructions.
+2. Make a bootable Ubuntu USB stick.
 3. Turn off the workstation.
 4. Insert the bootable USB.
 5. Turn on the workstation and press `F12` until boot menu opens up.
 6. Choose the USB boot device from the boot menu to boot up with the Ubuntu installer.
 7. In the Ubuntu installer menu, choose `Install Ubuntu`.
-8. Language: English, keyboard layout: Danish with Win keys
+8. Language: English, keyboard layout: Danish.
 7. In the **Updates and other software window** choose `minimal installation` and `Download updates while installing Ubuntu`.
-8. In the **Installation type** window choose `Something else`.
-9. In the **Partition window** erase the two disks
+   * Select **Install third-party software for graphics [...]**
+9. In the **Installation type** window choose `Something else`.
+10. In the **Partition window** erase the two disks
    * Delete all of the old partitions on SSD and HDD. This will delete the windows installation.
    * SSD
      * Choose add on free space. Choose EFI under Use as, with 600 mb in size.
@@ -20,8 +21,8 @@
    * HDD (or second larger SSD)
      * Create partition which maps to /home using all space (location of users home directories). Same as ROOT partition, but mount point is `/home`
    * Click `Install now`.
-10. Set up a reasonable account. 
-11. Print a sticker of computer name and put it on the bottom frame in the front.
+11. Set up a reasonable account. 
+12. Print a sticker of computer name and put it on the bottom frame in the front.
 
 NOTE: if black screen after restart, switch monitor cable ports.
 
