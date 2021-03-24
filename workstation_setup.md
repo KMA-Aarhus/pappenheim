@@ -88,6 +88,7 @@ Notice: You may have to restart the computer between some of these steps. Who kn
          --set guppy.ipc_threads=2
      ```
 
+ Restart the minknow service or restart the computer, for minknow to register the changes. 
    
 NOTE: If the installation worked correctly, `Guppy basecaller server` should be reserving a part of the GPU card and Guppy should be recognised by MinKnow. If not, MinKnow will not commence sequencing and give `Internal error` after the flow cell has reached sequencing temperature. This issue is usually caused by software incompatibility  and can often be solved by installing a different version of Guppy.
 
