@@ -26,7 +26,7 @@ Når biblioteket er færdiglavet, og flowcellen skal til at pakkes ud, kan denne
       6. Vælg **Skip to end >>** og tjek at alle instillingerne er som på den printede seddel som hænger på skærmen (TODO: ikke printet i skrivende stund.)
       7. Tryk til sidst på **▶ Start**-knappen nede i højre hjørne.
       8. Gå nu ind i **Experiments** (venstre menu) og hold øje med **Run state** for den startede kørsel.
-      9. Du vil se følgende meddelelser: Heating to N degrees, Performing MUX scan, 
+      9. Du vil se meddelelserne: _Heating to N degrees_ og _Performing MUX scan_.
       10. Gå ind i **System messages (venstre menu)** og tjek at der ikke er nogle advarsler eller fejlmeddelelser. Hvis du ser en advarselsmeddelelse, er du meget velkommen til at skrive en mail til  carkob@rm.dk om problemet.
       11. Når **Run state** viser "Active", kan du klikke ind på kørslens undersider. Her kan du se generelle statistikker omkring kørslen, og få en ide om hvor mange porer der er aktive. Tjek eventuelt at **Read length histogram** viser en nogenlunde symmetrisk fordeling omkring 540b. Under siden **Barcode hits** kan du se fordelingen af reads på de forskellige barcodes. Denne fordeling skulle gerne følge prøvernes CT-værdier eller Qubit-DNA-mængder.
    4. Hvis du er tilfreds med kørslens statistikker, kan du starte **Pappenheim**-pipelinen. Pappenheim mapper de sekventerede reads til et SARS-CoV-2 referencegenom, således at vi på længere sigt kan kalde varianter. Pappenheim startes i terminalen og er udelukkende tekstbaseret. 
