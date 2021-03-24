@@ -1,4 +1,4 @@
-# Laboratorieinstruktioner
+# Laboratorieinstruktioner :)
 
 Når biblioteket er færdiglavet, og flowcellen skal til at pakkes ud, kan denne opskrift bruges til at starte selve sekventeringen. Hvis der opstår problemer, eller computeren opfører sig sært, kontakt da Carl på tlf. 5117 5719.
 
