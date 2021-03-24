@@ -104,6 +104,9 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
 
     * After following the install instructions, and checking that the install is successfull, add a QnD alias to the shell-environment.
     ```
+    mkdir -p ~/repos
+    cd ~/repos
+    git clone https://github.com/artic-network/artic-ncov2019.git
     echo "alias start_rampart='{ $(sleep 3; firefox localhost:3000) & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'" >> ~/.bashrc
     source ~/.bashrc
     ```
