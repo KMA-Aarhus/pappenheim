@@ -17,9 +17,8 @@ Når biblioteket er færdiglavet, og flowcellen skal til at pakkes ud, kan denne
       1. Verificer, at USB3-A enden er isat i et "SuperSpeed" (SS) stik i computeren.
    2. Åbn **MinKNOW** igen, som vi tidligere brugte til at lave flow-cellecheck med.
    3. Vælg **Start** og derefter **Start sequencing**.
-    
       1. På side **1. Positions** skrives `YYYY-MM-DD` (fx `2021-03-15`) i **Experiment name**-feltet.
-      2.    Da det tager mindst et døgn at køre et en sekventering, er der ikke fare for duplikater, og det er derfor tilstrækkeligt at bruge datoen alene, som batch-identifikation. 
+         2. Da det tager mindst et døgn at køre et en sekventering, er der ikke fare for duplikater, og det er derfor tilstrækkeligt at bruge datoen alene, som batch-identifikation. 
          
       3. Verificer at der i **Positions**-tabellen står "FLO-MIN106" under **Flow cell type**
       4. Feltet **Sample ID** skal forblive tomt.
