@@ -1,6 +1,0 @@
-sudo /opt/ont/minknow/bin/config_editor --conf application --filename /opt/ont/minknow/conf/app_conf \
-    --set guppy.server_executable="/usr/bin/ont-guppy_4.3.4_linux64/ont-guppy/bin/guppy_basecall_server" \
-    --set guppy.client_executable="/usr/bin/ont-guppy_4.3.4_linux64/ont-guppy/bin/guppy_basecall_client" \
-    --set guppy.gpu_calling=1 \
-    --set guppy.num_threads=3 \
-    --set guppy.ipc_threads=2
