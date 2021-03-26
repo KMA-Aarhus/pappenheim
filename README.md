@@ -24,7 +24,9 @@ Pipeline til sekventering af SARS-CoV-2 på lokale workstations med realtidsbase
     ```
     # install pappenheim in the home directory
     cd ~
-    git clone https://github.com/KMA-Aarhus/pappenheim.git
+    
+    # Make sure you clone recursively, in order for the artic submodule to be included in the download.
+    git clone --recurse-submodules https://github.com/KMA-Aarhus/pappenheim.git 
 
     # Install snakemake using conda
     # If you wish to install the package NOT in the base environment, create an environment, activate it, before running the following line:
