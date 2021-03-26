@@ -29,7 +29,7 @@ samplesheet = "../testdata/5351_seq_2021-03-09_NEB.xlsx"
 rundir = "../../GenomeDK/clinmicrocore/BACKUP/nanopore_sarscov2/COVID19-AUH-20210316-NEB/rawdata/20210316_1259_MN34697_FAP10653_02939c92/"
 rundir = "../testdata"
 
-# This variable should be given in the config
+# TODO: These variables should be given in the config
 
 
 
@@ -39,6 +39,14 @@ rundir = "../testdata"
 tab = "\t"
 nl = "\n"
 batch_date_identifier = datetime.now().strftime('pap%Y%m%dT%H%M')
+
+
+
+# This will make your code slower
+def lag(time_ = 0.06):
+    time.sleep(time_)
+
+# Print a convincing logo
 print()
 print("Pappenheim pipeline")
 print(" ", batch_date_identifier)
@@ -52,7 +60,7 @@ print("   ███          ███    ███   ███          ██�
 print("   ███          ███    ███   ███          ███          ███    ███ ███   ███   ███    ███     ███    ███ ███  ███   ███   ███ ")
 print("  ▄████▀        ███    █▀   ▄████▀       ▄████▀        ██████████  ▀█   █▀    ███    █▀      ██████████ █▀    ▀█   ███   █▀  ")
 print()                                                                                                                            
-print(f" These are the parameters given")
+print(f" These are the parameters given:")
 print(f"   samplesheet: {samplesheet}")
 print(f"        rundir: {rundir}")
 print()
@@ -60,14 +68,16 @@ print()
 
 def check_user(prompt):
     input_OK = input(f"{prompt} [y/n]: ")
-    print(f"User entered {input_OK}: ", end = "", flush = True)
+    print(f"User entered \"{input_OK}\": ", end = "", flush = True)
     #sys.stdin.read(1)
     if not str(input_OK).lower()[0:1] == "y":
-        print("Exit ...")
+        print("Exiting ...")
         print(f"Hint: Press <uparrow> <enter> to rerun this pipeline with the same input files.")
         exit(1)
 
     print("Proceeding ...")
+
+
 
 
 ##########################
@@ -113,7 +123,8 @@ else:
     raise Exception(f"The spreadsheet file extension {samplesheet_extension} is not yet implemented.")
 
 # Clean up the spreadsheet
-print("Cleaning sample sheet ... ", end = "", flush = True)
+print("Cleaning sample sheet ...                              ", end = "", flush = True)
+lag()
 df.columns = map(str.lower, df.columns) # Lowercase
 df.columns = map(str.strip, df.columns) # Remove edge-spaces
 df.columns = map(lambda x: str(x).replace(" ", "_"), df.columns) # Replace spaces with underscore
@@ -122,16 +133,19 @@ print("OK")
 
 #print("ee", "barcode" in list(df.columns))
 # Check that the spreadsheet complies
-print("Checking that the necessary columns exist ... ", end = "", flush = True)
+print("Checking that the necessary columns exist ...          ", end = "", flush = True)
+lag()
 for i in ["barcode", "sample_id"]:
     if not i in df.columns:
         raise Exception(f"The sample sheet is missing a necessary column. The sample sheet must contain the column {i}, but it only contains {df.columns.tolist()}")
 print("OK")
 
-# TODO: Save the df to diskfor later integration with patient data etc.
-print("Backing up the sample sheet for later use ... TODO (Not implemented yet)")
 
-print("Minimizing sample sheet ... ", end = "", flush = True)
+
+
+
+print("Minimizing sample sheet ...                            ", end = "", flush = True)
+lag()
 df_mini = df[["barcode", "sample_id"]] # Select the only necessary columns
 df_mini = df_mini.dropna(how='all') # Drop the rows where all elements are missing.
 df_mini = df_mini.apply(np.vectorize(lambda x: str(x).strip().replace(" ", "_"))) # strip whitespace and replace spaces with underscores.
@@ -143,6 +157,7 @@ acceptable_barcodes = [f"NB{i:02d}" for i in range(1,25)]
 nl, tab = "\n", "\t"
 
 print("Checking that the barcodes are correctly formatted ... ", end = "", flush = True)
+lag()
 for i in df_mini["barcode"]:
     #print("checking", i)
     if not i in acceptable_barcodes: 
@@ -150,7 +165,8 @@ for i in df_mini["barcode"]:
 print("OK")
 
 
-print("Checking that the barcodes are unique ... ", end = "", flush = True)
+print("Checking that the barcodes are unique ...              ", end = "", flush = True)
+lag()
 if not len(df_mini["barcode"]) == len(set(df_mini["barcode"])):
     counts = pd.DataFrame(df_mini['barcode'].value_counts())
     counts.columns = ["count"]
@@ -170,12 +186,13 @@ df_mini = df_mini.assign(type = ['positive_control' if a.lower().startswith("seq
 #df_mini = df_mini.assign(type = lambda x: (x*10 if x<2 else (x**2 if x<4 else x+10)
 
 print()
+print("These are the samples from the samplesheet you have given:")
 print(df_mini.to_string(index = False))
 print("//")
 print()
 
 if not monkey_mode:
-    check_user("These are the samples you have given. Do you wish to proceed?")
+    check_user("Do you wish to proceed?")
 
 
 
