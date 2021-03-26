@@ -11,6 +11,9 @@ import numpy as np
 from pandas_ods_reader import read_ods
 from datetime import datetime
 import glob
+import time
+
+
 
 
 
@@ -19,11 +22,15 @@ import glob
 #from shutil import copyfile
 #import re
 
-monkey_mode = True
+monkey_mode = False
 
 # TODO: These variables should be set from the command line
 samplesheet = "../testdata/5351_seq_2021-03-09_NEB.xlsx"
 rundir = "../../GenomeDK/clinmicrocore/BACKUP/nanopore_sarscov2/COVID19-AUH-20210316-NEB/rawdata/20210316_1259_MN34697_FAP10653_02939c92/"
+rundir = "../testdata"
+
+# This variable should be given in the config
+
 
 
 
@@ -36,12 +43,31 @@ print()
 print("Pappenheim pipeline")
 print(" ", batch_date_identifier)
 print()
+print("    ▄███████▄    ▄████████    ▄███████▄    ▄███████▄    ▄████████ ███▄▄▄▄      ▄█    █▄       ▄████████  ▄█    ▄▄▄▄███▄▄▄▄   ")
+print("   ███    ███   ███    ███   ███    ███   ███    ███   ███    ███ ███▀▀▀██▄   ███    ███     ███    ███ ███  ▄██▀▀▀███▀▀▀██▄ ")
+print("   ███    ███   ███    ███   ███    ███   ███    ███   ███    █▀  ███   ███   ███    ███     ███    █▀  ███▌ ███   ███   ███ ")
+print("   ███    ███   ███    ███   ███    ███   ███    ███  ▄███▄▄▄     ███   ███  ▄███▄▄▄▄███▄▄  ▄███▄▄▄     ███▌ ███   ███   ███ ")
+print(" ▀█████████▀  ▀███████████ ▀█████████▀  ▀█████████▀  ▀▀███▀▀▀     ███   ███ ▀▀███▀▀▀▀███▀  ▀▀███▀▀▀     ███▌ ███   ███   ███ ")
+print("   ███          ███    ███   ███          ███          ███    █▄  ███   ███   ███    ███     ███    █▄  ███  ███   ███   ███ ")
+print("   ███          ███    ███   ███          ███          ███    ███ ███   ███   ███    ███     ███    ███ ███  ███   ███   ███ ")
+print("  ▄████▀        ███    █▀   ▄████▀       ▄████▀        ██████████  ▀█   █▀    ███    █▀      ██████████ █▀    ▀█   ███   █▀  ")
+print()                                                                                                                            
 print(f" These are the parameters given")
-print(f"  samplesheet: {samplesheet}")
-print(f"  rundir: {rundir}")
+print(f"   samplesheet: {samplesheet}")
+print(f"        rundir: {rundir}")
 print()
 
 
+def check_user(prompt):
+    input_OK = input(f"{prompt} [y/n]: ")
+    print(f"User entered {input_OK}: ", end = "", flush = True)
+    #sys.stdin.read(1)
+    if not str(input_OK).lower()[0:1] == "y":
+        print("Exit ...")
+        print(f"Hint: Press <uparrow> <enter> to rerun this pipeline with the same input files.")
+        exit(1)
+
+    print("Proceeding ...")
 
 
 ##########################
@@ -51,7 +77,7 @@ print()
 
 
 samplesheet_extension = samplesheet.split(".")[-1]
-print(f"Reading .{samplesheet_extension}-type sample sheet \"{samplesheet}\":")
+print(f"Reading .{samplesheet_extension}-type sample sheet \"{samplesheet}\"")
 if samplesheet_extension == "ods":
 
     raise Exception(f"The spreadsheet file extension {samplesheet_extension} is not yet implemented.")
@@ -78,7 +104,7 @@ elif samplesheet_extension == "xlsx":
     #raise Exception(f"The spreadsheet file extension {samplesheet_extension} is not yet implemented.")
     # ValueError in line 61 of /Users/carkob/repos/pappenheim/Snakefile:
     # Your version of xlrd is 2.0.1. In xlrd >= 2.0, only the xls format is supported. Install openpyxl instead.
-    df = pd.read_excel(samplesheet)
+    df = pd.read_excel(samplesheet, dtype = str)
 
 elif samplesheet_extension == "xls":
     df = pd.read_excel(samplesheet)
@@ -91,6 +117,7 @@ print("Cleaning sample sheet ... ", end = "", flush = True)
 df.columns = map(str.lower, df.columns) # Lowercase
 df.columns = map(str.strip, df.columns) # Remove edge-spaces
 df.columns = map(lambda x: str(x).replace(" ", "_"), df.columns) # Replace spaces with underscore
+df = df.dropna(subset = ["sample_id"])# remove rows not containing a sample ID
 print("OK")
 
 #print("ee", "barcode" in list(df.columns))
@@ -132,7 +159,15 @@ if not len(df_mini["barcode"]) == len(set(df_mini["barcode"])):
     raise Exception(f"{nl}One or more barcodes are duplicated. Each barcode may only be used once:{nl}{counts}")
 print("OK")
 
+print("Marking sample-types following these definitions:")
+print("  positive_control: the sample_id must start with \"SEQPOS\" (case insensitive).")
+print("  negative_control: the sample_id must end with \"NEG\" (case insensitive).")
 
+
+#print(df["sample_id"].slower())
+df_mini = df_mini.assign(type = ['positive_control' if a.lower().startswith("seqpos") else ('negative_control' if a.lower().endswith("neg") else 'sample') for a in df['sample_id']])
+
+#df_mini = df_mini.assign(type = lambda x: (x*10 if x<2 else (x**2 if x<4 else x+10)
 
 print()
 print(df_mini.to_string(index = False))
@@ -140,15 +175,7 @@ print("//")
 print()
 
 if not monkey_mode:
-    input_OK_1 = input("Is everything OK? [y/n]: ")
-    print(f"User entered {input_OK_1}: ", end = "", flush = True)
-    #sys.stdin.read(1)
-    if not str(input_OK_1).lower()[0:1] == "y":
-        print("Exit ...")
-        print(f"Hint: Press <uparrow> <enter> to rerun this pipeline with the same input files.")
-        exit(1)
-
-    print("Proceeding ...")
+    check_user("These are the samples you have given. Do you wish to proceed?")
 
 
 
@@ -163,7 +190,7 @@ if not monkey_mode:
 # If it doesn't occur after a specified waiting time, then stop the p
 
 if rundir[-1] == "/":
-    print("Removing trailing backslash from rundir")
+    print("Removing trailing slash from rundir")
     rundir = rundir[0:-1]
 
 
@@ -173,11 +200,61 @@ if not os.path.isdir(rundir):
 print("OK")
 
 
-print(f"Looking for files in rundir: {rundir}")
-
-print(glob.glob(rundir + "/*"))
+print(f"Looking for MinKNOW-characteristic output:") #, end = "", flush = True)
 
 
+for i in range(200):
+    print("  Looking ... ", end = "", flush = True)
+    fastq_pass_bases = glob.glob(rundir + "/**/fastq_pass", recursive = True) # Find any occurrence of the wanted path
+    if len(fastq_pass_bases) == 0:
+        print("nothing found yet, waiting 10 secs ...")
+        time.sleep(10)
+    elif(i == 10):
+        print() # clean newline
+        raise Exception("nothing found after 10 tries. Aborting.")
+    else: 
+        print(f"Found the sought after output.")
+        break
+
+print("")
+
+if not len(fastq_pass_bases) == 1:
+    raise Exception(f"There seems to be more than one fastq_pass sub-directory beneath the given rundir. These paths were found: {nl.join(fastq_pass_bases)}")
+
+fastq_pass_base = fastq_pass_bases[0]
+del fastq_pass_bases
+print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}  This will be regarded as the input_base directory from now on.")
+print()
+
+sample_sheet_given_file = f"{fastq_pass_base}/../sample_sheet_given.tsv"
+print(f"Backing up the original sample sheet in this location: {sample_sheet_given_file}")
+df.to_csv(sample_sheet_given_file, sep = "\t")
+
+
+print("Listing barcodes present on the disk:")
+disk_barcodes_list  = sorted(glob.glob(fastq_pass_base + "/barcode*")) # Find all fastq_pass/barcode* directories
+disk_barcodes_df = pd.DataFrame({'barcode_path': disk_barcodes_list})
+
+#df_mini = df_mini.assign(type = ['positive_control' if a.lower().startswith("seqpos") else ('negative_control' if a.lower().endswith("neg") else 'sample') for a in df['sample_id']])
+disk_barcodes_df = disk_barcodes_df.assign(barcode = ["NB" + i[-2:] for i in disk_barcodes_df["barcode_path"]])
+
+
+
+print("Continuing with these barcodes:")
+
+workflow_table = disk_barcodes_df.merge(df_mini, how='left', on='barcode') # left join (merge) the present barcodes onto the df_mini table.
+
+
+print(workflow_table.to_string(index = False))
+print("//")
+print()
+
+
+
+
+
+if not monkey_mode:
+    check_user("This is the samples found on disk that matches your input. Do you wish to proceed?")
 
 
 #input_continue = input("continue? (y/n) ")
@@ -187,6 +264,9 @@ print(glob.glob(rundir + "/*"))
 
 
 # Create the dirs
+
+
+raise Exception("limit")
 
 try:
     os.mkdir(out_base_var)
