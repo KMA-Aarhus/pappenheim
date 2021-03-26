@@ -1,5 +1,6 @@
 
 __author__ = "Carl Mathias Kobel"
+__version__ = "0.1"
 # snakemake --samplesheet path/to/samplesheet.ods --rundir path/to/minknowoutput/
 
 import sys
@@ -13,8 +14,11 @@ from datetime import datetime
 import glob
 import time
 
+terminal_rows, terminal_columns = os.popen('stty size', 'r').read().split()
 
 
+if int(terminal_columns) < 125:
+    print("Warning: Please increase your terminal window width.")
 
 
 #import time
@@ -46,10 +50,10 @@ batch_date_identifier = datetime.now().strftime('pap%Y%m%dT%H%M')
 def lag(time_ = 0.06):
     time.sleep(time_)
 
+
 # Print a convincing logo
 print()
-print("Pappenheim pipeline")
-print(" ", batch_date_identifier)
+print(f"          Pappenheim pipeline v{__version__}  -  Aarhus Universityhospital  -  Department of Clinical Microbiology          ")
 print()
 print("    ▄███████▄    ▄████████    ▄███████▄    ▄███████▄    ▄████████ ███▄▄▄▄      ▄█    █▄       ▄████████  ▄█    ▄▄▄▄███▄▄▄▄   ")
 print("   ███    ███   ███    ███   ███    ███   ███    ███   ███    ███ ███▀▀▀██▄   ███    ███     ███    ███ ███  ▄██▀▀▀███▀▀▀██▄ ")
@@ -60,14 +64,16 @@ print("   ███          ███    ███   ███          ██�
 print("   ███          ███    ███   ███          ███          ███    ███ ███   ███   ███    ███     ███    ███ ███  ███   ███   ███ ")
 print("  ▄████▀        ███    █▀   ▄████▀       ▄████▀        ██████████  ▀█   █▀    ███    █▀      ██████████ █▀    ▀█   ███   █▀  ")
 print()                                                                                                                            
-print(f" These are the parameters given:")
-print(f"   samplesheet: {samplesheet}")
-print(f"        rundir: {rundir}")
+print(f"                                      Press ctrl+c at anytime to stop this pipeline.")
+print()
+print(f"These are the parameters given:")
+print(f"  samplesheet: {samplesheet}")
+print(f"  rundir: {rundir}")
 print()
 
 
 def check_user(prompt):
-    input_OK = input(f"{prompt} [y/n]: ")
+    input_OK = input(f"{prompt} [y/n]: ").strip()
     print(f"User entered \"{input_OK}\": ", end = "", flush = True)
     #sys.stdin.read(1)
     if not str(input_OK).lower()[0:1] == "y":
@@ -111,9 +117,7 @@ if samplesheet_extension == "ods":
 
 
 elif samplesheet_extension == "xlsx":
-    #raise Exception(f"The spreadsheet file extension {samplesheet_extension} is not yet implemented.")
-    # ValueError in line 61 of /Users/carkob/repos/pappenheim/Snakefile:
-    # Your version of xlrd is 2.0.1. In xlrd >= 2.0, only the xls format is supported. Install openpyxl instead.
+    # Uses openpyxl
     df = pd.read_excel(samplesheet, dtype = str)
 
 elif samplesheet_extension == "xls":
@@ -129,7 +133,7 @@ df.columns = map(str.lower, df.columns) # Lowercase
 df.columns = map(str.strip, df.columns) # Remove edge-spaces
 df.columns = map(lambda x: str(x).replace(" ", "_"), df.columns) # Replace spaces with underscore
 df = df.dropna(subset = ["sample_id"])# remove rows not containing a sample ID
-print("OK")
+print("✓")
 
 #print("ee", "barcode" in list(df.columns))
 # Check that the spreadsheet complies
@@ -138,7 +142,7 @@ lag()
 for i in ["barcode", "sample_id"]:
     if not i in df.columns:
         raise Exception(f"The sample sheet is missing a necessary column. The sample sheet must contain the column {i}, but it only contains {df.columns.tolist()}")
-print("OK")
+print("✓")
 
 
 
@@ -149,7 +153,7 @@ lag()
 df_mini = df[["barcode", "sample_id"]] # Select the only necessary columns
 df_mini = df_mini.dropna(how='all') # Drop the rows where all elements are missing.
 df_mini = df_mini.apply(np.vectorize(lambda x: str(x).strip().replace(" ", "_"))) # strip whitespace and replace spaces with underscores.
-print("OK")
+print("✓")
 
 
 acceptable_barcodes = [f"NB{i:02d}" for i in range(1,25)]
@@ -162,7 +166,7 @@ for i in df_mini["barcode"]:
     #print("checking", i)
     if not i in acceptable_barcodes: 
         raise Exception(f"The given barcode \'{i}\' is not an acceptable barcode. Here is a list of acceptable barcodes for inspiration: {' '.join(acceptable_barcodes)}")
-print("OK")
+print("✓")
 
 
 print("Checking that the barcodes are unique ...              ", end = "", flush = True)
@@ -173,7 +177,7 @@ if not len(df_mini["barcode"]) == len(set(df_mini["barcode"])):
     counts = counts[counts["count"] > 1]
     #print(nl, counts)
     raise Exception(f"{nl}One or more barcodes are duplicated. Each barcode may only be used once:{nl}{counts}")
-print("OK")
+print("✓")
 
 print("Marking sample-types following these definitions:")
 print("  positive_control: the sample_id must start with \"SEQPOS\" (case insensitive).")
@@ -199,9 +203,9 @@ if not monkey_mode:
 
 
 
-################
-# Check rundir #
-################
+###################
+# Validate rundir #
+###################
 
 # Wait for the rundir to occur in the specified path. 
 # If it doesn't occur after a specified waiting time, then stop the p
@@ -211,10 +215,10 @@ if rundir[-1] == "/":
     rundir = rundir[0:-1]
 
 
-print("Checking that the rundir exists ... ", end = "", flush = True)
+print("Checking that the rundir exists ...                    ", end = "", flush = True)
 if not os.path.isdir(rundir):
     raise Exception(f"The rundir does not exist.")
-print("OK")
+print("✓")
 
 
 print(f"Looking for MinKNOW-characteristic output:") #, end = "", flush = True)
@@ -230,10 +234,10 @@ for i in range(200):
         print() # clean newline
         raise Exception("nothing found after 10 tries. Aborting.")
     else: 
-        print(f"Found the sought after output.")
+        print(f"                                         ✓")
         break
 
-print("")
+
 
 if not len(fastq_pass_bases) == 1:
     raise Exception(f"There seems to be more than one fastq_pass sub-directory beneath the given rundir. These paths were found: {nl.join(fastq_pass_bases)}")
@@ -241,14 +245,15 @@ if not len(fastq_pass_bases) == 1:
 fastq_pass_base = fastq_pass_bases[0]
 del fastq_pass_bases
 print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}  This will be regarded as the input_base directory from now on.")
-print()
+
 
 sample_sheet_given_file = f"{fastq_pass_base}/../sample_sheet_given.tsv"
-print(f"Backing up the original sample sheet in this location: {sample_sheet_given_file}")
+print(f"Backing up the original sample sheet                  ", end = "", flush = True)
 df.to_csv(sample_sheet_given_file, sep = "\t")
+print("✓")
 
+print()
 
-print("Listing barcodes present on the disk:")
 disk_barcodes_list  = sorted(glob.glob(fastq_pass_base + "/barcode*")) # Find all fastq_pass/barcode* directories
 disk_barcodes_df = pd.DataFrame({'barcode_path': disk_barcodes_list})
 
@@ -262,7 +267,7 @@ print("Continuing with these barcodes:")
 workflow_table = disk_barcodes_df.merge(df_mini, how='left', on='barcode') # left join (merge) the present barcodes onto the df_mini table.
 
 
-print(workflow_table.to_string(index = False))
+print(workflow_table[["barcode", "sample_id", "type"]].to_string(index = False))
 print("//")
 print()
 
@@ -271,16 +276,21 @@ print()
 
 
 if not monkey_mode:
-    check_user("This is the samples found on disk that matches your input. Do you wish to proceed?")
+    check_user("These are the samples found on disk that match your input. Do you wish to proceed?")
 
 
-#input_continue = input("continue? (y/n) ")
-#if not input_continue.lower()[0] == "y":
-#    exit("Quitting ...")
-#
 
 
-# Create the dirs
+#########################################
+# Finally we can run the artic protocol #
+#########################################
+
+
+
+
+
+
+
 
 
 raise Exception("limit")
