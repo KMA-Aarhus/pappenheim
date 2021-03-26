@@ -12,7 +12,7 @@ Pipeline til sekventering af SARS-CoV-2 på lokale workstations med realtidsbase
 
     We recommend to use mamba (instead of conda) for installing packages onto the miniconda environment system.
     ```
-    cd
+    cd ~
     wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
     chmod +x Miniconda3-latest-Linux-x86_64.sh
     ./Miniconda3-latest-Linux-x86_64.sh
