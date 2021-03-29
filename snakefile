@@ -258,7 +258,7 @@ for i in range(200):
         print() # clean newline
         raise Exception("nothing found after 10 tries. Aborting.")
     else: 
-        print(f"                                         ✓")
+        print(f" found                                   ✓")
         break
 
 
