@@ -36,7 +36,7 @@ NOTE: if black screen after restart, switch monitor cable ports.
    sudo apt upgrade
    
    # Install latest versions useful software:
-   sudo apt install git vim tree htop
+   sudo apt install git vim tree htop libreoffice
    ```
 
 
@@ -111,9 +111,15 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
     mkdir -p ~/repos
     cd ~/repos
     git clone https://github.com/artic-network/artic-ncov2019.git
-    echo "alias start_rampart='{ $(sleep 3; firefox localhost:3000) & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'" >> ~/.bashrc
-    source ~/.bashrc
+    echo "alias start_rampart='{ $(sleep 3; firefox localhost:3000) & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'" >> ~/.bashrc && source ~/.bashrc
     ```
+    
+6. Install the Pappenheim pipeline according to its [instructions](https://github.com/KMA-Aarhus/pappenheim#installation)
+   * Add the following bash alias:
+   ```
+   echo "alias pappenheim='cd ~/pappenheim && snakemake --profile default --config'" >> ~/.bashrc && source ~/.bashrc
+   ```
+   
    
 ### Miscellaneous
 
@@ -133,5 +139,11 @@ Install typora https://typora.io/
 
 Consider holding the current version of minion/minknow. This will make sure that no incompatibilities can arise when apt does automatic updates in the background.
 ```
-sudo apt-mark hold minion-nc
+~/pappenheim/workstation_setup/minknow_hold.sh 
+
+# Reverse above script with the following:
+# ~/pappenheim/workstation_setup/minknow_auto.sh 
+
+
+
 ```
