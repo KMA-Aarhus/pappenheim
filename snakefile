@@ -277,15 +277,14 @@ print(f"This is the batch base directory:{nl}  {base_dir}")
 
 
 
-out_base = os.path.join(base_dir, "output")
-print("ob", out_base)
+out_base = os.path.join(base_dir, "output") # out_base is the directory where the pipeline will write its output to.
 
 
 
 # Check that the sequence_summary.txt file exists. If it doesn't, we won't be able to polish the assemblies.
 #if not os.path.isfile(fastq_pass_base + "/../sequence_"):
 print("Checking that the sequencing_summary_*.txt-file has been written to disk ... ", end = "", flush = True)
-sequencing_summary_file = glob.glob(base_dir + "/../sequencing_summary_*.txt")
+sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
 if len(sequencing_summary_file) == 0:
     raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
 sequencing_summary_file = sequencing_summary_file[0]
