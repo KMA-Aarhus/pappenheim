@@ -30,7 +30,7 @@ if int(terminal_columns) < 125:
 development_mode = True
 
 
-
+configfile: "config.yaml"
 print(config["samplesheet"])
 
 # TODO: These variables should be set from the command line
