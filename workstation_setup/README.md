@@ -134,5 +134,11 @@ Install typora https://typora.io/
 
 Consider holding the current version of minion/minknow. This will make sure that no incompatibilities can arise when apt does automatic updates in the background.
 ```
-sudo apt-mark hold minion-nc
+~/pappenheim/workstation_setup/minknow_hold.sh 
+
+# Reverse above script with the following:
+# ~/pappenheim/workstation_setup/minknow_auto.sh 
+
+
+
 ```
