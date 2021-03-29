@@ -119,13 +119,14 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
    ```
    echo 'start_pappenheim () {
     if [ -z $1 ]; then
-        echo "the samplesheet argument is empty" && exit 1
+        echo "The samplesheet argument is empty. Please specify a samplesheet."
+    elif [ -z $2 ]; then
+        echo "The rundir argument is empty. Please specify a rundir."
+    else
+
+        clear
+        cd ~/pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" && echo "pappenheim finished successfully."
     fi
-    if [ -z $2 ]; then
-        echo "the rundir argument is empty" && exit 1
-    fi
-    clear
-    cd ~/pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" && echo "pappenheim finished successfully."
    }' >> ~/.bashrc && source ~/.bashrc
    
    
