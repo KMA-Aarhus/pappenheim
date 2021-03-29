@@ -117,7 +117,11 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
 6. Install the Pappenheim pipeline according to its [instructions](https://github.com/KMA-Aarhus/pappenheim#installation)
    * Add the following bash alias:
    ```
-   echo "alias pappenheim='cd ~/pappenheim && snakemake --profile default --config'" >> ~/.bashrc && source ~/.bashrc
+   echo 'start_pappenheim () {
+    clear
+    cd ~/pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" && echo "pappenheim finished successfully."
+   }' >> ~/.bashrc && source ~/.bashrc
+   
    ```
    
    
