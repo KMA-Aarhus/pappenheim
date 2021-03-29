@@ -313,7 +313,7 @@ disk_barcodes_df = disk_barcodes_df.assign(barcode = ["NB" + i[-2:] for i in dis
 print("Continuing with the following barcodes:")
 
 workflow_table = disk_barcodes_df.merge(df_mini, how='left', on='barcode') # left join (merge) the present barcodes onto the df_mini table.
-
+workflow_table = workflow_table.dropna(subset = ["sample_id"])
 
 #print(workflow_table[["barcode", "sample_id", "type"]].to_string(index = False))
 print(workflow_table)
