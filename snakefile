@@ -26,46 +26,72 @@ if int(terminal_columns) < 125:
 #from shutil import copyfile
 #import re
 
-monkey_mode = False
+# When development_mode is True, the development cycle (frequency) is increased.
+development_mode = True
+
+
+configfile: "config.yaml"
+print(config["samplesheet"])
 
 # TODO: These variables should be set from the command line
 samplesheet = "../testdata/5351_seq_2021-03-09_NEB.xlsx"
 rundir = "../../GenomeDK/clinmicrocore/BACKUP/nanopore_sarscov2/COVID19-AUH-20210316-NEB/rawdata/20210316_1259_MN34697_FAP10653_02939c92/"
 rundir = "../testdata"
 
+
+# Actually given on the command line:
+samplesheet = config["samplesheet"]
+rundir = config["rundir"]
+
 # TODO: These variables should be given in the config
-
-
+out_base = "development_test_output"
 
 
 
 
 tab = "\t"
 nl = "\n"
-batch_date_identifier = datetime.now().strftime('pap%Y%m%dT%H%M')
+batch_id = datetime.now().strftime('pap%Y%m%dT%H%M')
+batch_id = datetime.now().strftime('pap%Y%m%d')
+
+#batch_id = "today"
+
 
 
 
 # This will make your code slower
 def lag(time_ = 0.06):
-    time.sleep(time_)
+    if development_mode:
+        pass
+    else:
+        time.sleep(time_)
 
 
 # Print a convincing logo
 print()
 print(f"          Pappenheim pipeline v{__version__}  -  Aarhus Universityhospital  -  Department of Clinical Microbiology          ")
-print()
-print("    ▄███████▄    ▄████████    ▄███████▄    ▄███████▄    ▄████████ ███▄▄▄▄      ▄█    █▄       ▄████████  ▄█    ▄▄▄▄███▄▄▄▄   ")
-print("   ███    ███   ███    ███   ███    ███   ███    ███   ███    ███ ███▀▀▀██▄   ███    ███     ███    ███ ███  ▄██▀▀▀███▀▀▀██▄ ")
-print("   ███    ███   ███    ███   ███    ███   ███    ███   ███    █▀  ███   ███   ███    ███     ███    █▀  ███▌ ███   ███   ███ ")
-print("   ███    ███   ███    ███   ███    ███   ███    ███  ▄███▄▄▄     ███   ███  ▄███▄▄▄▄███▄▄  ▄███▄▄▄     ███▌ ███   ███   ███ ")
-print(" ▀█████████▀  ▀███████████ ▀█████████▀  ▀█████████▀  ▀▀███▀▀▀     ███   ███ ▀▀███▀▀▀▀███▀  ▀▀███▀▀▀     ███▌ ███   ███   ███ ")
-print("   ███          ███    ███   ███          ███          ███    █▄  ███   ███   ███    ███     ███    █▄  ███  ███   ███   ███ ")
-print("   ███          ███    ███   ███          ███          ███    ███ ███   ███   ███    ███     ███    ███ ███  ███   ███   ███ ")
-print("  ▄████▀        ███    █▀   ▄████▀       ▄████▀        ██████████  ▀█   █▀    ███    █▀      ██████████ █▀    ▀█   ███   █▀  ")
+#print()
+#print("    ▄███████▄    ▄████████    ▄███████▄    ▄███████▄    ▄████████ ███▄▄▄▄      ▄█    █▄       ▄████████  ▄█    ▄▄▄▄███▄▄▄▄   ")
+#print("   ███    ███   ███    ███   ███    ███   ███    ███   ███    ███ ███▀▀▀██▄   ███    ███     ███    ███ ███  ▄██▀▀▀███▀▀▀██▄ ")
+#print("   ███    ███   ███    ███   ███    ███   ███    ███   ███    █▀  ███   ███   ███    ███     ███    █▀  ███▌ ███   ███   ███ ")
+#print("   ███    ███   ███    ███   ███    ███   ███    ███  ▄███▄▄▄     ███   ███  ▄███▄▄▄▄███▄▄  ▄███▄▄▄     ███▌ ███   ███   ███ ")
+#print(" ▀█████████▀  ▀███████████ ▀█████████▀  ▀█████████▀  ▀▀███▀▀▀     ███   ███ ▀▀███▀▀▀▀███▀  ▀▀███▀▀▀     ███▌ ███   ███   ███ ")
+#print("   ███          ███    ███   ███          ███          ███    █▄  ███   ███   ███    ███     ███    █▄  ███  ███   ███   ███ ")
+#print("   ███          ███    ███   ███          ███          ███    ███ ███   ███   ███    ███     ███    ███ ███  ███   ███   ███ ")
+#print("  ▄████▀        ███    █▀   ▄████▀       ▄████▀        ██████████  ▀█   █▀    ███    █▀      ██████████ █▀    ▀█   ███   █▀  ")
 print()                                                                                                                            
-print(f"                                      Press ctrl+c at anytime to stop this pipeline.")
+print(f"                                      Press ctrl+c at any time to stop this pipeline.")
 print()
+
+
+
+# Check that input was given.
+if config["samplesheet"] == "NA":
+    raise Exception("No samplesheet file was given. Please specify a samplesheet by appending --config rundir=\"path/to/samplesheet/\" to the command line call.")
+if config["rundir"] == "NA":
+    raise Exception("No rundir path was given. Please specify a rundir by appending --config rundir=\"path/to/rundir/\" to the command line call.")
+
+
 print(f"These are the parameters given:")
 print(f"  samplesheet: {samplesheet}")
 print(f"  rundir: {rundir}")
@@ -195,7 +221,7 @@ print(df_mini.to_string(index = False))
 print("//")
 print()
 
-if not monkey_mode:
+if not development_mode:
     check_user("Do you wish to proceed?")
 
 
@@ -240,15 +266,29 @@ for i in range(200):
 
 
 if not len(fastq_pass_bases) == 1:
-    raise Exception(f"There seems to be more than one fastq_pass sub-directory beneath the given rundir. These paths were found: {nl.join(fastq_pass_bases)}")
+    raise Exception(f"There seems to be more than one fastq_pass sub-directory beneath the given rundir. These paths were found:{nl} {str(nl + ' ').join(fastq_pass_bases)}")
 
 fastq_pass_base = fastq_pass_bases[0]
 del fastq_pass_bases
 print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}  This will be regarded as the input_base directory from now on.")
 
 
+
+# Check that the sequence_summary.txt file exists. If it doesn't, we won't be able to polish the assemblies.
+#if not os.path.isfile(fastq_pass_base + "/../sequence_"):
+print("Checking that the sequencing_summary_*.txt-file has been written to disk ... ", end = "", flush = True)
+sequencing_summary_file = glob.glob(fastq_pass_base + "/../sequencing_summary_*.txt")
+if len(sequencing_summary_file) == 0:
+    raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
+sequencing_summary_file = sequencing_summary_file[0]
+print("✓")
+print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
+
+
+
+
 sample_sheet_given_file = f"{fastq_pass_base}/../sample_sheet_given.tsv"
-print(f"Backing up the original sample sheet                  ", end = "", flush = True)
+print(f"Backing up the original sample sheet                   ", end = "", flush = True)
 df.to_csv(sample_sheet_given_file, sep = "\t")
 print("✓")
 
@@ -258,16 +298,18 @@ disk_barcodes_list  = sorted(glob.glob(fastq_pass_base + "/barcode*")) # Find al
 disk_barcodes_df = pd.DataFrame({'barcode_path': disk_barcodes_list})
 
 #df_mini = df_mini.assign(type = ['positive_control' if a.lower().startswith("seqpos") else ('negative_control' if a.lower().endswith("neg") else 'sample') for a in df['sample_id']])
+disk_barcodes_df = disk_barcodes_df.assign(barcode_basename = [i.split("/")[-1] for i in disk_barcodes_df["barcode_path"]])
 disk_barcodes_df = disk_barcodes_df.assign(barcode = ["NB" + i[-2:] for i in disk_barcodes_df["barcode_path"]])
 
 
 
-print("Continuing with these barcodes:")
+print("Continuing with the following barcodes:")
 
 workflow_table = disk_barcodes_df.merge(df_mini, how='left', on='barcode') # left join (merge) the present barcodes onto the df_mini table.
 
 
-print(workflow_table[["barcode", "sample_id", "type"]].to_string(index = False))
+#print(workflow_table[["barcode", "sample_id", "type"]].to_string(index = False))
+print(workflow_table)
 print("//")
 print()
 
@@ -275,15 +317,16 @@ print()
 
 
 
-if not monkey_mode:
+if not development_mode:
     check_user("These are the samples found on disk that match your input. Do you wish to proceed?")
 
 
 
 
-#########################################
-# Finally we can run the artic protocol #
-#########################################
+####################################################################
+# Finally we can run the artic protocol                            #
+# https://artic.network/ncov-2019/ncov2019-bioinformatics-sop.html #
+####################################################################
 
 
 
@@ -291,195 +334,105 @@ if not monkey_mode:
 
 
 
-
-
-raise Exception("limit")
-
-try:
-    os.mkdir(out_base_var)
-    os.mkdir("logs")
-except OSError:
-    print ("Creation of the directories")
-else:
-    print ("Successfully created the directories")
-
-
-# Collect all targets
+# This is the collection target, it collects all outputs from other targets. 
 rule all:
-    input: expand(["{out_base}/metadata.tsv", \
-                   "{out_base}/samples/{sample}/{sample}.fa", \
-                   "{out_base}/samples/{sample}/prokka/{sample}.gff", \
-                   "{out_base}/roary/summary_statistics.txt", \
-                   "{out_base}/abricate/card_detail.tsv", \
-                   "{out_base}/mlst/mlst.tsv", \
-                   "{out_base}/mashtree/mashtree.newick", \
-                   "{out_base}/fasttree/fasttree.newick"], \
-                  out_base = out_base_var, sample = df["sample"]) # copy
+    input: expand(["{out_base}/{batch_id}/read_filtering/{batch_id}_{sample_id}.fastq", "{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta"], out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
+
+
+
+
+
+
+# Read filtering
+# Because ARTIC protocol can generate chimeric reads, we perform length filtering.
+# This step is performed for each barcode in the run.
+# We first collect all the FASTQ files (typically stored in files each containing 4000 reads) into a single file.
+# Because we're only using the "pass" reads we can speed up the process with skip-quality-check.
+rule read_filtering:
+    input: directory(lambda wildcards: workflow_table[workflow_table["sample_id"] == wildcards.sample_id]["barcode_path"].values[0])
+    output: "{out_base}/{batch_id}/read_filtering/{batch_id}_{sample_id}.fastq" #_barcode00.fastq
+    conda: "artic-ncov2019/environment.yml"
+    shell: """
+
+
+    artic guppyplex --skip-quality-check --min-length 400 --max-length 700 --directory {input} --output {wildcards.out_base}/{wildcards.batch_id}/read_filtering/{batch_id}_{wildcards.sample_id}.fastq
+
+
+    """
+
+
+
+# Run the MinION pipeline
+rule minion:
+    input: "{out_base}/{batch_id}/read_filtering/{batch_id}_{sample_id}.fastq" #_barcode00.fastq
+    output: "{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta" #_barcode00.fastq
+    conda: "artic-ncov2019/environment.yml"
+    params:
+        workdir = "{out_base}/{batch_id}/consensus/",
+        input = "../read_filtering/{batch_id}_{sample_id}.fastq",
+        output = "../consensus/{batch_id}_{sample_id}.fasta"
+    shell: """
+
+    cd {params.workdir}
+
+    # Copied from https://github.com/ssi-dk/covid19_onsite_dk/blob/77ef47e26c67e535a7e86460af2e67a4d80bb604/scripts/setup_artic.sh#L256
+    artic minion \
+        --normalise 200 \
+        --skip-nanopolish \
+        --threads 1 \
+        --scheme-directory artic-ncov2019/primer_schemes \
+        --read-file {params.input} \
+        nCoV-2019/V3 \
+        {params.output} > log.out >> log.err   
+
+
+    """
+
+
+
+
+
+
+
+
+
+# # Collect all targets
+# rule all:
+#     input: expand(["{out_base}/metadata.tsv", \
+#                    "{out_base}/samples/{sample}/{sample}.fa", \
+#                    "{out_base}/samples/{sample}/prokka/{sample}.gff", \
+#                    "{out_base}/roary/summary_statistics.txt", \
+#                    "{out_base}/abricate/card_detail.tsv", \
+#                    "{out_base}/mlst/mlst.tsv", \
+#                    "{out_base}/mashtree/mashtree.newick", \
+#                    "{out_base}/fasttree/fasttree.newick"], \
+#                   out_base = out_base_var, sample = df["sample"]) # copy
 
 
   
 
-# Write the df table to the directory for later reference.
-rule metadata:
-    input: df["input_file"].tolist()
-    output: "{out_base}/metadata.tsv"
-    run: 
-        df.to_csv(str(output), index_label = "index", sep = "\t")
+# # Write the df table to the directory for later reference.
+# rule metadata:
+#     input: df["input_file"].tolist()
+#     output: "{out_base}/metadata.tsv"
+#     run: 
+#         df.to_csv(str(output), index_label = "index", sep = "\t")
 
 
 
-# Copy the input file to its new home
-rule copy:
-    #input: "{sample}"
-    input: lambda wildcards: df[df["sample"]==wildcards.sample]["input_file"].values[0]
-    output: "{out_base}/samples/{sample}/{sample}.fa"
-    #log: "logs/{out_base}_{wildcards.sample}.out.log"
+# # Copy the input file to its new home
+# rule copy:
+#     #input: "{sample}"
+#     input: lambda wildcards: df[df["sample"]==wildcards.sample]["input_file"].values[0]
+#     output: "{out_base}/samples/{sample}/{sample}.fa"
+#     #log: "logs/{out_base}_{wildcards.sample}.out.log"
 
-    shell: """
+#     shell: """
 
-        mkdir -p logs output_asscom1
+#         mkdir -p logs output_asscom1
 
-        cp {input} {output}
+#         cp {input} {output}
 
-        """
-
-
-##################################
-# Targets for each sample below: #
-##################################
-rule prokka:
-    input: "{out_base}/samples/{sample}/{sample}.fa"
-    output: "{out_base}/samples/{sample}/prokka/{sample}.gff"
-    #conda: "envs/prokka.yml"
-    container: "docker://staphb/prokka"
-    threads: 4
-    shell: """
-
-        prokka --cpus {threads} --force --outdir {wildcards.out_base}/samples/{wildcards.sample}/prokka --prefix {wildcards.sample} {input} || echo exit 0
-
-        """
-
-
-#######################################
-# Targets for the complete set below: #
-#######################################
-rule roary:
-    input: expand("{out_base}/samples/{sample}/prokka/{sample}.gff", sample = df["sample"], out_base = out_base_var)
-    output: ["{out_base}/roary/summary_statistics.txt", "{out_base}/roary/core_gene_alignment.aln", "{out_base}/roary/gene_presence_absence.csv"]
-    params:
-        blastp_identity = 95, # For clustering genes
-        core_perc = 99  # Definition of the core genome
-    #conda: "envs/roary.yml"
-    threads: 8
-    container: "docker://sangerpathogens/roary"
-    shell: """
-
-
-        # Roary is confused by the way snakemake creates directories ahead of time.
-        # So I will delete it manually here before calling roary.
-        rm -r {wildcards.out_base}/roary
-
-        roary -a -r -e --mafft -p {threads} -i {params.blastp_identity} -cd {params.core_perc} -f {wildcards.out_base}/roary {input}
-                
-        
-        """
-
-
-rule abricate:
-    #input: expand("{out_base}/samples/{sample}/{sample}.fa", sample = df["sample"], out_base = out_base_var)
-    input: df["input_file"].tolist()
-    output:
-        card_detail = "{out_base}/abricate/card_detail.tsv",
-        card_sum = "{out_base}/abricate/card_summary.tsv",
-        plasmidfinder_detail = "{out_base}/abricate/plasmidfinder_detail.tsv",
-        plasmidfinder_sum = "{out_base}/abricate/plasmidfinder_summary.tsv",
-        ncbi_detail = "{out_base}/abricate/ncbi_detail.tsv",
-        ncbi_sum = "{out_base}/abricate/ncbi_summary.tsv"
-    container: "docker://staphb/abricate"
-    shell: """
-
-
-        # TODO: update these databases
-
-        abricate --db card {input} > {output.card_detail}
-        abricate --summary {output.card_detail} > {output.card_sum}
-        
-        abricate --db plasmidfinder {input} > {output.plasmidfinder_detail}
-        abricate --summary {output.plasmidfinder_detail} > {output.plasmidfinder_sum}
-        
-        abricate --db ncbi {input} > {output.ncbi_detail}
-        abricate --summary {output.ncbi_detail} > {output.ncbi_sum}
-        
-
-
-        """
-
-
-rule mlst:
-    #input: expand("{out_base}/samples/{sample}/{sample}.fa", sample = df["sample"], out_base = out_base_var)
-    input: df["input_file"].tolist()
-    output: "{out_base}/mlst/mlst.tsv"
-    container: "docker://staphb/mlst"
-    shell: """
-
-        mlst {input} > {output}
-
-        """
-
-
-
-
-rule mashtree:
-    #input: expand("{out_base}/samples/{sample}/{sample}.fa", sample = df["sample"], out_base = out_base_var)
-    input: df["input_file"].tolist()
-    output: "{out_base}/mashtree/mashtree.newick"
-    container: "docker://staphb/mashtree"
-    threads: 4
-    shell: """
-
-        mashtree --numcpus {threads} {input} > {output}
-
-        """
-
-
-
-
-rule fasttree:
-    #input: expand("{out_base}/samples/{sample}/{sample}.fa", sample = df["sample"], out_base = out_base_var)
-    input: "{out_base}/roary/core_gene_alignment.aln"
-    output: "{out_base}/fasttree/fasttree.newick"
-    container: "docker://staphb/fasttree"
-    threads: 4
-    shell: """
-
-        OMP_NUM_THREADS={threads}
-
-        FastTree -nt {input} > {output} 2> {output}.log
-
-        """
-
-
-
-rule roary_plots:
-    input: genes = "{out_base}/roary/gene_presence_absence.csv",
-        tree = "{out_base}/fasttree/fasttree.newick"
-    output: "{out_base}/roary_plots/whatever"
-    container: "docker://python" # Make our own python container with cairosvg perl etc...
-    shell: """
-        
-        # Failing because matplotlib is missing...
-        python3 scripts/roary_plots.py {input.tree} {input.genes} > hat 2> hat.err
-
-        # TODO: add the other weird stuff from https://github.com/cmkobel/assemblycomparator/blob/61c9a891a75e2f252dc54185d74c0fbb092815e5/workflow_templates.py#L489
-        """
-
-
-
-#print(mashtree.input)
-
-
-
-
-
+#         """
 
 
