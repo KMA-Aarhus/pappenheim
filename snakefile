@@ -43,15 +43,13 @@ rundir = "../testdata"
 samplesheet = config["samplesheet"]
 rundir = config["rundir"]
 
-# TODO: These variables should be given in the config
-out_base = "development_test_output"
-
-
-
 
 tab = "\t"
 nl = "\n"
-batch_id = datetime.now().strftime('pap%Y%m%dT%H%M')
+
+
+
+#batch_id = datetime.now().strftime('pap%Y%m%dT%H%M')
 batch_id = datetime.now().strftime('pap%Y%m%d')
 
 #batch_id = "today"
@@ -270,7 +268,16 @@ if not len(fastq_pass_bases) == 1:
 
 fastq_pass_base = fastq_pass_bases[0]
 del fastq_pass_bases
-print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}  This will be regarded as the input_base directory from now on.")
+#print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}  This will be regarded as the input_base directory from now on.")
+
+
+#base_dir = os.path.join( os.path.dirname(fastq_pass_base), '..' )
+base_dir = os.path.dirname(fastq_pass_base) # This only works because there is NOT a trailing slash on the fastq_pass_base
+print(base_dir)
+
+
+out_base = os.path.join(base_dir, "output")
+print("ob", out_base)
 
 
 
