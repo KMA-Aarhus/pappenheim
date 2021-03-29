@@ -253,12 +253,12 @@ for i in range(200):
     fastq_pass_bases = glob.glob(rundir + "/**/fastq_pass", recursive = True) # Find any occurrence of the wanted path
     if len(fastq_pass_bases) == 0:
         print("nothing found yet, waiting 10 secs ...")
-        time.sleep(10)
+        time.sleep(10) # Wait 10 seconds.
     elif(i == 10):
         print() # clean newline
         raise Exception("nothing found after 10 tries. Aborting.")
     else: 
-        print(f" found                                   ✓")
+        print(f"Found                                    ✓")
         break
 
 
@@ -273,7 +273,8 @@ del fastq_pass_bases
 
 #base_dir = os.path.join( os.path.dirname(fastq_pass_base), '..' )
 base_dir = os.path.dirname(fastq_pass_base) # This only works because there is NOT a trailing slash on the fastq_pass_base
-print(base_dir)
+print(f"This is the batch base directory:{nl}  {base_dir}")
+
 
 
 out_base = os.path.join(base_dir, "output")
@@ -284,7 +285,7 @@ print("ob", out_base)
 # Check that the sequence_summary.txt file exists. If it doesn't, we won't be able to polish the assemblies.
 #if not os.path.isfile(fastq_pass_base + "/../sequence_"):
 print("Checking that the sequencing_summary_*.txt-file has been written to disk ... ", end = "", flush = True)
-sequencing_summary_file = glob.glob(fastq_pass_base + "/../sequencing_summary_*.txt")
+sequencing_summary_file = glob.glob(base_dir + "/../sequencing_summary_*.txt")
 if len(sequencing_summary_file) == 0:
     raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
 sequencing_summary_file = sequencing_summary_file[0]
