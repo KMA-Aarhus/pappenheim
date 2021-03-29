@@ -30,7 +30,7 @@ if int(terminal_columns) < 125:
 development_mode = True
 
 
-configfile: "config.yaml"
+
 print(config["samplesheet"])
 
 # TODO: These variables should be set from the command line
@@ -184,14 +184,14 @@ print("✓")
 
 acceptable_barcodes = [f"NB{i:02d}" for i in range(1,25)]
 #print(acceptable_barcodes)
-nl, tab = "\n", "\t"
+
 
 print("Checking that the barcodes are correctly formatted ... ", end = "", flush = True)
 lag()
 for i in df_mini["barcode"]:
     #print("checking", i)
     if not i in acceptable_barcodes: 
-        raise Exception(f"The given barcode \'{i}\' is not an acceptable barcode. Here is a list of acceptable barcodes for inspiration: {' '.join(acceptable_barcodes)}")
+        raise Exception(f"The given barcode \'{i}\' is not an acceptable barcode. Here is a list of acceptable barcodes for inspiration:{nl} {' '.join(acceptable_barcodes)}")
 print("✓")
 
 
@@ -336,7 +336,9 @@ if not development_mode:
 
 # This is the collection target, it collects all outputs from other targets. 
 rule all:
-    input: expand(["{out_base}/{batch_id}/read_filtering/{batch_id}_{sample_id}.fastq", "{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta"], out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
+    input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.fasta"], out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
+                   #"{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta"],
+                  
 
 
 
@@ -350,12 +352,12 @@ rule all:
 # Because we're only using the "pass" reads we can speed up the process with skip-quality-check.
 rule read_filtering:
     input: directory(lambda wildcards: workflow_table[workflow_table["sample_id"] == wildcards.sample_id]["barcode_path"].values[0])
-    output: "{out_base}/{batch_id}/read_filtering/{batch_id}_{sample_id}.fastq" #_barcode00.fastq
+    output: "{out_base}/{batch_id}_{sample_id}/read_filtering/{batch_id}_{sample_id}.fastq" #_barcode00.fastq
     conda: "artic-ncov2019/environment.yml"
     shell: """
 
 
-    artic guppyplex --skip-quality-check --min-length 400 --max-length 700 --directory {input} --output {wildcards.out_base}/{wildcards.batch_id}/read_filtering/{batch_id}_{wildcards.sample_id}.fastq
+    artic guppyplex --skip-quality-check --min-length 400 --max-length 700 --directory {input} --output {output}
 
 
     """
@@ -364,27 +366,43 @@ rule read_filtering:
 
 # Run the MinION pipeline
 rule minion:
-    input: "{out_base}/{batch_id}/read_filtering/{batch_id}_{sample_id}.fastq" #_barcode00.fastq
-    output: "{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta" #_barcode00.fastq
+    input: "{out_base}/{batch_id}_{sample_id}/read_filtering/{batch_id}_{sample_id}.fastq"
+    output: "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.fasta"
     conda: "artic-ncov2019/environment.yml"
     params:
-        workdir = "{out_base}/{batch_id}/consensus/",
-        input = "../read_filtering/{batch_id}_{sample_id}.fastq",
-        output = "../consensus/{batch_id}_{sample_id}.fasta"
+        #workdir = "{out_base}/{batch_id}/consensus/",
+        #input = "../read_filtering/{batch_id}_{sample_id}.fastq",
+        #output = "../consensus/{batch_id}_{sample_id}.fasta",
+        output_dir = "{out_base}/{batch_id}_{sample_id}/consensus/",
+        fastq_pass_base = fastq_pass_base,
+        sequencing_summary_file = sequencing_summary_file
     shell: """
 
-    cd {params.workdir}
+    #cd params.workdir
 
     # Copied from https://github.com/ssi-dk/covid19_onsite_dk/blob/77ef47e26c67e535a7e86460af2e67a4d80bb604/scripts/setup_artic.sh#L256
+    # artic minion \
+    #     --normalise 200 \
+    #     --skip-nanopolish \
+    #     --threads 1 \
+    #     --scheme-directory artic-ncov2019/primer_schemes \
+    #     --read-file params.input \
+    #     nCoV-2019/V3 \
+    #     params.output > log.out >> log.err   
+
+    touch {output}
+
+
     artic minion \
         --normalise 200 \
-        --skip-nanopolish \
         --threads 1 \
         --scheme-directory artic-ncov2019/primer_schemes \
-        --read-file {params.input} \
-        nCoV-2019/V3 \
-        {params.output} > log.out >> log.err   
+        --read-file {input} \
+        --fast5-directory {params.fastq_pass_base}/../fast5_pass \
+        --sequencing-summary {params.sequencing_summary_file} \
+        nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} >> {wildcards.batch_id}.out 2> {wildcards.batch_id}.err || echo erorr
 
+    #mv {wildcards.batch_id}_{wildcards.sample_id}.* output/
 
     """
 
