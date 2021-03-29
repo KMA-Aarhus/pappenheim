@@ -112,9 +112,15 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
     cd ~/repos
     git clone https://github.com/artic-network/artic-ncov2019.git
     echo "alias start_rampart='{ $(sleep 3; firefox localhost:3000) & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'" >> ~/.bashrc
-    echo "alias pappenheim='cd ~/pappenheim && snakemake --profile default --config'" >> ~/.bashrc
     source ~/.bashrc
     ```
+    
+6. Install the Pappenheim pipeline according to its (instructions)[https://github.com/KMA-Aarhus/pappenheim#installation]
+   * Add the following bash alias:
+   ```
+   echo "alias pappenheim='cd ~/pappenheim && snakemake --profile default --config'" >> ~/.bashrc
+   ```
+   
    
 ### Miscellaneous
 
