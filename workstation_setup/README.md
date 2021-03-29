@@ -118,9 +118,16 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
    * Add the following bash alias:
    ```
    echo 'start_pappenheim () {
+    if [ -z $1 ]; then
+        echo "the samplesheet argument is empty" && exit 1
+    fi
+    if [ -z $2 ]; then
+        echo "the rundir argument is empty" && exit 1
+    fi
     clear
     cd ~/pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" && echo "pappenheim finished successfully."
    }' >> ~/.bashrc && source ~/.bashrc
+   
    
    ```
    
