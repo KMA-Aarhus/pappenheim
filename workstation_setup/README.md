@@ -108,11 +108,15 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
 5. Install rampart by following the [official instructions](https://github.com/artic-network/rampart/blob/master/docs/installation.md#install-from-conda).
 
     * After following the install instructions, and checking that the install is successfull, add a QnD alias to the shell-environment.
+    But first, download this git repo which will be needed:
     ```
     mkdir -p ~/repos
     cd ~/repos
     git clone https://github.com/artic-network/artic-ncov2019.git
-    echo "alias start_rampart='{ $(sleep 3; firefox localhost:3000) & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'" >> ~/.bashrc && source ~/.bashrc
+    ```
+    
+    Then, insert this into your ~/.bashrc
+    alias start_rampart='{ $(sleep 3; firefox localhost:3000) & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'
     ```
     
 6. Install the Pappenheim pipeline according to its [instructions](https://github.com/KMA-Aarhus/pappenheim#installation)
