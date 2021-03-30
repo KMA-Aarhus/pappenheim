@@ -79,6 +79,7 @@ Notice: You may have to restart the computer between some of these steps. Who kn
 2. Now things become a bit fishy: The version of guppy you need is NOT the one that is stated on the download page.
    The way to install guppy is to find a compatible version of guppy in relation to the MinKNOW Software. See the table here: https://hackmd.io/@Miles/B1U-cOMyu#Guppy--MinKNOW-compatibility
    A nanopore forum user has been helpful giving the link to a patched version that works with cuda 11+ : https://community.nanoporetech.com/posts/minknow-and-guppy-version
+   Hint: use `apt list minion-nc` to see the version of minion-nc
    
 3. Then map the guppy-gpu installation to the MinKNOWN guppy folder:
 
