@@ -271,7 +271,7 @@ del fastq_pass_bases
 #print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}  This will be regarded as the input_base directory from now on.")
 
 
-#base_dir = os.path.join( os.path.dirname(fastq_pass_base), '..' )
+# base_dir is the place where fastq_pass, fast5_pass and the sequencing summary resides.
 base_dir = os.path.dirname(fastq_pass_base) # This only works because there is NOT a trailing slash on the fastq_pass_base
 print(f"This is the batch base directory:{nl}  {base_dir}")
 
@@ -343,7 +343,7 @@ if not development_mode:
 
 # This is the collection target, it collects all outputs from other targets. 
 rule all:
-    input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.fasta"], out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
+    input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta"], out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
                    #"{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta"],
                   
 
@@ -374,15 +374,16 @@ rule read_filtering:
 # Run the MinION pipeline
 rule minion:
     input: "{out_base}/{batch_id}_{sample_id}/read_filtering/{batch_id}_{sample_id}.fastq"
-    output: "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.fasta"
+    output: "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta"
     conda: "artic-ncov2019/environment.yml"
     params:
         #workdir = "{out_base}/{batch_id}/consensus/",
         #input = "../read_filtering/{batch_id}_{sample_id}.fastq",
         #output = "../consensus/{batch_id}_{sample_id}.fasta",
+        base_dir = base_dir,
         output_dir = "{out_base}/{batch_id}_{sample_id}/consensus/",
-        fastq_pass_base = fastq_pass_base,
         sequencing_summary_file = sequencing_summary_file
+    threads: 4
     shell: """
 
     #cd params.workdir
@@ -397,19 +398,19 @@ rule minion:
     #     nCoV-2019/V3 \
     #     params.output > log.out >> log.err   
 
-    touch {output}
+    touch {output} # Irriterende at snakemake nødvendigvis sletter fejlet output
 
 
     artic minion \
         --normalise 200 \
-        --threads 1 \
+        --threads 4 \
         --scheme-directory artic-ncov2019/primer_schemes \
         --read-file {input} \
-        --fast5-directory {params.fastq_pass_base}/../fast5_pass \
+        --fast5-directory {params.base_dir}/fast5_pass \
         --sequencing-summary {params.sequencing_summary_file} \
-        nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} >> {wildcards.batch_id}.out 2> {wildcards.batch_id}.err || echo erorr
+        nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} 
 
-    #mv {wildcards.batch_id}_{wildcards.sample_id}.* output/
+    mv {wildcards.batch_id}_{wildcards.sample_id}.* {params.output_dir}
 
     """
 
