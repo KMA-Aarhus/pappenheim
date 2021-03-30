@@ -33,7 +33,7 @@ NOTE: if black screen after restart, switch monitor cable ports.
    ```
    # Update the OS and packages
    sudo apt update
-   sudo apt upgrade
+   sudo apt upgrade -y
    
    # Install latest versions useful software:
    sudo apt install git vim tree htop libreoffice
