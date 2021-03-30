@@ -33,10 +33,10 @@ NOTE: if black screen after restart, switch monitor cable ports.
    ```
    # Update the OS and packages
    sudo apt update
-   sudo apt upgrade
+   sudo apt upgrade -y
    
    # Install latest versions useful software:
-   sudo apt install git vim tree htop libreoffice
+   sudo apt install git vim tree htop libreoffice filezilla
    ```
 
 
@@ -79,6 +79,7 @@ Notice: You may have to restart the computer between some of these steps. Who kn
 2. Now things become a bit fishy: The version of guppy you need is NOT the one that is stated on the download page.
    The way to install guppy is to find a compatible version of guppy in relation to the MinKNOW Software. See the table here: https://hackmd.io/@Miles/B1U-cOMyu#Guppy--MinKNOW-compatibility
    A nanopore forum user has been helpful giving the link to a patched version that works with cuda 11+ : https://community.nanoporetech.com/posts/minknow-and-guppy-version
+   Hint: use `apt list minion-nc` to see the version of minion-nc
    
 3. Then map the guppy-gpu installation to the MinKNOWN guppy folder:
 
@@ -107,11 +108,16 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
 5. Install rampart by following the [official instructions](https://github.com/artic-network/rampart/blob/master/docs/installation.md#install-from-conda).
 
     * After following the install instructions, and checking that the install is successfull, add a QnD alias to the shell-environment.
+    But first, download this git repo which will be needed:
     ```
     mkdir -p ~/repos
     cd ~/repos
     git clone https://github.com/artic-network/artic-ncov2019.git
-    echo "alias start_rampart='{ $(sleep 3; firefox localhost:3000) & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'" >> ~/.bashrc && source ~/.bashrc
+    ```
+    
+    Then, insert this into your ~/.bashrc
+    ```
+    alias start_rampart='{ $(sleep 3; firefox localhost:3000) & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'
     ```
     
 6. Install the Pappenheim pipeline according to its [instructions](https://github.com/KMA-Aarhus/pappenheim#installation)
@@ -125,7 +131,7 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
     else
 
         clear
-        cd ~/pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" && echo "pappenheim finished successfully."
+        cd ~/pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" ${3} && echo "pappenheim finished successfully."
     fi
    }' >> ~/.bashrc && source ~/.bashrc
    
