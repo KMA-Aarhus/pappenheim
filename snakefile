@@ -176,7 +176,7 @@ print("Minimizing sample sheet ...                            ", end = "", flush
 lag()
 df_mini = df[["barcode", "sample_id"]] # Select the only necessary columns
 df_mini = df_mini.dropna(how='all') # Drop the rows where all elements are missing.
-df_mini = df_mini.apply(np.vectorize(lambda x: str(x).strip().replace(" ", "_"))) # strip whitespace and replace spaces with underscores.
+df_mini = df_mini.apply(np.vectorize(lambda x: str(x).strip().replace(" ", ""))) # strip whitespace and replace spaces with underscores.
 print("✓")
 
 
