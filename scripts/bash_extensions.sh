@@ -1,10 +1,14 @@
 #!/bin/bash
 
-# Private aliases
-# Should be started using the "artic-rampart" conda environment
-alias start_rampart='{ sleep 5; firefox localhost:3000 & }; conda activate artic-rampart && rampart --clearAnnotated --protocol ~/repos/artic-ncov2019/rampart/ --basecalledPath'
+
+# You may source this bashrc-extension, if you wish to have some shortcuts which can be nice for development and deployment.
+
+
+
+# Neat aliases
 alias survey='watch "sensors; nvidia-smi"'
-alias start_rampart='{  & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'
+alias start_rampart='{ $(sleep 5; firefox localhost:3000)  & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'
+alias citament='git add -u && git commit -m "amend" && git pull && git push && echo OK'
 
 
 #alias pappenheim='cd ~/pappenheim && snakemake --profile default --config'
@@ -21,4 +25,3 @@ start_pappenheim () {
 }
 
 
-alias whatthe="echo it works"
