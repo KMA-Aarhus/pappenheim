@@ -36,7 +36,7 @@ NOTE: if black screen after restart, switch monitor cable ports.
    sudo apt upgrade -y
    
    # Install latest versions useful software:
-   sudo apt install git vim tree htop libreoffice filezilla
+   sudo apt install git vim tree htop libreoffice filezilla tmux
    ```
 
 
@@ -123,17 +123,7 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
 6. Install the Pappenheim pipeline according to its [instructions](https://github.com/KMA-Aarhus/pappenheim#installation)
    * Add the following bash alias:
    ```
-   echo 'start_pappenheim () {
-    if [ -z $1 ]; then
-        echo "The samplesheet argument is empty. Please specify a samplesheet."
-    elif [ -z $2 ]; then
-        echo "The rundir argument is empty. Please specify a rundir."
-    else
-
-        clear
-        cd ~/pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" ${3} && echo "pappenheim finished successfully."
-    fi
-   }' >> ~/.bashrc && source ~/.bashrc
+   echo 'source ~/pappenheim/scripts/bash_extensions.sh' >> ~/.bashrc && source ~/.bashrc
    
    
    ```
