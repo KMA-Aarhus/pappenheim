@@ -12,6 +12,7 @@ dependencies:
   - pyyaml
   - pandas
   - pip
+  - nodejs # for nextclade
   - pip:
     - pandas_ods_reader
     - xlrd # for xls

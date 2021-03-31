@@ -277,7 +277,7 @@ print(f"This is the batch base directory:{nl}  {base_dir}")
 
 
 
-out_base = os.path.join(base_dir, "output") # out_base is the directory where the pipeline will write its output to.
+out_base = os.path.join(base_dir, "pappenheim_output") # out_base is the directory where the pipeline will write its output to.
 
 
 
@@ -343,7 +343,9 @@ if not development_mode:
 
 # This is the collection target, it collects all outputs from other targets. 
 rule all:
-    input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta"], out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
+    input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
+                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin.csv"], \
+                  out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
                    #"{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta"],
                   
 
@@ -402,6 +404,107 @@ rule minion:
 
     """
 
+
+
+
+# Make sure that we have the latest pangolin environment.yml for snakemake-conda
+rule pangolin_downloader:
+    output: "{out_base}/flags/pangolin_downloader.flag.ok"
+    shell: """
+
+
+        ping github.com -c 1 && echo "Internet OK" || echo "Warning: no internet connection"
+
+        cd pangolin
+        git submodule update --remote
+
+        touch {output}
+
+
+        """
+
+
+# Runs once per batch
+rule pangolin_updater: 
+    input: "{out_base}/flags/pangolin_downloader.flag.ok"
+    output: "{out_base}/flags/pangolin_updater.flag.ok"
+    conda: "pangolin/environment.yml"
+    shell: """
+        
+
+        cd pangolin
+
+
+
+        # Install pangolin
+        python setup.py install > plog.out 2> plog.err
+
+        # Check that the newest dendendencies are installed. 
+        pip install git+https://github.com/cov-lineages/pangoLEARN.git --upgrade 
+        pip install git+https://github.com/cov-lineages/lineages.git --upgrade 
+
+        #Check the install worked
+        pangolin -v \
+        && pangolin -pv \
+        && touch "{wildcards.out_base}/flags/pangolin_install.flag.ok"
+        
+
+
+
+        # Download the latest version so it can be installed next time around 
+        git submodule update --remote
+
+
+        touch {output}
+
+    """
+
+    
+
+
+rule pangolin:
+    # input: expand("{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", batch_id = batch_id, sample_id = workflow_table["sample_id"]) # per batch
+    input:
+        pangolin_flag = "{out_base}/flags/pangolin_updater.flag.ok",
+        consensuses = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
+    output: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin.csv"
+    conda: "pangolin/environment.yml"
+    params: 
+        out_dir = "{out_base}/{batch_id}_{sample_id}/pangolin"
+    shell: """
+
+        
+
+        pangolin {input.consensuses} \
+            --outfile {output}
+
+
+        # TODO: long pivot this output. First I will have to get access to R somehow with i conda environment
+
+    """
+
+
+
+
+# Once per batch
+rule nextclade_updater:
+    output: "{out_base}/flags/nextclade_updater.flag.ok"
+    shell: """
+
+        ping github.com -c 1 && echo "Internet OK" || echo "Warning: no internet connection"
+
+        npm update -g nextclade
+
+        touch {output}
+
+    """
+
+
+rule nextclade:
+    input: 
+        nextclade_flag = "{out_base}/flags/nextclade_updater.flag.ok",
+       consensuses = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
+    output: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"
 
 
 
