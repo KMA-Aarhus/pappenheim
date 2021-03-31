@@ -423,6 +423,7 @@ rule minion:
 #                   out_base = out_base_var, sample = df["sample"]) # copy
 
 
+
   
 
 # # Write the df table to the directory for later reference.
