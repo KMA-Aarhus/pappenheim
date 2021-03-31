@@ -408,6 +408,12 @@ rule minion:
 
 
 
+
+############
+# Pangolin #
+############
+
+
 # Make sure that we have the latest pangolin environment.yml for snakemake-conda
 rule pangolin_downloader:
     output: "{out_base}/flags/pangolin_downloader.flag.ok"
@@ -486,16 +492,22 @@ rule pangolin:
 
 rule pivot_pangolin:
     input: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin.csv"
-    output: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.csv"
+    output: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv"
     conda: "envs/r-tidyverse.yml"
     shell: """
        
-        Rscript --version > r-version.txt >> rfail.txt
+        #Rscript --version > r-version.txt >> rfail.txt
+
+
+        Rscript scripts/pivot_longer.r {input} {wildcards.sampleid} > {output}
 
     """
 
 
 
+#############
+# Nextclade #
+#############
 
 # Once per batch
 rule nextclade_updater:
@@ -528,12 +540,21 @@ rule nextclade:
             --input-fasta {input.consensuses} \
             --output-tsv {output}
 
-
-
-        
-
     """
 
+
+rule pivot_nextclade:
+    input: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"
+    output: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv"
+    conda: "envs/r-tidyverse.yml"
+    shell: """
+       
+        #Rscript --version > r-version.txt >> rfail.txt
+
+
+        Rscript scripts/pivot_longer.r {input} {wildcards.sampleid} > {output}
+
+    """
 
 
 
