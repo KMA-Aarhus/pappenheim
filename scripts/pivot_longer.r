@@ -7,8 +7,8 @@ input_file = args[1]
 sample_id = args[2]
 
 
-
-
+devel_mode = F
+# devel_mode = T
 if (devel_mode == T) {
     input_file = "~/repos/pappenheim/opentest/pangolin.csv"
     sample_id = "12345"
