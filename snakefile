@@ -503,7 +503,7 @@ rule nextclade_updater:
 rule nextclade:
     input: 
         nextclade_flag = "{out_base}/flags/nextclade_updater.flag.ok",
-       consensuses = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
+        consensuses = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
     output: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"
 
 
