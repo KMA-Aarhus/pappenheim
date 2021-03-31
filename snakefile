@@ -490,11 +490,15 @@ rule pangolin:
 # Once per batch
 rule nextclade_updater:
     output: "{out_base}/flags/nextclade_updater.flag.ok"
+    conda: "envs/nodejs.yml"
     shell: """
 
         ping github.com -c 1 && echo "Internet OK" || echo "Warning: no internet connection"
 
-        npm update -g nextclade
+
+        npm install --global @neherlab/nextclade
+
+
 
         touch {output}
 
@@ -506,7 +510,9 @@ rule nextclade:
         nextclade_flag = "{out_base}/flags/nextclade_updater.flag.ok",
         consensuses = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
     output: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"
+    conda: "envs/nodejs.yml"
     shell: """
+
 
         nextclade.js \
             --input-fasta {input.consensuses} \
@@ -514,8 +520,7 @@ rule nextclade:
 
 
 
-        # use docker
-        docker run -it --rm -u 1000 --volume="${ABSOLUTE_PATH_TO_SEQUENCES}:/seq" neherlab/nextclade nextclade --input-fasta '/seq/sequences.fasta' --output-json '/seq/results.json'
+        
 
     """
 
