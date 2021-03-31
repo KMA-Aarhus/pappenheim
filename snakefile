@@ -386,19 +386,7 @@ rule minion:
     threads: 4
     shell: """
 
-    #cd params.workdir
 
-    # Copied from https://github.com/ssi-dk/covid19_onsite_dk/blob/77ef47e26c67e535a7e86460af2e67a4d80bb604/scripts/setup_artic.sh#L256
-    # artic minion \
-    #     --normalise 200 \
-    #     --skip-nanopolish \
-    #     --threads 1 \
-    #     --scheme-directory artic-ncov2019/primer_schemes \
-    #     --read-file params.input \
-    #     nCoV-2019/V3 \
-    #     params.output > log.out >> log.err   
-
-    touch {output} # Irriterende at snakemake nødvendigvis sletter fejlet output
 
 
     artic minion \
