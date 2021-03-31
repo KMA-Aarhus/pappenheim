@@ -344,7 +344,8 @@ if not development_mode:
 # This is the collection target, it collects all outputs from other targets. 
 rule all:
     input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
-                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin.csv"], \
+                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin.csv", \
+                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"], \
                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
                    #"{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta"],
                   
@@ -505,6 +506,18 @@ rule nextclade:
         nextclade_flag = "{out_base}/flags/nextclade_updater.flag.ok",
         consensuses = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
     output: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"
+    shell: """
+
+        nextclade.js \
+            --input-fasta {input.consensuses} \
+            --output-tsv {output}
+
+
+
+        # use docker
+        docker run -it --rm -u 1000 --volume="${ABSOLUTE_PATH_TO_SEQUENCES}:/seq" neherlab/nextclade nextclade --input-fasta '/seq/sequences.fasta' --output-json '/seq/results.json'
+
+    """
 
 
 

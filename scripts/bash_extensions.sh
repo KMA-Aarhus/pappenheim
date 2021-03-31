@@ -6,9 +6,12 @@
 
 
 # Neat aliases
+alias mconda='mamba'
 alias survey='watch "sensors; nvidia-smi"'
 alias start_rampart='{ $(sleep 5; firefox localhost:3000)  & }; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath'
 alias citament='git add -u && git commit -m "amend" &&  git pull && git push && echo OK'
+
+
 
 
 
