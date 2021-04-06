@@ -172,7 +172,7 @@ print("✓")
 
 
 
-
+# df_mini is the df, with just two columns for easier handling.
 print("Minimizing sample sheet ...                            ", end = "", flush = True)
 lag()
 df_mini = df[["barcode", "sample_id"]] # Select the only necessary columns
@@ -348,7 +348,8 @@ rule all:
     input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
                    "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
                    "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
-                   "{out_base}/collected/collected_nextclade_long.tsv"], \
+                   "{out_base}/collected/collected_nextclade_long.tsv", \
+                   "{out_base}/collected/merged_workflow_pangolin_nextclade.tsv"], \
                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
                    #"{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta"],
                   
@@ -499,6 +500,8 @@ rule pivot_pangolin:
     #conda: "envs/r-tidyverse.yml"
     run:
         wide = pd.read_csv(str(input), dtype = str)
+        wide = wide.add_prefix('pa_')
+
         wide = wide.assign(batch_id = wildcards.batch_id, sample_id = wildcards.sample_id)
 
         long = pd.melt(wide, id_vars = ["batch_id", "sample_id"])
@@ -554,6 +557,7 @@ rule pivot_nextclade:
     output: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv"
     run:
         wide = pd.read_csv(str(input), dtype = str, sep = "\t")
+        wide = wide.add_prefix('ne_')
         wide = wide.assign(batch_id = wildcards.batch_id, sample_id = wildcards.sample_id)
 
         long = pd.melt(wide, id_vars = ["batch_id", "sample_id"])
@@ -588,8 +592,11 @@ rule collect_variant_data:
     shell:
         """
 
-        cat {input.pangolin} | grep -vE "^#" > {output.collected_pangolin}
-        cat {input.nextclade} | grep -vE "^#" > {output.collected_nextclade}
+        echo -e "batch_id\tsample_id\tvariable\tvalue" > {output.collected_pangolin}
+        cat {input.pangolin} | grep -vE "^#" >> {output.collected_pangolin}
+
+        echo -e "batch_id\tsample_id\tvariable\tvalue" > {output.collected_nextclade}
+        cat {input.nextclade} | grep -vE "^#" >> {output.collected_nextclade}
 
 
         """
@@ -601,17 +608,77 @@ rule merge_variant_data:
     output:
         "{out_base}/collected/merged_workflow_pangolin_nextclade.tsv"
     run:
-        workflow_table = disk_barcodes_df.merge(df_mini, how='left', on='barcode') # left join (merge) the present barcodes onto the df_mini table.
+        #print('dfm', df_mini)
+
+        master_merge = df
+
+
+        # df_mini contains type-information for samples which are not yes written to disk.
+        master_merge = master_merge.merge(df_mini, how = 'left', on = ['barcode', 'sample_id'])
+
+
+
+        # workflow_table contains the found paths for fastq data
+        master_merge = df.merge(workflow_table[['barcode', 'sample_id', 'barcode_path']], how='left', on=['barcode', 'sample_id']) # left join (merge) the present barcodes onto the df_mini table.
+
+
+        # Read and pivot pangolin
+        pangolin = pd.read_csv(str(input.pangolin), sep = "\t")
+        pangolin = pangolin.pivot_table(index = ["batch_id", "sample_id"], 
+            columns = 'variable', 
+            values = 'value',
+            aggfunc = 'first').reset_index() # There should only be one value per index-column combination, therefore first is fine to use as aggfunc.
+
+        print("This is pangolin before joining: (hidden index)")
+        print(pangolin.to_string(index = False))
+
+
+        # Read and pivot nextclade
+        nextclade = pd.read_csv(str(input.nextclade), sep = "\t")
+        nextclade = nextclade.pivot_table(index = ["batch_id", "sample_id"], 
+            columns = 'variable', 
+            values = 'value',
+            aggfunc = 'first').reset_index() # There should only be one value per index-column combination, therefore first is fine to use as aggfunc.
+
+        print("This is nextclade before joining: (hidden index)")
+        print(nextclade.to_string(index = False))
 
 
 
 
-        # collect the data together and pivot it wider
+
+
+        # We need the batch_id so we can make sure that only the correct batched samples are integrated.
+        master_merge = master_merge.assign(batch_id = batch_id)
+
+        master_merge = master_merge.merge(pangolin, how = 'left', on = ['batch_id', 'sample_id'])
+        master_merge = master_merge.merge(nextclade, how = 'left', on = ['batch_id', 'sample_id'])
+        
+
+        print("what")
+        # Left join nextclade onto above df.
+
+
+        # Save the df to disk and be done
+        print(master_merge.columns)
+        print(master_merge, file = sys.stderr)
+
+        master_merge.to_csv("test_merge_out.tsv", sep = "\t")
 
 
 
-        # Join it onto df_mini
-        # Join it onto 
+
+
+###############
+# Backup data #
+###############
+
+#These jobs are optional if you want to backup your data.
+
+#rule upload_core_data:
+
+#rule upload_raw_data:
+
 
 
 
