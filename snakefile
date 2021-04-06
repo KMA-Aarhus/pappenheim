@@ -50,7 +50,7 @@ nl = "\n"
 
 
 #batch_id = datetime.now().strftime('pap%Y%m%dT%H%M')
-batch_id = datetime.now().strftime('pap%Y%m%d')
+#batch_id = datetime.now().strftime('pap%Y%m%d')
 
 #batch_id = "today"
 
@@ -278,6 +278,25 @@ print(f"This is the batch base directory:{nl}  {base_dir}")
 
 
 
+very_long_batch_id = base_dir.split("/")[-1]
+print(f"This is the very long batch id:", very_long_batch_id)
+
+date, time, minion, flowcell, arbhash = very_long_batch_id.split("_")
+
+print("date:    ", date)
+print("time:    ", time)
+print("minion:  ", minion)
+print("flowcell:", flowcell)
+print("arbhash: ", arbhash)
+
+
+
+
+batch_id = ".".join(very_long_batch_id.split("_")[0:2])
+print(f"This is the used batch id", batch_id)
+
+
+
 out_base = os.path.join(base_dir, "pappenheim_output") # out_base is the directory where the pipeline will write its output to.
 
 
@@ -352,10 +371,6 @@ rule all:
                    "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
                    "{out_base}/upload_{batch_id}.tar.gz"], \
                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
-    shell: """
-        echo hej
-        """
-                  
 
 
 
@@ -623,7 +638,8 @@ rule merge_variant_data:
 
         
         # Couple the correct batch_id
-        merged = merged.assign(batch_id = batch_id)
+        merged = merged.assign(batch_id = batch_id,
+            very_long_batch_id = very_long_batch_id)
 
         merged['upload_consensus_file'] = merged.apply(lambda row: row.batch_id + "_" + row.sample_id + ".consensus.fasta", axis=1)
             
