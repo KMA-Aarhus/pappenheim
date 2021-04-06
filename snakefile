@@ -349,7 +349,8 @@ rule all:
                    "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
                    "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
                    "{out_base}/collected/collected_nextclade_long.tsv", \
-                   "{out_base}/collected/merged_workflow_pangolin_nextclade.tsv"], \
+                   "{out_base}/collected/collected_input_long.tsv", \
+                   "{out_base}/{batch_id}_pappenheim.tsv"], \
                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
                    #"{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta"],
                   
@@ -592,10 +593,10 @@ rule collect_variant_data:
     shell:
         """
 
-        echo -e "batch_id\tsample_id\tvariable\tvalue" > {output.collected_pangolin}
+        echo -e "#batch_id\tsample_id\tvariable\tvalue" > {output.collected_pangolin}
         cat {input.pangolin} | grep -vE "^#" >> {output.collected_pangolin}
 
-        echo -e "batch_id\tsample_id\tvariable\tvalue" > {output.collected_nextclade}
+        echo -e "#batch_id\tsample_id\tvariable\tvalue" > {output.collected_nextclade}
         cat {input.nextclade} | grep -vE "^#" >> {output.collected_nextclade}
 
 
@@ -606,64 +607,91 @@ rule merge_variant_data:
         pangolin ="{out_base}/collected/collected_pangolin_long.tsv",
         nextclade = "{out_base}/collected/collected_nextclade_long.tsv"
     output:
-        "{out_base}/collected/merged_workflow_pangolin_nextclade.tsv"
+        "{out_base}/collected/collected_input_long.tsv"
     run:
-        #print('dfm', df_mini)
-
-        master_merge = df
 
 
         # df_mini contains type-information for samples which are not yes written to disk.
-        master_merge = master_merge.merge(df_mini, how = 'left', on = ['barcode', 'sample_id'])
+        merged = df.merge(df_mini, how = 'left', on = ['barcode', 'sample_id'])
 
 
 
-        # workflow_table contains the found paths for fastq data
-        master_merge = df.merge(workflow_table[['barcode', 'sample_id', 'barcode_path']], how='left', on=['barcode', 'sample_id']) # left join (merge) the present barcodes onto the df_mini table.
+        # workflow_table contains the found paths for fastq files.
+        merged = df.merge(workflow_table[['barcode', 'sample_id', 'barcode_path']], how='left', on=['barcode', 'sample_id']) # left join (merge) the present barcodes onto the df_mini table.
+
+        
+        # Couple the correct batch_id
+        merged = merged.assign(batch_id = batch_id)
 
 
-        # Read and pivot pangolin
-        pangolin = pd.read_csv(str(input.pangolin), sep = "\t")
-        pangolin = pangolin.pivot_table(index = ["batch_id", "sample_id"], 
-            columns = 'variable', 
-            values = 'value',
-            aggfunc = 'first').reset_index() # There should only be one value per index-column combination, therefore first is fine to use as aggfunc.
+        # This data can now be long-pivoted and dumped besides pangolin and nextclade.
+        merged = pd.melt(merged, id_vars = ["batch_id", "sample_id"])
+        merged = merged.rename(columns = {"batch_id": "#batch_id"})
 
-        print("This is pangolin before joining: (hidden index)")
-        print(pangolin.to_string(index = False))
+        #merged.to_csv("test_merge_out.tsv", index = False, sep = "\t")
 
-
-        # Read and pivot nextclade
-        nextclade = pd.read_csv(str(input.nextclade), sep = "\t")
-        nextclade = nextclade.pivot_table(index = ["batch_id", "sample_id"], 
-            columns = 'variable', 
-            values = 'value',
-            aggfunc = 'first').reset_index() # There should only be one value per index-column combination, therefore first is fine to use as aggfunc.
-
-        print("This is nextclade before joining: (hidden index)")
-        print(nextclade.to_string(index = False))
+        # Finally write the output to disk.
+        merged.to_csv(str(output), index = False, sep = "\t")
 
 
+rule final_merge:
+    input: 
+        collected_input = "{out_base}/collected/collected_input_long.tsv",
+        collected_pangolin = "{out_base}/collected/collected_pangolin_long.tsv",
+        collected_nextclade = "{out_base}/collected/collected_nextclade_long.tsv"
+    output: "{out_base}/{batch_id}_pappenheim.tsv"
+    shell: """
+
+        echo -e "#batch_id\tsample_id\tvariable\tvalue" > {output}
+        cat {input} | grep -vE "^#" >> {output}
+
+        """
+
+
+
+        # exit()
+
+        # # Read and pivot pangolin
+        # pangolin = pd.read_csv(str(input.pangolin), sep = "\t")
+        # pangolin = pangolin.pivot_table(index = ["batch_id", "sample_id"], 
+        #     columns = 'variable', 
+        #     values = 'value',
+        #     aggfunc = 'first').reset_index() # There should only be one value per index-column combination, therefore first is fine to use as aggfunc.
+
+        # print("This is pangolin before joining: (hidden index)")
+        # print(pangolin.to_string(index = False))
+
+
+        # # Read and pivot nextclade
+        # nextclade = pd.read_csv(str(input.nextclade), sep = "\t")
+        # nextclade = nextclade.pivot_table(index = ["batch_id", "sample_id"], 
+        #     columns = 'variable', 
+        #     values = 'value',
+        #     aggfunc = 'first').reset_index() # There should only be one value per index-column combination, therefore first is fine to use as aggfunc.
+
+        # print("This is nextclade before joining: (hidden index)")
+        # print(nextclade.to_string(index = False))
 
 
 
 
-        # We need the batch_id so we can make sure that only the correct batched samples are integrated.
-        master_merge = master_merge.assign(batch_id = batch_id)
 
-        master_merge = master_merge.merge(pangolin, how = 'left', on = ['batch_id', 'sample_id'])
-        master_merge = master_merge.merge(nextclade, how = 'left', on = ['batch_id', 'sample_id'])
+
+        # # We need the batch_id so we can make sure that only the correct batched samples are integrated.
+
+        # merged = merged.merge(pangolin, how = 'left', on = ['batch_id', 'sample_id'])
+        # merged = merged.merge(nextclade, how = 'left', on = ['batch_id', 'sample_id'])
         
 
-        print("what")
-        # Left join nextclade onto above df.
+        # print("what")
+        # # Left join nextclade onto above df.
 
 
-        # Save the df to disk and be done
-        print(master_merge.columns)
-        print(master_merge, file = sys.stderr)
+        # # Save the df to disk and be done
+        # print(merged.columns)
+        # print(merged, file = sys.stderr)
 
-        master_merge.to_csv("test_merge_out.tsv", sep = "\t")
+        # merged.to_csv("test_merge_out.tsv", sep = "\t")
 
 
 
