@@ -594,6 +594,17 @@ rule collect_variant_data:
 
         """
 
+rule merge_variant_data:
+    input:
+        pangolin ="{out_base}/collected/collected_pangolin_long.tsv",
+        nextclade = "{out_base}/collected/collected_nextclade_long.tsv"
+    output:
+        "{out_base}/collected/merged_workflow_pangolin_nextclade.tsv"
+    run:
+        workflow_table = disk_barcodes_df.merge(df_mini, how='left', on='barcode') # left join (merge) the present barcodes onto the df_mini table.
+
+
+
 
         # collect the data together and pivot it wider
 
