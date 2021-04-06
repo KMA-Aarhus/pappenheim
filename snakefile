@@ -348,9 +348,9 @@ rule all:
     input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
                    "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
                    "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
-                   "{out_base}/collected/collected_nextclade_long.tsv", \
-                   "{out_base}/collected/collected_input_long.tsv", \
-                   "{out_base}/{batch_id}_pappenheim.tsv"], \
+                   "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
+                   "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
+                   "{out_base}/upload/{batch_id}_metadata.tsv"], \
                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
                    #"{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta"],
                   
@@ -588,8 +588,8 @@ rule collect_variant_data:
 
 
     output: 
-        collected_pangolin = "{out_base}/collected/collected_pangolin_long.tsv",
-        collected_nextclade = "{out_base}/collected/collected_nextclade_long.tsv"
+        collected_pangolin = "{out_base}/collected/{batch_id}_collected_pangolin_long.tsv",
+        collected_nextclade = "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv"
     shell:
         """
 
@@ -604,10 +604,10 @@ rule collect_variant_data:
 
 rule merge_variant_data:
     input:
-        pangolin ="{out_base}/collected/collected_pangolin_long.tsv",
-        nextclade = "{out_base}/collected/collected_nextclade_long.tsv"
+        pangolin ="{out_base}/collected/{batch_id}_collected_pangolin_long.tsv",
+        nextclade = "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv"
     output:
-        "{out_base}/collected/collected_input_long.tsv"
+        "{out_base}/collected/{batch_id}_collected_input_long.tsv"
     run:
 
 
@@ -623,6 +623,9 @@ rule merge_variant_data:
         # Couple the correct batch_id
         merged = merged.assign(batch_id = batch_id)
 
+        merged['upload_consensus_file'] = merged.apply(lambda row: row.batch_id + "_" + row.sample_id + ".consensus.fasta", axis=1)
+            
+
 
         # This data can now be long-pivoted and dumped besides pangolin and nextclade.
         merged = pd.melt(merged, id_vars = ["batch_id", "sample_id"])
@@ -636,14 +639,25 @@ rule merge_variant_data:
 
 rule final_merge:
     input: 
-        collected_input = "{out_base}/collected/collected_input_long.tsv",
-        collected_pangolin = "{out_base}/collected/collected_pangolin_long.tsv",
-        collected_nextclade = "{out_base}/collected/collected_nextclade_long.tsv"
-    output: "{out_base}/{batch_id}_pappenheim.tsv"
+        consensuses = expand("{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", out_base = out_base, batch_id = batch_id, sample_id = workflow_table["sample_id"]),
+        collected_input = "{out_base}/collected/{batch_id}_collected_input_long.tsv",
+        collected_pangolin = "{out_base}/collected/{batch_id}_collected_pangolin_long.tsv",
+        collected_nextclade = "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv"
+    output:
+        file = "{out_base}/upload/{batch_id}_metadata.tsv",
+        
     shell: """
 
-        echo -e "#batch_id\tsample_id\tvariable\tvalue" > {output}
-        cat {input} | grep -vE "^#" >> {output}
+        echo -e "#batch_id\tsample_id\tvariable\tvalue" > {output.file}
+        cat {input.collected_input} {input.collected_pangolin} {input.collected_nextclade} | grep -vE "^#" >> {output.file}
+        
+
+
+        # Prepare data for upload
+        cp {input.consensuses} {out_base}/upload/
+
+        # tar something
+
 
         """
 
