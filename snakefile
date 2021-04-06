@@ -350,9 +350,11 @@ rule all:
                    "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
                    "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
                    "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
-                   "{out_base}/upload/{batch_id}_metadata.tsv"], \
+                   "{out_base}/upload_{batch_id}.tar.gz"], \
                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
-                   #"{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta"],
+    shell: """
+        echo hej
+        """
                   
 
 
@@ -644,19 +646,48 @@ rule final_merge:
         collected_pangolin = "{out_base}/collected/{batch_id}_collected_pangolin_long.tsv",
         collected_nextclade = "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv"
     output:
-        file = "{out_base}/upload/{batch_id}_metadata.tsv",
+        file = "{out_base}/collected/{batch_id}_all.tsv",
+        compressed = "{out_base}/upload_{batch_id}.tar.gz"
+    params:
+        dir = "{out_base}/upload"
+
         
     shell: """
 
+        # Collect all long metadata files together in the collected-directory.
         echo -e "#batch_id\tsample_id\tvariable\tvalue" > {output.file}
         cat {input.collected_input} {input.collected_pangolin} {input.collected_nextclade} | grep -vE "^#" >> {output.file}
+
+
+        # Make a temporary file just for junking paths in the compression step.
+        echo "creating dir {params.dir}"
+        mkdir -p {params.dir}
+        rm -f {params.dir}/*
         
 
+        # Move consensus-files and metadata to the upload directory
+        cp {input.consensuses} {params.dir}
+        cp {output.file} {params.dir}
 
-        # Prepare data for upload
-        cp {input.consensuses} {out_base}/upload/
+        cd {params.dir}
 
-        # tar something
+        # Compress data
+        echo "Compressing consensuses:"
+        tar -czvf {output.compressed} *
+
+        # Delete the directory. The data is already elsewhere.
+        
+
+        # Finally display interesting data on the screen
+        echo -e "\nLineages:"
+        cat {output.file} | grep "lineage" | column -t
+
+        echo -e "\nClades:"
+        cat {output.file} | grep "clade" | column -t 
+
+
+        sleep 5
+        cd .. && rm -r {params.dir}
 
 
         """
