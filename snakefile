@@ -49,10 +49,6 @@ nl = "\n"
 
 
 
-#batch_id = datetime.now().strftime('pap%Y%m%dT%H%M')
-#batch_id = datetime.now().strftime('pap%Y%m%d')
-
-#batch_id = "today"
 
 
 
@@ -292,8 +288,8 @@ print("arbhash: ", arbhash)
 
 
 
-batch_id = ".".join(very_long_batch_id.split("_")[0:2])
-print(f"This is the used batch id", batch_id)
+batch_id = ".".join(very_long_batch_id.split("_")[0:2]) # The first two words (date, time), joined by a dot.
+print(f"This is the parsed batch_id:", batch_id)
 
 
 
