@@ -156,6 +156,7 @@ lag()
 df.columns = map(str.lower, df.columns) # Lowercase
 df.columns = map(str.strip, df.columns) # Remove edge-spaces
 df.columns = map(lambda x: str(x).replace(" ", "_"), df.columns) # Replace spaces with underscore
+df["barcode"] = df["barcode"].apply(np.vectorize(lambda x: str(x).strip().replace(" ", ""))) # Because we are later going to join using this column, it is necessary to strip it for spaces.
 df = df.dropna(subset = ["sample_id"])# remove rows not containing a sample ID
 print("✓")
 
@@ -175,8 +176,8 @@ print("✓")
 print("Minimizing sample sheet ...                            ", end = "", flush = True)
 lag()
 df_mini = df[["barcode", "sample_id"]] # Select the only necessary columns
+df_mini = df_mini.apply(np.vectorize(lambda x: str(x).strip().replace(" ", ""))) # strip whitespace and replace spaces with underscoresnothing.
 df_mini = df_mini.dropna(how='all') # Drop the rows where all elements are missing.
-df_mini = df_mini.apply(np.vectorize(lambda x: str(x).strip().replace(" ", ""))) # strip whitespace and replace spaces with underscores.
 print("✓")
 
 
@@ -312,6 +313,7 @@ disk_barcodes_df = disk_barcodes_df.assign(barcode = ["NB" + i[-2:] for i in dis
 
 print("Continuing with the following barcodes:")
 
+# the workflow_table is the table that contains the records where the barcode could be found on the disk.
 workflow_table = disk_barcodes_df.merge(df_mini, how='left', on='barcode') # left join (merge) the present barcodes onto the df_mini table.
 workflow_table = workflow_table.dropna(subset = ["sample_id"])
 
@@ -344,8 +346,9 @@ if not development_mode:
 # This is the collection target, it collects all outputs from other targets. 
 rule all:
     input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
-                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.csv", \
-                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"], \
+                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
+                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
+                   "{out_base}/collected/collected_nextclade_long.tsv"], \
                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
                    #"{out_base}/{batch_id}/consensus/{batch_id}_{sample_id}.fasta"],
                   
@@ -450,7 +453,7 @@ rule pangolin_updater:
         pip install git+https://github.com/cov-lineages/pangoLEARN.git --upgrade 
         pip install git+https://github.com/cov-lineages/lineages.git --upgrade 
 
-        #Check the install worked
+        # Check that the install worked
         pangolin -v \
         && pangolin -pv \
         && touch "{wildcards.out_base}/flags/pangolin_install.flag.ok"
@@ -485,23 +488,26 @@ rule pangolin:
         pangolin {input.consensuses} \
             --outfile {output}
 
+        # This output should be pivoted.
 
-        # TODO: long pivot this output. First I will have to get access to R somehow with i conda environment
 
     """
 
 rule pivot_pangolin:
     input: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin.csv"
     output: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv"
-    conda: "envs/r-tidyverse.yml"
-    shell: """
-       
-        #Rscript --version > r-version.txt >> rfail.txt
+    #conda: "envs/r-tidyverse.yml"
+    run:
+        wide = pd.read_csv(str(input), dtype = str)
+        wide = wide.assign(batch_id = wildcards.batch_id, sample_id = wildcards.sample_id)
 
+        long = pd.melt(wide, id_vars = ["batch_id", "sample_id"])
+        long = long.rename(columns = {"batch_id": "#batch_id"})
 
-        Rscript scripts/pivot_longer.r {input} {wildcards.sampleid} > {output}
+        #print("This is long before assigning sample_id:", file = sys.stderr)
+        #print(long)
 
-    """
+        long.to_csv(str(output), index = False, sep = "\t")
 
 
 
@@ -546,17 +552,55 @@ rule nextclade:
 rule pivot_nextclade:
     input: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"
     output: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv"
-    conda: "envs/r-tidyverse.yml"
-    shell: """
-       
-        #Rscript --version > r-version.txt >> rfail.txt
+    run:
+        wide = pd.read_csv(str(input), dtype = str, sep = "\t")
+        wide = wide.assign(batch_id = wildcards.batch_id, sample_id = wildcards.sample_id)
+
+        long = pd.melt(wide, id_vars = ["batch_id", "sample_id"])
+        long = long.rename(columns = {"batch_id": "#batch_id"})
+
+        #print("This is long before assigning sample_id:", file = sys.stderr)
+        #print(long)
+
+        long.to_csv(str(output), index = False, sep = "\t")
 
 
-        Rscript scripts/pivot_longer.r {input} {wildcards.sampleid} > {output}
 
-    """
+###########################################
+# Merge pangolin nextclade and input_data #
+########################################### 
+
+rule collect_variant_data:
+    input:
+        pangolin = expand("{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
+            out_base = out_base, \
+            batch_id = batch_id, \
+            sample_id = workflow_table["sample_id"]),
+        nextclade = expand("{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
+            out_base = out_base, \
+            batch_id = batch_id, \
+            sample_id = workflow_table["sample_id"]),
 
 
+    output: 
+        collected_pangolin = "{out_base}/collected/collected_pangolin_long.tsv",
+        collected_nextclade = "{out_base}/collected/collected_nextclade_long.tsv"
+    shell:
+        """
+
+        cat {input.pangolin} | grep -vE "^#" > {output.collected_pangolin}
+        cat {input.nextclade} | grep -vE "^#" > {output.collected_nextclade}
+
+
+        """
+
+
+        # collect the data together and pivot it wider
+
+
+
+        # Join it onto df_mini
+        # Join it onto 
 
 
 
