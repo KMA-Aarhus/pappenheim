@@ -21,10 +21,7 @@ if int(terminal_columns) < 125:
     print("Warning: Please increase your terminal window width.")
 
 
-#import time
-#import re
-#from shutil import copyfile
-#import re
+
 
 # When development_mode is True, the development cycle (frequency) is increased.
 development_mode = True
@@ -703,112 +700,5 @@ rule final_merge:
 
 
         """
-
-
-
-        # exit()
-
-        # # Read and pivot pangolin
-        # pangolin = pd.read_csv(str(input.pangolin), sep = "\t")
-        # pangolin = pangolin.pivot_table(index = ["batch_id", "sample_id"], 
-        #     columns = 'variable', 
-        #     values = 'value',
-        #     aggfunc = 'first').reset_index() # There should only be one value per index-column combination, therefore first is fine to use as aggfunc.
-
-        # print("This is pangolin before joining: (hidden index)")
-        # print(pangolin.to_string(index = False))
-
-
-        # # Read and pivot nextclade
-        # nextclade = pd.read_csv(str(input.nextclade), sep = "\t")
-        # nextclade = nextclade.pivot_table(index = ["batch_id", "sample_id"], 
-        #     columns = 'variable', 
-        #     values = 'value',
-        #     aggfunc = 'first').reset_index() # There should only be one value per index-column combination, therefore first is fine to use as aggfunc.
-
-        # print("This is nextclade before joining: (hidden index)")
-        # print(nextclade.to_string(index = False))
-
-
-
-
-
-
-        # # We need the batch_id so we can make sure that only the correct batched samples are integrated.
-
-        # merged = merged.merge(pangolin, how = 'left', on = ['batch_id', 'sample_id'])
-        # merged = merged.merge(nextclade, how = 'left', on = ['batch_id', 'sample_id'])
-        
-
-        # print("what")
-        # # Left join nextclade onto above df.
-
-
-        # # Save the df to disk and be done
-        # print(merged.columns)
-        # print(merged, file = sys.stderr)
-
-        # merged.to_csv("test_merge_out.tsv", sep = "\t")
-
-
-
-
-
-###############
-# Backup data #
-###############
-
-#These jobs are optional if you want to backup your data.
-
-#rule upload_core_data:
-
-#rule upload_raw_data:
-
-
-
-
-
-
-# # Collect all targets
-# rule all:
-#     input: expand(["{out_base}/metadata.tsv", \
-#                    "{out_base}/samples/{sample}/{sample}.fa", \
-#                    "{out_base}/samples/{sample}/prokka/{sample}.gff", \
-#                    "{out_base}/roary/summary_statistics.txt", \
-#                    "{out_base}/abricate/card_detail.tsv", \
-#                    "{out_base}/mlst/mlst.tsv", \
-#                    "{out_base}/mashtree/mashtree.newick", \
-#                    "{out_base}/fasttree/fasttree.newick"], \
-#                   out_base = out_base_var, sample = df["sample"]) # copy
-
-
-
-
-
-  
-
-# # Write the df table to the directory for later reference.
-# rule metadata:
-#     input: df["input_file"].tolist()
-#     output: "{out_base}/metadata.tsv"
-#     run: 
-#         df.to_csv(str(output), index_label = "index", sep = "\t")
-
-
-
-# # Copy the input file to its new home
-# rule copy:
-#     #input: "{sample}"
-#     input: lambda wildcards: df[df["sample"]==wildcards.sample]["input_file"].values[0]
-#     output: "{out_base}/samples/{sample}/{sample}.fa"
-#     #log: "logs/{out_base}_{wildcards.sample}.out.log"
-
-#     shell: """
-
-#         mkdir -p logs output_asscom1
-
-#         cp {input} {output}
-
-#         """
 
 
