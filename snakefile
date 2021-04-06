@@ -696,7 +696,7 @@ rule final_merge:
 
 
         sleep 5
-        cd .. && rm -r {params.dir}
+        cd {params.dir}/.. && rm -r {params.dir}
 
 
         """
