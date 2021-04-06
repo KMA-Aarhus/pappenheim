@@ -1,7 +1,6 @@
 # Pappenheim ONT-SARS-CoV-2 (Work in progress)
-Pipeline til sekventering af SARS-CoV-2 på lokale workstations med realtidsbasecalling. Pipelinen er baseret på snakemake og bruger i videste omfang conda. Alle mellemværende outputs er lang-pivoterede.
 
-
+Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-basecalling (GPU). This pipeline is based on snakemake and uses conda. All intermediary outputs are long-pivoted.
 
 
 
@@ -23,17 +22,23 @@ Pipeline til sekventering af SARS-CoV-2 på lokale workstations med realtidsbase
    conda install mamba -n base -c conda-forge
    ```
 
-3. Clone this repository and install snakemake
+3. Clone this repository
 
     ```
     # install pappenheim in the home directory
     cd ~
     
-    # Make sure you clone recursively, in order for the artic submodule to be included in the download.
+    # Make sure you clone recursively, in order for the artic and pangolin submodules to be included in the download.
     git clone --recurse-submodules https://github.com/KMA-Aarhus/pappenheim.git 
+    ```
+    
+4. Install snakemake and other dependencies needed for pappenheim:
 
-    # Install snakemake using conda
-    # If you wish to install the package NOT in the base environment, create an environment, activate it, before running the following line:
+    Make sure to uncomment the `conda create ...` command if you do not want pappenheim and its dependencies in your base conda environment.
+
+    ```    
+    # conda create -n pappenheim && conda activate pappenheim    
+    
     mamba env update --file pappenheim/environment.yaml 
     ```
 
