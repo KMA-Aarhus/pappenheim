@@ -1,5 +1,8 @@
 # Workstation setup
 
+This is the setup we use for our local workstations with realtime basecalling.
+
+
 ### Install Ubuntu LTS
 
 
