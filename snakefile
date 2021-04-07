@@ -24,7 +24,7 @@ if int(terminal_columns) < 125:
 
 
 # When development_mode is True, the development cycle (frequency) is increased.
-development_mode = True
+development_mode = False
 
 
 configfile: "config.yaml"
