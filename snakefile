@@ -271,13 +271,13 @@ print(f"This is the batch base directory:{nl}  {base_dir}")
 very_long_batch_id = base_dir.split("/")[-1]
 print(f"This is the very long batch id:", very_long_batch_id)
 
-date, time, minion, flowcell, arbhash = very_long_batch_id.split("_")
+date_parse, time_parse, minion_parse, flowcell_parse, arbhash_parse = very_long_batch_id.split("_")
 
-print("date:    ", date)
-print("time:    ", time)
-print("minion:  ", minion)
-print("flowcell:", flowcell)
-print("arbhash: ", arbhash)
+print("date:    ", date_parse)
+print("time:    ", time_parse)
+print("minion:  ", minion_parse)
+print("flowcell:", flowcell_parse)
+print("arbhash: ", arbhash_parse)
 
 
 
