@@ -33,7 +33,7 @@ Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-baseca
     
 4. Install snakemake and other dependencies needed for pappenheim:
 
-    Optional: Make sure to uncomment the `conda create ...` command if you do not want pappenheim and its dependencies in your base conda environment.
+    Optional: Make sure to uncomment the `conda create ...` command if you want pappenheim in its own environment.
 
     ```    
     # conda create -n pappenheim && conda activate pappenheim    
