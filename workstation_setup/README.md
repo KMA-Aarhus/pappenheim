@@ -121,13 +121,15 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
     ```
     
 6. Install the Pappenheim pipeline according to its [instructions](https://github.com/KMA-Aarhus/pappenheim#installation)
-   * Add the following bash alias:
+   * Run this command to extend your bash environment.
    ```
    echo 'source ~/pappenheim/scripts/bash_extensions.sh' >> ~/.bashrc && source ~/.bashrc
-   
-   
    ```
    
+   * Run this command to get a link of the laboratory-instruction onto the desktop.
+   ```
+   ln -s ${HOME}/pappenheim/laboratory/SARS-CoV-2\ sekventeringsinstruks.pdf ~/Desktop
+   ```
    
 ### Miscellaneous
 

@@ -1,7 +1,10 @@
 
 __author__ = "Carl Mathias Kobel"
 __version__ = "0.1"
-# snakemake --samplesheet path/to/samplesheet.ods --rundir path/to/minknowoutput/
+
+
+# start_pappenheim '/run/user/1000/gvfs/smb-share:server=onerm.dk,share=nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit Molekyl. og Serologi/NanoPore/NanoPore Metadata/5770_seq_2021-03-23_NEB.xlsx'  '/home/ontseqa/Desktop/sc2_sequencing/COVID19-AUH-20210324-5770/' -np
+
 
 import sys
 from os import listdir
@@ -95,6 +98,7 @@ def check_user(prompt):
         exit(1)
 
     print("Proceeding ...")
+    print()
 
 
 
@@ -299,7 +303,7 @@ print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.
 
 
 sample_sheet_given_file = f"{fastq_pass_base}/../sample_sheet_given.tsv"
-print(f"Backing up the original sample sheet                   ", end = "", flush = True)
+print(f"Backing up the original sample sheet ...               ", end = "", flush = True)
 df.to_csv(sample_sheet_given_file, sep = "\t")
 print("✓")
 
