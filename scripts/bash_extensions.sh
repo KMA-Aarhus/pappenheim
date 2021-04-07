@@ -12,10 +12,6 @@ alias start_rampart='{ $(sleep 5; firefox localhost:3000)  & }; conda activate a
 alias citament='git add -u && git commit -m "amend" &&  git pull && git push && echo OK'
 
 
-pappenheim_clean_uploader () {
-    echo Here you can define your own script for uploading files somewhere.
-    echo $1
-}
 
 
 
