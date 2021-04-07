@@ -7,7 +7,7 @@ Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-baseca
 ## Installation 
 
 
-1. Install conda (if you don't already have it):
+1. Install conda (if you haven't already):
 
     ```
     cd ~
@@ -23,7 +23,6 @@ Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-baseca
    ```
 
 3. Clone this repository
-
     ```
     # install pappenheim in the home directory
     cd ~
@@ -34,7 +33,7 @@ Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-baseca
     
 4. Install snakemake and other dependencies needed for pappenheim:
 
-    Make sure to uncomment the `conda create ...` command if you do not want pappenheim and its dependencies in your base conda environment.
+    Optional: Make sure to uncomment the `conda create ...` command if you do not want pappenheim and its dependencies in your base conda environment.
 
     ```    
     # conda create -n pappenheim && conda activate pappenheim    
