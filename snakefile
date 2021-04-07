@@ -27,7 +27,7 @@ if int(terminal_columns) < 125:
 
 
 # When development_mode is True, the development cycle (frequency) is increased.
-development_mode = False
+development_mode = True
 
 
 configfile: "config.yaml"
@@ -72,7 +72,8 @@ print("                  ██╔═══╝ ██╔══██║██╔
 print("                  ██║     ██║  ██║██║     ██║     ███████╗██║ ╚████║██║  ██║███████╗██║██║ ╚═╝ ██║ ")
 print("                  ╚═╝     ╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝     ╚═╝ ")
 print()
-print(f"                                      Press ctrl+c at any time to stop this pipeline.")
+print("                                      Press ctrl+c at any time to stop this pipeline."              )
+print()
 
 
 # Check that input was given.
@@ -293,9 +294,15 @@ out_base = os.path.join(base_dir, "pappenheim_output") # out_base is the directo
 # Check that the sequence_summary.txt file exists. If it doesn't, we won't be able to polish the assemblies.
 #if not os.path.isfile(fastq_pass_base + "/../sequence_"):
 print("Checking that the sequencing_summary_*.txt-file has been written to disk ... ", end = "", flush = True)
-sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
-if len(sequencing_summary_file) == 0:
-    raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
+while True:
+
+    sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
+    if len(sequencing_summary_file) == 0:
+        print("waiting ...")
+    else:
+        break
+
+    #raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
 sequencing_summary_file = sequencing_summary_file[0]
 print("✓")
 print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
@@ -357,7 +364,7 @@ rule all:
                    "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
                    "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
                    "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
-                   "{out_base}/upload_{batch_id}.tar.gz"], \
+                   "{out_base}/flags/{batch_id}_clean_upload.flag.ok"], \
                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
 
 
@@ -629,9 +636,8 @@ rule final_merge:
         collected_nextclade = "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv"
     output:
         file = "{out_base}/collected/{batch_id}_all.tsv",
-        compressed = "{out_base}/upload_{batch_id}.tar.gz"
-    params:
-        dir = "{out_base}/upload"
+        dir = directory("{out_base}/clean_upload_{batch_id}"),
+        upload_flag = "{out_base}/flags/{batch_id}_clean_upload.flag.ok"
     shell: """
 
         # Collect all long metadata files together in the collected-directory.
@@ -639,35 +645,23 @@ rule final_merge:
         cat {input.collected_input} {input.collected_pangolin} {input.collected_nextclade} | grep -vE "^#" >> {output.file}
 
 
-        # Make a temporary file just for junking paths in the compression step.
-        echo "creating dir {params.dir}"
-        mkdir -p {params.dir}
-        rm -f {params.dir}/*
+        # Make a copy of clean outputs
+        mkdir -p {output.dir}
+        rm -rf {output.dir}/* # Delete old content if any.
         
 
-        # Move consensus-files and metadata to the upload directory
-        cp {input.consensuses} {params.dir}
-        cp {output.file} {params.dir}
-
-        cd {params.dir}
-
-        # Compress data
-        echo "Compressing consensuses:"
-        tar -czvf {output.compressed} *
-
-        # Delete the directory. The data is already elsewhere.
-        
-
-        # Finally display interesting data on the screen
-        echo -e "\nLineages:"
-        cat {output.file} | grep "lineage" | column -t
-
-        echo -e "\nClades:"
-        cat {output.file} | grep "clade" | column -t 
+        # Copy consensus-files and metadata to the upload directory
+        cp {input.consensuses} {output.dir}
+        cp {output.file} {output.dir}
 
 
-        sleep 5
-        cd {params.dir}/.. && rm -r {params.dir}
+        # Optionally call clean upload script
+        touch ~/pappenheim_clean_uploader
+        bash ~/pappenheim_clean_uploader {output.dir}
+
+
+        # If all went well, we touch the final OK flag.
+        touch {output.upload_flag}
 
 
         """
