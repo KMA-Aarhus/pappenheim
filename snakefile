@@ -61,19 +61,15 @@ def lag(time_ = 0.06):
 # Print a convincing logo
 print()
 print(f"          Pappenheim pipeline v{__version__}  -  Aarhus Universityhospital  -  Department of Clinical Microbiology          ")
-#print()
-#print("    ▄███████▄    ▄████████    ▄███████▄    ▄███████▄    ▄████████ ███▄▄▄▄      ▄█    █▄       ▄████████  ▄█    ▄▄▄▄███▄▄▄▄   ")
-#print("   ███    ███   ███    ███   ███    ███   ███    ███   ███    ███ ███▀▀▀██▄   ███    ███     ███    ███ ███  ▄██▀▀▀███▀▀▀██▄ ")
-#print("   ███    ███   ███    ███   ███    ███   ███    ███   ███    █▀  ███   ███   ███    ███     ███    █▀  ███▌ ███   ███   ███ ")
-#print("   ███    ███   ███    ███   ███    ███   ███    ███  ▄███▄▄▄     ███   ███  ▄███▄▄▄▄███▄▄  ▄███▄▄▄     ███▌ ███   ███   ███ ")
-#print(" ▀█████████▀  ▀███████████ ▀█████████▀  ▀█████████▀  ▀▀███▀▀▀     ███   ███ ▀▀███▀▀▀▀███▀  ▀▀███▀▀▀     ███▌ ███   ███   ███ ")
-#print("   ███          ███    ███   ███          ███          ███    █▄  ███   ███   ███    ███     ███    █▄  ███  ███   ███   ███ ")
-#print("   ███          ███    ███   ███          ███          ███    ███ ███   ███   ███    ███     ███    ███ ███  ███   ███   ███ ")
-#print("  ▄████▀        ███    █▀   ▄████▀       ▄████▀        ██████████  ▀█   █▀    ███    █▀      ██████████ █▀    ▀█   ███   █▀  ")
-print()                                                                                                                            
-print(f"                                      Press ctrl+c at any time to stop this pipeline.")
 print()
-
+print("                  ██████╗  █████╗ ██████╗ ██████╗ ███████╗███╗   ██╗██╗  ██╗███████╗██╗███╗   ███╗ ")
+print("                  ██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝████╗  ██║██║  ██║██╔════╝██║████╗ ████║ ")
+print("                  ██████╔╝███████║██████╔╝██████╔╝█████╗  ██╔██╗ ██║███████║█████╗  ██║██╔████╔██║ ")
+print("                  ██╔═══╝ ██╔══██║██╔═══╝ ██╔═══╝ ██╔══╝  ██║╚██╗██║██╔══██║██╔══╝  ██║██║╚██╔╝██║ ")
+print("                  ██║     ██║  ██║██║     ██║     ███████╗██║ ╚████║██║  ██║███████╗██║██║ ╚═╝ ██║ ")
+print("                  ╚═╝     ╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝     ╚═╝ ")
+print()
+print(f"                                      Press ctrl+c at any time to stop this pipeline.")
 
 
 # Check that input was given.
@@ -103,11 +99,9 @@ def check_user(prompt):
 
 
 
-##########################
-# Parse the sample sheet #
-##########################
-
-
+#########################
+# Parse the samplesheet #
+#########################
 
 samplesheet_extension = samplesheet.split(".")[-1]
 print(f"Reading .{samplesheet_extension}-type sample sheet \"{samplesheet}\"")
@@ -238,9 +232,7 @@ if not os.path.isdir(rundir):
     raise Exception(f"The rundir does not exist.")
 print("✓")
 
-
 print(f"Looking for MinKNOW-characteristic output:") #, end = "", flush = True)
-
 
 for i in range(200):
     print("  Looking ... ", end = "", flush = True)
@@ -256,9 +248,9 @@ for i in range(200):
         break
 
 
-
 if not len(fastq_pass_bases) == 1:
-    raise Exception(f"There seems to be more than one fastq_pass sub-directory beneath the given rundir. These paths were found:{nl} {str(nl + ' ').join(fastq_pass_bases)}")
+    raise Exception(f"There seems to be more than one fastq_pass sub-directory beneath the given rundir. These paths were found:{nl} {str(nl + ' ').join(fastq_pass_bases)}{nl}Please specify a more specific rundir.")
+
 
 fastq_pass_base = fastq_pass_bases[0]
 del fastq_pass_bases
@@ -303,7 +295,6 @@ if len(sequencing_summary_file) == 0:
 sequencing_summary_file = sequencing_summary_file[0]
 print("✓")
 print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
-
 
 
 
@@ -428,14 +419,11 @@ rule minion:
 # Pangolin #
 ############
 
-
 # Make sure that we have the latest pangolin environment.yml for snakemake-conda
 rule pangolin_downloader:
     output: "{out_base}/flags/pangolin_downloader.flag.ok"
     shell: """
 
-
-        ping github.com -c 1 && echo "Internet OK" || echo "Warning: no internet connection"
 
         cd pangolin
         git submodule update --remote
@@ -445,21 +433,17 @@ rule pangolin_downloader:
 
         """
 
-
 # Runs once per batch
 rule pangolin_updater: 
     input: "{out_base}/flags/pangolin_downloader.flag.ok"
     output: "{out_base}/flags/pangolin_updater.flag.ok"
     conda: "pangolin/environment.yml"
     shell: """
-        
 
         cd pangolin
 
-
-
         # Install pangolin
-        python setup.py install > plog.out 2> plog.err
+        python setup.py install > latest_pangolin_install_log.stdout 2> latest_pangolin_install_log.stderr
 
         # Check that the newest dendendencies are installed. 
         pip install git+https://github.com/cov-lineages/pangoLEARN.git --upgrade 
@@ -472,17 +456,9 @@ rule pangolin_updater:
         
 
 
-
-        # Download the latest version so it can be installed next time around 
-        git submodule update --remote
-
-
         touch {output}
 
     """
-
-    
-
 
 rule pangolin:
     # input: expand("{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", batch_id = batch_id, sample_id = workflow_table["sample_id"]) # per batch
@@ -495,13 +471,10 @@ rule pangolin:
         out_dir = "{out_base}/{batch_id}_{sample_id}/pangolin"
     shell: """
 
-        
-
         pangolin {input.consensuses} \
             --outfile {output}
 
         # This output should be pivoted.
-
 
     """
 
@@ -525,6 +498,9 @@ rule pivot_pangolin:
 
 
 
+
+
+
 #############
 # Nextclade #
 #############
@@ -535,34 +511,30 @@ rule nextclade_updater:
     conda: "envs/nodejs.yml"
     shell: """
 
-        ping github.com -c 1 && echo "Internet OK" || echo "Warning: no internet connection"
 
-
+        # Install or update nextclade to the latest version.
         npm install --global @neherlab/nextclade
-
 
 
         touch {output}
 
     """
 
-
 rule nextclade:
     input: 
         nextclade_flag = "{out_base}/flags/nextclade_updater.flag.ok",
-        consensuses = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
+        consensus = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
     output: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"
     conda: "envs/nodejs.yml"
     shell: """
 
-
         nextclade.js \
-            --input-fasta {input.consensuses} \
+            --input-fasta {input.consensus} \
             --output-tsv {output}
 
     """
 
-
+# Pivot the nextclade output to long format.
 rule pivot_nextclade:
     input: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"
     output: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv"
@@ -574,10 +546,11 @@ rule pivot_nextclade:
         long = pd.melt(wide, id_vars = ["batch_id", "sample_id"])
         long = long.rename(columns = {"batch_id": "#batch_id"})
 
-        #print("This is long before assigning sample_id:", file = sys.stderr)
-        #print(long)
-
         long.to_csv(str(output), index = False, sep = "\t")
+
+
+
+
 
 
 
@@ -594,21 +567,17 @@ rule collect_variant_data:
         nextclade = expand("{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
             out_base = out_base, \
             batch_id = batch_id, \
-            sample_id = workflow_table["sample_id"]),
-
-
+            sample_id = workflow_table["sample_id"])
     output: 
         collected_pangolin = "{out_base}/collected/{batch_id}_collected_pangolin_long.tsv",
         collected_nextclade = "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv"
-    shell:
-        """
+    shell: """
 
         echo -e "#batch_id\tsample_id\tvariable\tvalue" > {output.collected_pangolin}
         cat {input.pangolin} | grep -vE "^#" >> {output.collected_pangolin}
 
         echo -e "#batch_id\tsample_id\tvariable\tvalue" > {output.collected_nextclade}
         cat {input.nextclade} | grep -vE "^#" >> {output.collected_nextclade}
-
 
         """
 
@@ -659,8 +628,6 @@ rule final_merge:
         compressed = "{out_base}/upload_{batch_id}.tar.gz"
     params:
         dir = "{out_base}/upload"
-
-        
     shell: """
 
         # Collect all long metadata files together in the collected-directory.
