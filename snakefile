@@ -293,7 +293,7 @@ out_base = os.path.join(base_dir, "pappenheim_output") # out_base is the directo
 
 # Check that the sequence_summary.txt file exists. If it doesn't, we won't be able to polish the assemblies.
 #if not os.path.isfile(fastq_pass_base + "/../sequence_"):
-print("Checking that the sequencing_summary_*.txt-file has been written to disk ... ", end = "", flush = True)
+print("Checking that the sequencing_summary_*.txt-file has been written to disk")
 while True:
 
     sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
