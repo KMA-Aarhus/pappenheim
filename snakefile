@@ -298,7 +298,7 @@ while True:
 
     sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
     if len(sequencing_summary_file) == 0:
-        print("  No file yet. Waiting 15 minutes ...")
+        print("  No file yet. Waiting 15 minutes ..")
         time.sleep(60*15)
     else:
         break
@@ -657,8 +657,8 @@ rule final_merge:
 
 
         # Optionally call clean upload script
-        touch ~/pappenheim_clean_uploader
-        bash ~/pappenheim_clean_uploader {output.dir}
+        touch ~/pappenheim_clean_upload.sh
+        bash ~/pappenheim_clean_upload.sh {output.dir}
 
 
         # If all went well, we touch the final OK flag.
