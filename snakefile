@@ -298,7 +298,7 @@ while True:
 
     sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
     if len(sequencing_summary_file) == 0:
-        print("  waiting 15 minutes")
+        print("  No file yet. Waiting 15 minutes ...")
         time.sleep(60*15)
     else:
         break
