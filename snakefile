@@ -655,6 +655,14 @@ rule final_merge:
         cp {input.consensuses} {output.dir}
         cp {output.file} {output.dir}
         cp {base_dir}/final_summary_*.txt {output.dir}/{batch_id}_final_summary.txt
+        echo "machine_hostname=$(hostname)" >> {output.dir}/{batch_id}_final_summary.txt
+        echo "final_merge_date=$(date --iso-8601=s)" >> {output.dir}/{batch_id}_final_summary.txt
+
+        head -n 1 {base_dir}/throughput_*.csv > {output.dir}/{batch_id}_final_throughput.txt
+        tail -n 1 {base_dir}/throughput_*.csv >> {output.dir}/{batch_id}_final_throughput.txt
+
+        
+
 
 
         # Optionally call clean upload script
