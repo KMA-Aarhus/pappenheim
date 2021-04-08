@@ -654,6 +654,7 @@ rule final_merge:
         # Copy consensus-files and metadata to the upload directory
         cp {input.consensuses} {output.dir}
         cp {output.file} {output.dir}
+        cp {base_dir}/final_summary_*.txt {output.dir}/{batch_id}_final_summary.txt
 
 
         # Optionally call clean upload script
