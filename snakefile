@@ -365,7 +365,9 @@ rule all:
                    "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
                    "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
                    "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
-                   "{out_base}/flags/{batch_id}_clean_upload.flag.ok"], \
+                   "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
+                   "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
+                   "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
 
 
@@ -629,6 +631,8 @@ rule merge_variant_data:
         merged.to_csv(str(output), index = False, sep = "\t")
 
 
+
+
 rule final_merge:
     input: 
         consensuses = expand("{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", out_base = out_base, batch_id = batch_id, sample_id = workflow_table["sample_id"]),
@@ -638,7 +642,7 @@ rule final_merge:
     output:
         file = "{out_base}/collected/{batch_id}_all.tsv",
         dir = directory("{out_base}/clean_upload_{batch_id}"),
-        upload_flag = "{out_base}/flags/{batch_id}_clean_upload.flag.ok"
+        clean_ready = "{out_base}/flags/{batch_id}_clean_ready.flag.ok"
     shell: """
 
         # Collect all long metadata files together in the collected-directory.
@@ -654,6 +658,7 @@ rule final_merge:
         # Copy consensus-files and metadata to the upload directory
         cp {input.consensuses} {output.dir}
         cp {output.file} {output.dir}
+        cp {base_dir}/barcode_alignment*.tsv {output.dir}/{batch_id}_barcode_alignment.tsv
         cp {base_dir}/final_summary_*.txt {output.dir}/{batch_id}_final_summary.txt
         echo "machine_hostname=$(hostname)" >> {output.dir}/{batch_id}_final_summary.txt
         echo "final_merge_date=$(date --iso-8601=s)" >> {output.dir}/{batch_id}_final_summary.txt
@@ -661,17 +666,43 @@ rule final_merge:
         head -n 1 {base_dir}/throughput_*.csv > {output.dir}/{batch_id}_final_throughput.txt
         tail -n 1 {base_dir}/throughput_*.csv >> {output.dir}/{batch_id}_final_throughput.txt
 
-        
+
+        # Touch a flag to show that the clean files are OK.
+        touch {output.clean_ready}
 
 
+        # The output.dir now contains the essential files to backup and keep for eternity.
 
-        # Optionally call clean upload script
-        touch ~/pappenheim_clean_upload.sh
-        bash ~/pappenheim_clean_upload.sh {output.dir}
+
+        """
+
+
+# This is a rule that you can costumize however you want to upload your data somewhere
+rule custom_upload:
+    input: 
+        clean_flag = "{out_base}/flags/{batch_id}_clean_ready.flag.ok"
+    output:
+        clean_upload_flag = "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok",
+        raw_upload_flag = "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"
+    params:
+        clean_dir = "{out_base}/clean_upload_{batch_id}"
+    shell: """
+
+
+        # Optionally upload the output.dir (clean data)
+        touch ~/pappenheim_upload.sh
+        bash ~/pappenheim_upload.sh {params.clean_dir} clinmicrocore/BACKUP/nanopore_sarscov2/pappenheim_clean/
+        touch {output.clean_upload_flag}
+
+
+        # Optionally upload the base_dir (raw data)
+        touch ~/pappenheim_upload.sh
+        bash ~/pappenheim_upload.sh {base_dir} clinmicrocore/BACKUP/nanopore_sarscov2/pappenheim_raw/
+        touch {output.raw_upload_flag}
 
 
         # If all went well, we touch the final OK flag.
-        touch {output.upload_flag}
+
 
 
         """
