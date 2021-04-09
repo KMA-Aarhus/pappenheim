@@ -610,7 +610,7 @@ rule merge_variant_data:
 
 
         # workflow_table contains the found paths for fastq files.
-        merged = df.merge(workflow_table[['barcode', 'sample_id', 'barcode_path', 'type']], how='left', on=['barcode', 'sample_id']) # left join (merge) the present barcodes onto the df_mini table.
+        merged = df.merge(workflow_table[['barcode', 'sample_id', 'barcode_path', 'barcode_basename', 'type']], how='left', on=['barcode', 'sample_id']) # left join (merge) the present barcodes onto the df_mini table.
 
         
         # Couple the correct batch_id
