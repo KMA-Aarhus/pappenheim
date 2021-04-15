@@ -416,6 +416,7 @@ rule minion:
         --normalise 200 \
         --threads 4 \
         --scheme-directory artic-ncov2019/primer_schemes \
+        --scheme-version 3 \
         --read-file {input} \
         --fast5-directory {params.base_dir}/fast5_pass \
         --sequencing-summary {params.sequencing_summary_file} \
