@@ -259,7 +259,7 @@ if not len(fastq_pass_bases) == 1:
 
 fastq_pass_base = fastq_pass_bases[0]
 del fastq_pass_bases
-#print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}  This will be regarded as the input_base directory from now on.")
+print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}")
 
 
 # base_dir is the place where fastq_pass, fast5_pass and the sequencing summary resides.
@@ -358,9 +358,9 @@ if not development_mode:
 
 
 
-This is the collection target, it collects all outputs from other targets. 
+#This is the collection target, it collects all outputs from other targets. 
 rule all:
-    input: expand(["{out_base}/flags/{batch_id}_rampart.flag.ok", \
+    input: expand(["{out_base}/flags/rampart.flag.ok", \
                    "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
                    "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
                    "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
@@ -368,8 +368,7 @@ rule all:
                    "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
                    "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
                    "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
-                   "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok", \
-                   "{out_base}/flags/rampart.flag.ok"], \
+                   "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
 
 
@@ -382,6 +381,7 @@ rule all:
 
 
 rule rampart:
+    input: directory(fastq_pass_base)
     output: "{out_base}/flags/rampart.flag.ok",
     conda: "envs/rampart.yml"
     params: fastq = fastq_pass_base
@@ -398,7 +398,7 @@ rule rampart:
 
 
         # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
-        # touch {output}
+        #touch {output}
 
         rampart --help
 
