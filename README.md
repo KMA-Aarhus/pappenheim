@@ -97,6 +97,8 @@ When the sequencing is done in minknow, minknow writes a specific file to the ru
     
     mamba env update --file pappenheim/environment.yaml 
     ```
+    
+Please create an issue (in this repo) if you encounter any problems or unanswered questions during installation or use.
 
 
 
