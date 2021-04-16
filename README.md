@@ -58,7 +58,7 @@ When the sequencing is done, minknow writes a specific file to the rundir: "sequ
     
 2. We recommend to use mamba (inside conda) for installing packages onto the miniconda environment.
    
-   Hint: mamba is simply faster
+   Hint: mamba is simply faster than the stock conda installer
 
    ```
    conda install mamba -n base -c conda-forge
