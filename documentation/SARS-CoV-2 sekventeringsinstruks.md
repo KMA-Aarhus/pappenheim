@@ -37,6 +37,7 @@ Når biblioteket er færdiglavet, og flowcellen skal til at pakkes ud, kan denne
          * *Genvej til at finde kørsels-stien:* Åbn stifinderen, og vælg genvejen i venstre spalte som hedder "sc2_sequencing". MinKNOW skulle gerne være indstillet til automatisk at skrive rådata hertil.
          
          Når du har udfyldt kommandoprompten, kan du trykke `enter` på tastaturet, og pappenheim-pipelinen skulle gerne sørge for resten.
+      3. Du kan nu åbne **Firefox**-browseren og åbne bogmærket **RAMPART** som ligger i bogmærkelinjen. Hvis ikke bogmærket eksisterer kan du besøge adressen `localhost:3000`
          
 
 
