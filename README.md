@@ -17,7 +17,7 @@ When the sequencing and basecalling is complete, the following steps are complet
 
 * Filtering of reads using **artic guppyplex**
 * Consensus calling using **artic minion** via **nanopolish**
-   * Using the [artic-ncov2019](https://github.com/artic-network/artic-ncov2019) nCoV-2019 V3 reference scheme
+   * Using the [artic nCov-2019 V3](https://github.com/artic-network/artic-ncov2019) reference scheme
 * Variant typing using **pangolin** and **nextclade**
 
 
