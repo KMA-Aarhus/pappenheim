@@ -44,30 +44,23 @@ Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-baseca
 
 ## Usage
 
-Have a  .xlsx-sample sheet ready for input to the pipeline. This samplesheet should have at least to columns present: "barcode" and "sample id". The barcode column should contain barcode names in the EXP-NBD104 and EXP-NBD114 kits. The "sample id" column has specific requirements to the formatting, but please be aware that spaces will be truncated. Positive- and negative controls are recognized with the following specification: Positive controls must have a sample id starting with "seqpos". Negative controls must have a sample id ending with "neg". For both types of controls the recognition is case insensitive.
+### Sample sheet
+Have a  .xlsx-sample sheet ready for input to the pipeline. This samplesheet should have at least to columns present: "barcode" and "sample id". The barcode column should contain barcode names in the EXP-NBD104 and EXP-NBD114 kits. The "sample id" column has specific requirements to the formatting, but please be aware that spaces will be truncated. Positive- and negative controls are recognized with the following specification: Positive controls must have a sample id starting with "seqpos". Negative controls must have a sample id ending with "neg". For both types of controls the recognition is case insensitive. 
+
+### Rundir 
+Because pappenheim is designed to trail the output of minknow, you must first have started the sequencing (including high accuracy basecalling) in the minknow user interface and decided where the output should be written. Pappenheim needs to know this rundir such that it can start taking the correct reads for downstream analysis.
 
 
-
-
-Denne fil gives til pipelinen ved kørslen ved argumentet `--samplesheet`
-Der skal også specificeres en kørselsmappe fra minknow, hvor de basecallede fastq filer ligger. Denne gives ved argumentet `--rundir`.
+When you have a sample sheet ready and know the rundir, you can start the pappenheim pipeline:
 
 ```
+cd ~/pappenheim
 snakemake --samplesheet path/to/above/file.csv --rundir path/to/minknow-output/
 ```
 
+First, the pappenheim pipeline validates the sample sheet and checks that the necessary columns exists and are correctly formatted. It also checks that the barcodes are unique. It then proceeds to check that the rundir exists. If it doesn't, pappenheim waits a few minutes and tries again.
 
+When the sequencing is done, minknow writes a specific file to the rundir: "sequencing_summary_\*.txt". This file is necessary for consensus calling and thus pappenheim can only start when minknow is done basecalling.
 
-Hvis der er problemer med inputtet, gives en advarsel.
-Ellers starter pipelinen og skulle gerne passe sig selv.
-
-Efterhånden som genomerne bliver behandlet kommer outputtet i en mappe ved navn "output".
-
-Der vil være en mappe med hvert isolat hvor der findes reads.
-Der vil være en pangolin batch-kørsel.
-Der vil være en nextclade batch-kørsel.
-
-Pangolin og Nextclade kørslerne vil blive integreret med input metadata, og uploades i sidste ende til GenomeDK serveren.
-På GenomeDK sker patientdata-integrationen, og derefter uploades hele baduljen til SSI.
 
 
