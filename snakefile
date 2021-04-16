@@ -405,7 +405,7 @@ rule rampart:
         # Go back to the pappenheim working dir.
         cd -
 
-
+        {{ $(sleep 5; firefox localhost:3000)  & }};
         rampart --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq}
 
         #firefox localhost:3000
