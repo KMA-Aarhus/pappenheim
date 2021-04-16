@@ -1,4 +1,4 @@
-# Pappenheim ONT-SARS-CoV-2 (Work in progress)
+# Pappenheim ONT-SARS-CoV-2
 
 Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-basecalling (GPU). This pipeline is based on snakemake and uses conda. All intermediary outputs are long-pivoted.
 
