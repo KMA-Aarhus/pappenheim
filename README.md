@@ -21,7 +21,7 @@ When the sequencing and basecalling is complete, the following steps are complet
 * Variant typing using **pangolin** and **nextclade**
 
 
-When pappenheim runs, it automatically checks and installs the newest versions of pangolin and nextclade.
+When pappenheim runs, it automatically checks and installs the newest versions of pangolin and nextclade. Given that you have a working internet connection at the time of starting the pipeline.
 
 
 
