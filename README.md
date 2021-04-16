@@ -27,6 +27,8 @@ When pappenheim runs, it automatically checks and installs the newest versions o
 ### Sample sheet
 Have a  .xlsx-sample sheet ready for input to the pipeline. This samplesheet should have at least to columns present: "barcode" and "sample id". The barcode column should contain barcode names in the EXP-NBD104 and EXP-NBD114 kits. The "sample id" column has specific requirements to the formatting, but please be aware that spaces will be truncated. Positive- and negative controls are recognized with the following specification: Positive controls must have a sample id starting with "seqpos". Negative controls must have a sample id ending with "neg". For both types of controls the recognition is case insensitive. 
 
+![](https://github.com/KMA-Aarhus/pappenheim/blob/main/documentation/Screenshot%202021-04-16%20at%2010.03.01.png)
+
 ### Rundir 
 Because pappenheim is designed to trail the output of minknow, you must first have started the sequencing (including high accuracy basecalling) in the minknow user interface and decided where the output should be written. Pappenheim needs to know this rundir such that it can start taking the correct reads for downstream analysis.
 
