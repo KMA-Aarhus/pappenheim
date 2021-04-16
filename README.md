@@ -27,6 +27,8 @@ When pappenheim runs, it automatically checks and installs the newest versions o
 
 ## Usage
 
+Pappenheim needs information on the samples you are analysing and the rundir directory where the raw data is stored. Below is a description of why and how these arguments must be formatted for pappenheim.
+
 ### samplesheet
 Have a  .xlsx-sample sheet ready for input to the pipeline. This samplesheet should have at least to columns present: "barcode" and "sample id". The barcode column should contain barcode names in the EXP-NBD104 and EXP-NBD114 kits. The "sample id" column has specific requirements to the formatting, but please be aware that spaces will be truncated. Positive- and negative controls are recognized with the following specification: Positive controls must have a sample id starting with "seqpos". Negative controls must have a sample id ending with "neg". For both types of controls the recognition is case insensitive. 
 
