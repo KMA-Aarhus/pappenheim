@@ -33,8 +33,8 @@ Når biblioteket er færdiglavet, og flowcellen skal til at pakkes ud, kan denne
          *. Her ses et generelt eksempel:
          ![alt text](https://github.com/KMA-Aarhus/pappenheim/blob/main/documentation/generelt%20eksempel.png)
          
-         * Genvej til at finde samplesheet: Åbn stifinderen, og vælg genvejen i venstre spalte som hedder "NanoPore". Heri har du måske allerede lagt dit samplesheet*
-         * Genvej til at finde kørsels-stien: Åbn stifinderen, og vælg genvejen i venstre spalte som hedder "sc2_sequencing". MinKNOW skulle gerne være indstillet til automatisk at skrive rådata hertil.*
+         * *Genvej til at finde samplesheet: Åbn stifinderen, og vælg genvejen i venstre spalte som hedder "NanoPore". Heri har du måske allerede lagt dit samplesheet*
+         * *Genvej til at finde kørsels-stien: Åbn stifinderen, og vælg genvejen i venstre spalte som hedder "sc2_sequencing". MinKNOW skulle gerne være indstillet til automatisk at skrive rådata hertil.*
          
          Når du har udfyldt kommandoprompten, kan du trykke `enter` på tastaturet, og pappenheim-pipelinen skulle gerne sørge for resten.
          
