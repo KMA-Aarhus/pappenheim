@@ -358,24 +358,25 @@ if not development_mode:
 
 
 
-# This is the collection target, it collects all outputs from other targets. 
-# rule all:
-#     input: expand(["{out_base}/flags/{batch_id}_rampart.flag.ok", \
-#                    "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
-#                    "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
-#                    "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
-#                    "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
-#                    "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
-#                    "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
-#                    "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
-#                    "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
-#                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
+This is the collection target, it collects all outputs from other targets. 
+rule all:
+    input: expand(["{out_base}/flags/{batch_id}_rampart.flag.ok", \
+                   "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
+                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
+                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
+                   "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
+                   "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
+                   "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
+                   "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
+                   "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok", \
+                   "{out_base}/flags/rampart.flag.ok"], \
+                  out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
 
 
 # rule all for testing rampart only
-rule all:
-    input: expand("{out_base}/flags/rampart.flag.ok", \
-                  out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
+#rule all:
+#    input: expand("{out_base}/flags/rampart.flag.ok", \
+#                  out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
 
 
 
