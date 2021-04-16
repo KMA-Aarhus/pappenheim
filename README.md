@@ -3,6 +3,16 @@
 Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-basecalling (GPU). This pipeline is based on snakemake and uses conda. All intermediary outputs are long-pivoted.
 
 
+## Steps
+
+Pappenheim is designed to run after a ONT-minknow sequencing run. For each sample the pipeline progresses through the following steps:
+
+* Input validation of sample sheet
+* Filtering of reads using **artic guppyplex**
+* Consensus calling using **artic minion** via **nanopolish**
+   * Using the [artic-ncov2019](https://github.com/artic-network/artic-ncov2019) nCoV-2019 V3 reference scheme
+* Variant typing using **pangolin** and **nextclade
+
 
 ## Installation 
 
