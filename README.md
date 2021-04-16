@@ -93,4 +93,8 @@ When the sequencing is done in minknow, minknow writes a specific file to the ru
     ```
 
 
+## Affiliations
+
+Pappenheim is developed at Department of Clinical Microbiology (KMA) at Aarhus Universityhospital, Denmark.
+
 
