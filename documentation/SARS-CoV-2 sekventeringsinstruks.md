@@ -42,4 +42,4 @@ Når biblioteket er færdiglavet, og flowcellen skal til at pakkes ud, kan denne
 
 
 
-Hvis der opstår problemer er du meget velkommet til at kontakte Carl på carkob@rm.dk eller +45 51175719
+Hvis der opstår problemer er du meget velkommet til at kontakte Carl på carkob@rm.dk eller +45 51165719
