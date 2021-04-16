@@ -4,8 +4,9 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - "python>=3"
   - "nodejs>=12"
+  - artic-network::rampart=1.1.0
+  - "python>=3.6"
   - pip
   - snakemake-minimal=5.8.1
   - biopython=1.74

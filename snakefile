@@ -392,8 +392,8 @@ rule rampart:
 
 
 
-        npm install --global .
-        rampart --version
+        #npm install --global .
+        #rampart --version
 
 
         # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
@@ -408,7 +408,7 @@ rule rampart:
         rampart --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq}
 
         #firefox localhost:3000
-        
+
 
 
 
