@@ -394,13 +394,13 @@ rule rampart:
 
 
         #npm install --global .
-        #rampart --version
+        rampart --version
 
 
         # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
         #touch {output}
 
-        rampart --help
+        #rampart --help
 
         # Go back to the pappenheim working dir.
         cd -
