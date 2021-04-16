@@ -5,13 +5,20 @@ Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-baseca
 
 ## Steps
 
-Pappenheim is designed to run after a ONT-minknow sequencing run. For each sample the pipeline progresses through the following steps:
+Pappenheim is designed to trail a ONT-minknow sequencing run. When you have started sequencing in minknow, you can start this pipeline and it will progress through the following steps.
 
+### On a batch level:
 * Input validation of sample sheet
+* Starting rampart on the rundir for realtime sequencing oversight
+
+### On a sample level:
 * Filtering of reads using **artic guppyplex**
 * Consensus calling using **artic minion** via **nanopolish**
    * Using the [artic-ncov2019](https://github.com/artic-network/artic-ncov2019) nCoV-2019 V3 reference scheme
-* Variant typing using **pangolin** and **nextclade
+* Variant typing using **pangolin** and **nextclade**
+
+
+When pappenheim runs, it automatically checks and installs the newest versions of pangolin and nextclade.
 
 
 ## Installation 
