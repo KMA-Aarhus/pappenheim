@@ -37,7 +37,7 @@ When you have a sample sheet ready and know the rundir, you can start the pappen
 
 ```
 cd ~/pappenheim
-snakemake --samplesheet path/to/samplesheet.csv --rundir path/to/minknow-output/
+snakemake --config samplesheet='path/to/samplesheet.csv' rundir='path/to/minknow-output/'
 ```
 
 First, the pappenheim pipeline validates the sample sheet and checks that the necessary columns exists and are correctly formatted. It also checks that the barcodes are unique. It then proceeds to check that the rundir exists. If it doesn't, pappenheim waits a few minutes and tries again.
