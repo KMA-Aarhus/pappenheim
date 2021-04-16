@@ -44,14 +44,10 @@ Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-baseca
 
 ## Usage
 
-Hav en csv-fil klar til kørslen. Denne fil indeholder information om barcodes og samplenames.
+Have a  .xlsx-sample sheet ready for input to the pipeline. This samplesheet should have at least to columns present: "barcode" and "sample id". The barcode column should contain barcode names in the EXP-NBD104 and EXP-NBD114 kits. The "sample id" column has specific requirements to the formatting, but please be aware that spaces will be truncated. Positive- and negative controls are recognized with the following specification: Positive controls must have a sample id starting with "seqpos". Negative controls must have a sample id ending with "neg". For both types of controls the recognition is case insensitive.
 
-```
-barcode,sample
-NB01,R012938
-NB02,R382988
-NB03,R328837
-```
+
+
 
 Denne fil gives til pipelinen ved kørslen ved argumentet `--samplesheet`
 Der skal også specificeres en kørselsmappe fra minknow, hvor de basecallede fastq filer ligger. Denne gives ved argumentet `--rundir`.
