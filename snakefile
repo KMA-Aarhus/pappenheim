@@ -305,7 +305,7 @@ while True:
 
     #raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
 sequencing_summary_file = sequencing_summary_file[0]
-print("  The sequencing summary has been found               ✓")
+print("  The sequencing summary has been found                ✓")
 print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
 
 
