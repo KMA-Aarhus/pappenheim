@@ -3,6 +3,8 @@
 Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-basecalling (GPU). This pipeline is based on snakemake and uses conda. All intermediary outputs are long-pivoted.
 
 
+
+
 ## What it does
 
 Pappenheim is designed to trail a ONT-minknow sequencing run. When you have started sequencing in minknow, you can start this pipeline and it will progress through the following steps.
@@ -22,6 +24,8 @@ When the sequencing and basecalling is complete, the following steps are complet
 
 
 When pappenheim runs, it automatically checks and installs the newest versions of pangolin and nextclade. Given that you have a working internet connection at the time of starting the pipeline.
+
+
 
 
 
@@ -50,6 +54,8 @@ snakemake --config samplesheet='path/to/samplesheet.csv' rundir='path/to/minknow
 First, the pappenheim pipeline validates the sample sheet and checks that the necessary columns exists and are correctly formatted. It also checks that the barcodes are unique. It then proceeds to check that the rundir exists. If it doesn't, pappenheim waits a few minutes and tries again.
 
 When the sequencing is done in minknow, minknow writes a specific file to the rundir: "sequencing_summary_\*.txt". This file is necessary for consensus calling and thus pappenheim can only start when minknow is done basecalling.
+
+
 
 
 
@@ -91,6 +97,9 @@ When the sequencing is done in minknow, minknow writes a specific file to the ru
     
     mamba env update --file pappenheim/environment.yaml 
     ```
+
+
+
 
 
 ## Affiliations
