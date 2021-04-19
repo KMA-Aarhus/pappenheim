@@ -267,38 +267,38 @@ print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}")
 
 
 
+# Before I made the switch to medaka and snakemake-conda-rampart, this was how I automatically started rampart.
+# # Start rampart
+# #print(f"Starting rampart ...", end = "", flush = True)
+# #os.system(f'${{HOME}}/miniconda3/etc/profile.d/conda.sh; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {fastq_pass_base}')
 
-# Start rampart
-print(f"Starting rampart ...", end = "", flush = True)
-#os.system(f'${{HOME}}/miniconda3/etc/profile.d/conda.sh; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {fastq_pass_base}')
-
-# We use sh, not bash, thus . (dot) is the way to soucre the conda.sh script
-rampart_command = f'killpid=$(lsof -t -i :3000); [ ! -z $killpid ] && kill $killpid; \
-            . ~/miniconda3/etc/profile.d/conda.sh \
-            && echo sourced \
-            && conda activate artic-rampart \
-            && echo activated \
-            && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {fastq_pass_base}'
-rampart_process = subprocess.Popen(rampart_command, shell = True)
+# # We use sh, not bash, thus . (dot) is the way to soucre the conda.sh script
+# rampart_command = f'killpid=$(lsof -t -i :3000); [ ! -z $killpid ] && kill $killpid; \
+#             . ~/miniconda3/etc/profile.d/conda.sh \
+#             && echo sourced \
+#             && conda activate artic-rampart \
+#             && echo activated \
+#             && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {fastq_pass_base}'
+# rampart_process = subprocess.Popen(rampart_command, shell = True)
 
 
-#if rampart is ok, start firefox
-#print("poll", rampart_process.poll())
-if rampart_process.poll() != 0:
-    #print("rampart is OK")
-    firefox_command = f"{{ $(sleep 5; firefox localhost:3000) & }};"
-    firefox_process = subprocess.Popen(firefox_command, shell = True)
-    print("                            ✓")
-else:
-    print("error trying to open Rampart.")
+# #if rampart is ok, start firefox
+# #print("poll", rampart_process.poll())
+# if rampart_process.poll() != 0:
+#     #print("rampart is OK")
+#     firefox_command = f"{{ $(sleep 5; firefox localhost:3000) & }};"
+#     firefox_process = subprocess.Popen(firefox_command, shell = True)
+#     print("                            ✓")
+# else:
+#     print("error trying to open Rampart.")
 
-# Register a function to be called when exiting the script.
-def exit_rampart():
-    inp = input("Do you wish to exit Rampart? (y/n) ")
-    if inp[0:1] == "y":
-        print("Trying to exit Rampart ...")
-        os.killpg(os.getpgid(rampart_process.pid), signal.SIGTERM)
-#atexit.register(rampart_process.kill)
+# # Register a function to be called when exiting the script.
+# def exit_rampart():
+#     inp = input("Do you wish to exit Rampart? (y/n) ")
+#     if inp[0:1] == "y":
+#         print("Trying to exit Rampart ...")
+#         os.killpg(os.getpgid(rampart_process.pid), signal.SIGTERM)
+# #atexit.register(rampart_process.kill)
 
 
 
@@ -333,21 +333,21 @@ out_base = os.path.join(base_dir, "pappenheim_output") # out_base is the directo
 
 
 # Check that the sequence_summary.txt file exists. If it doesn't, we won't be able to polish the assemblies.
-#if not os.path.isfile(fastq_pass_base + "/../sequence_"):
-print("Checking that the sequencing_summary_*.txt-file has been written to disk")
-while True:
+# Edit: since we're using medaka, we don't need this file up front. We can make a rule, that checks that sequencing and basecalling has stopped, and take it from there.
+# print("Checking that the sequencing_summary_*.txt-file has been written to disk")
+# while True:
 
-    sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
-    if len(sequencing_summary_file) == 0:
-        print("  No file yet. Waiting 15 minutes ..")
-        time.sleep(60*15)
-    else:
-        break
+#     sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
+#     if len(sequencing_summary_file) == 0:
+#         print("  No file yet. Waiting 15 minutes ..")
+#         time.sleep(60*15)
+#     else:
+#         break
 
-    #raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
-sequencing_summary_file = sequencing_summary_file[0]
-print("  The sequencing summary has been found                ✓")
-print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
+#     #raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
+# sequencing_summary_file = sequencing_summary_file[0]
+# print("  The sequencing summary has been found                ✓")
+# print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
 
 
 
@@ -400,49 +400,77 @@ if not development_mode:
 
 
 #This is the collection target, it collects all outputs from other targets. 
-#rule all:
-#    input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
-#                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
-#                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
-#                   "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
-#                   "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
-#                   "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
-#                   "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
-#                   "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
-#                  out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
-#
-
-# rule all for testing rampart only
 rule all:
-    input: expand("{out_base}/{batch_id}_{sample_id}/read_filtering/{batch_id}_{sample_id}.fastq", \
-                  out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
+   input: expand(["{out_base}/flags/{batch_id}_rampart.flag.ok",
+                  "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
+                  "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
+                  "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
+                  "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
+                  "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
+                  "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
+                  "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
+                  "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
+                 out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
+
+
+# # rule all for testing rampart only
+# rule all:
+#     input: expand("{out_base}/{batch_id}_{sample_id}/read_filtering/{batch_id}_{sample_id}.fastq", \
+#                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
 
 
 
-
-# rule rampart:
-#     input: directory(fastq_pass_base)
-#     output: "{out_base}/flags/rampart.flag.ok",
-#     conda: "envs/rampart.yml"
-#     params: fastq = fastq_pass_base
-#     shell: """
+# This target simply waits until the sequencing and basecalling has finished.
+rule wait_for_minknow:
+    output: "{out_base}/flags/{batch_id}_minknow_done.flag.ok",
+    run:
         
+        # heck that sequencing and basecalling has finished, by checking the existence of the sequence_summary_*.txt-file.
+
+        minutes_wait = 15
+        print("Checking that the sequencing_summary_*.txt-file has been written to disk ...")
+        while True:
+            sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
+            if len(sequencing_summary_file) == 0:
+                print(f"  No file yet. Waiting {minutes_wait} minutes ..")
+                time.sleep(60*minutes_wait)
+            else:
+                break
+
+            #raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
+        sequencing_summary_file = sequencing_summary_file[0]
+        print("  The sequencing summary has been found                ✓")
+        print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
+
+        os.system(f"touch {output}")
+
+
+
+# What I like about this rule is that it ensures an easy way to install rampart by using the snakemake-conda installer
+rule rampart:
+    input: "{out_base}/flags/{batch_id}_minknow_done.flag.ok"
+    output: "{out_base}/flags/{batch_id}_rampart.flag.ok",
+    conda: "envs/rampart.yml"
+    params: fastq = fastq_pass_base
+    shell: """
         
+        # Check that rampart actually works
+        rampart --version
 
-#         cd rampart
+        # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
+        #touch {output}
 
-#         rampart --version
 
-#         # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
-#         #touch {output}
+        # Kill any process which is writing to port 3000
+        $(lsof -t -i :3000); [ ! -z $killpid ] && kill $killpid
 
-#         # Go back to the pappenheim working dir.
-#         cd -
+        # Spawn firefox with lag before calling the rampart program.
+        {{ $(sleep 5; firefox localhost:3000)  & }};
 
-#         {{ $(sleep 5; firefox localhost:3000)  & }};
-#         rampart --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq}
+        # Call rampart. This process could possibly be forked so that the snakemake pipeline can exit gracefully.
+        rampart --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq}
 
-#     """
+    """
 
 
 
@@ -476,8 +504,8 @@ rule minion:
         #input = "../read_filtering/{batch_id}_{sample_id}.fastq",
         #output = "../consensus/{batch_id}_{sample_id}.fasta",
         base_dir = base_dir,
-        output_dir = "{out_base}/{batch_id}_{sample_id}/consensus/",
-        sequencing_summary_file = sequencing_summary_file
+        output_dir = "{out_base}/{batch_id}_{sample_id}/consensus/"
+        #sequencing_summary_file = sequencing_summary_file
     threads: 4
     shell: """
 
@@ -491,7 +519,7 @@ rule minion:
     #     --scheme-version 3 \
     #     --read-file {input} \
     #     --fast5-directory {params.base_dir}/fast5_pass \
-    #     --sequencing-summary {params.sequencing_summary_file} \
+    #     --sequencing-summary params.sequencing_summary_file \
     #     nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id}
 
 
