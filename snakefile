@@ -484,15 +484,29 @@ rule minion:
 
 
 
+    # artic minion \
+    #     --normalise 200 \
+    #     --threads 4 \
+    #     --scheme-directory artic-ncov2019/primer_schemes \
+    #     --scheme-version 3 \
+    #     --read-file {input} \
+    #     --fast5-directory {params.base_dir}/fast5_pass \
+    #     --sequencing-summary {params.sequencing_summary_file} \
+    #     nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id}
+
+
     artic minion \
+        --medaka \
         --normalise 200 \
         --threads 4 \
         --scheme-directory artic-ncov2019/primer_schemes \
         --scheme-version 3 \
         --read-file {input} \
-        --fast5-directory {params.base_dir}/fast5_pass \
-        --sequencing-summary {params.sequencing_summary_file} \
-        nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} 
+        nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id}
+
+
+
+
 
     mv {wildcards.batch_id}_{wildcards.sample_id}.* {params.output_dir}
 
