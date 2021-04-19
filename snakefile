@@ -7,6 +7,7 @@ __version__ = "0.1"
 
 
 import sys
+import os
 from os import listdir
 from os.path import isfile, isdir, join
 import yaml
@@ -16,6 +17,8 @@ from pandas_ods_reader import read_ods
 from datetime import datetime
 import glob
 import time
+import atexit
+
 
 terminal_rows, terminal_columns = os.popen('stty size', 'r').read().split()
 
@@ -262,6 +265,44 @@ del fastq_pass_bases
 print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}")
 
 
+
+
+
+# Start rampart
+print(f"Starting rampart ...", end = "", flush = True)
+#os.system(f'${{HOME}}/miniconda3/etc/profile.d/conda.sh; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {fastq_pass_base}')
+
+# We use sh, not bash, thus . (dot) is the way to soucre the conda.sh script
+rampart_command = f'killpid=$(lsof -t -i :3000); [ ! -z $killpid ] && kill $killpid; \
+            . ~/miniconda3/etc/profile.d/conda.sh \
+            && echo sourced \
+            && conda activate artic-rampart \
+            && echo activated \
+            && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {fastq_pass_base}'
+rampart_process = subprocess.Popen(rampart_command, shell = True)
+
+
+#if rampart is ok, start firefox
+#print("poll", rampart_process.poll())
+if rampart_process.poll() != 0:
+    #print("rampart is OK")
+    firefox_command = f"{{ $(sleep 5; firefox localhost:3000) & }};"
+    firefox_process = subprocess.Popen(firefox_command, shell = True)
+    print("                            ✓")
+else:
+    print("error trying to open Rampart.")
+
+# Register a function to be called when exiting the script.
+def exit_rampart():
+    inp = input("Do you wish to exit Rampart? (y/n) ")
+    if inp[0:1] == "y":
+        print("Trying to exit Rampart ...")
+        os.killpg(os.getpgid(rampart_process.pid), signal.SIGTERM)
+#atexit.register(rampart_process.kill)
+
+
+
+
 # base_dir is the place where fastq_pass, fast5_pass and the sequencing summary resides.
 base_dir = os.path.dirname(fastq_pass_base) # This only works because there is NOT a trailing slash on the fastq_pass_base
 print(f"This is the batch base directory:{nl}  {base_dir}")
@@ -359,63 +400,49 @@ if not development_mode:
 
 
 #This is the collection target, it collects all outputs from other targets. 
+#rule all:
+#    input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
+#                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
+#                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
+#                   "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
+#                   "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
+#                   "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
+#                   "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
+#                   "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
+#                  out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
+#
+
+# rule all for testing rampart only
 rule all:
-    input: expand(["{out_base}/flags/rampart.flag.ok", \
-                   "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
-                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
-                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
-                   "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
-                   "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
-                   "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
-                   "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
-                   "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
+    input: expand("{out_base}/{batch_id}_{sample_id}/read_filtering/{batch_id}_{sample_id}.fastq", \
                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
 
 
-# rule all for testing rampart only
-#rule all:
-#    input: expand("{out_base}/flags/rampart.flag.ok", \
-#                  out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
 
 
-
-
-rule rampart:
-    input: directory(fastq_pass_base)
-    output: "{out_base}/flags/rampart.flag.ok",
-    conda: "envs/rampart.yml"
-    params: fastq = fastq_pass_base
-    shell: """
+# rule rampart:
+#     input: directory(fastq_pass_base)
+#     output: "{out_base}/flags/rampart.flag.ok",
+#     conda: "envs/rampart.yml"
+#     params: fastq = fastq_pass_base
+#     shell: """
         
         
 
-        cd rampart
+#         cd rampart
 
+#         rampart --version
 
+#         # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
+#         #touch {output}
 
-        #npm install --global .
-        rampart --version
+#         # Go back to the pappenheim working dir.
+#         cd -
 
+#         {{ $(sleep 5; firefox localhost:3000)  & }};
+#         rampart --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq}
 
-        # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
-        #touch {output}
-
-        #rampart --help
-
-        # Go back to the pappenheim working dir.
-        cd -
-
-        {{ $(sleep 5; firefox localhost:3000)  & }};
-        rampart --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq}
-
-        #firefox localhost:3000
-
-
-
-
-
-
-    """
+#     """
 
 
 
@@ -754,3 +781,6 @@ rule custom_upload:
         """
 
 
+time.sleep(10)
+
+atexit.register(exit_rampart)
