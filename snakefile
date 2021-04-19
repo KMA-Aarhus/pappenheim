@@ -20,12 +20,6 @@ import time
 import atexit
 
 
-terminal_rows, terminal_columns = os.popen('stty size', 'r').read().split()
-
-
-if int(terminal_columns) < 125:
-    print("Warning: Please increase your terminal window width.")
-
 
 
 
@@ -52,10 +46,6 @@ nl = "\n"
 
 
 
-
-
-
-
 # This will make your code slower
 def lag(time_ = 0.06):
     if development_mode:
@@ -64,19 +54,30 @@ def lag(time_ = 0.06):
         time.sleep(time_)
 
 
-# Print a convincing logo
-print()
-print(f"          Pappenheim pipeline v{__version__}  -  Aarhus Universityhospital  -  Department of Clinical Microbiology          ")
-print()
-print("                  ██████╗  █████╗ ██████╗ ██████╗ ███████╗███╗   ██╗██╗  ██╗███████╗██╗███╗   ███╗ ")
-print("                  ██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝████╗  ██║██║  ██║██╔════╝██║████╗ ████║ ")
-print("                  ██████╔╝███████║██████╔╝██████╔╝█████╗  ██╔██╗ ██║███████║█████╗  ██║██╔████╔██║ ")
-print("                  ██╔═══╝ ██╔══██║██╔═══╝ ██╔═══╝ ██╔══╝  ██║╚██╗██║██╔══██║██╔══╝  ██║██║╚██╔╝██║ ")
-print("                  ██║     ██║  ██║██║     ██║     ███████╗██║ ╚████║██║  ██║███████╗██║██║ ╚═╝ ██║ ")
-print("                  ╚═╝     ╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝     ╚═╝ ")
-print()
-print("                                      Press ctrl+c at any time to stop this pipeline."              )
-print()
+
+# Print a convincing logo, if the windows is big enough.
+
+terminal_rows, terminal_columns = os.popen('stty size', 'r').read().split()
+
+if int(terminal_columns) >= 126:
+    print()
+    print(f"          Pappenheim pipeline v{__version__}  -  Aarhus Universityhospital  -  Department of Clinical Microbiology          ")
+    print()
+    print("                  ██████╗  █████╗ ██████╗ ██████╗ ███████╗███╗   ██╗██╗  ██╗███████╗██╗███╗   ███╗ ")
+    print("                  ██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝████╗  ██║██║  ██║██╔════╝██║████╗ ████║ ")
+    print("                  ██████╔╝███████║██████╔╝██████╔╝█████╗  ██╔██╗ ██║███████║█████╗  ██║██╔████╔██║ ")
+    print("                  ██╔═══╝ ██╔══██║██╔═══╝ ██╔═══╝ ██╔══╝  ██║╚██╗██║██╔══██║██╔══╝  ██║██║╚██╔╝██║ ")
+    print("                  ██║     ██║  ██║██║     ██║     ███████╗██║ ╚████║██║  ██║███████╗██║██║ ╚═╝ ██║ ")
+    print("                  ╚═╝     ╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝     ╚═╝ ")
+    print()
+    print("                                      Press ctrl+c at any time to stop this pipeline."              )
+    print()
+
+else:
+    print("Warning: Please increase your terminal window width.")
+
+
+
 
 
 # Check that input was given.
@@ -84,6 +85,8 @@ if config["samplesheet"] == "NA":
     raise Exception("No samplesheet file was given. Please specify a samplesheet by appending --config rundir=\"path/to/samplesheet/\" to the command line call.")
 if config["rundir"] == "NA":
     raise Exception("No rundir path was given. Please specify a rundir by appending --config rundir=\"path/to/rundir/\" to the command line call.")
+# TODO: Implement additional input validation, like checking that the objects given are file and dir respectively.
+
 
 
 print(f"These are the parameters given:")
@@ -401,7 +404,7 @@ if not development_mode:
 
 #This is the collection target, it collects all outputs from other targets. 
 rule all:
-   input: expand(["{out_base}/flags/{batch_id}_rampart.flag.ok",
+   input: expand(["{out_base}/flags/{batch_id}_rampart.flag.ok", \
                   "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
@@ -420,35 +423,12 @@ rule all:
 
 
 
-# This target simply waits until the sequencing and basecalling has finished.
-rule wait_for_minknow:
-    output: "{out_base}/flags/{batch_id}_minknow_done.flag.ok",
-    run:
-        
-        # heck that sequencing and basecalling has finished, by checking the existence of the sequence_summary_*.txt-file.
-
-        minutes_wait = 15
-        print("Checking that the sequencing_summary_*.txt-file has been written to disk ...")
-        while True:
-            sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
-            if len(sequencing_summary_file) == 0:
-                print(f"  No file yet. Waiting {minutes_wait} minutes ..")
-                time.sleep(60*minutes_wait)
-            else:
-                break
-
-            #raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
-        sequencing_summary_file = sequencing_summary_file[0]
-        print("  The sequencing summary has been found                ✓")
-        print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
-
-        os.system(f"touch {output}")
 
 
 
 # What I like about this rule is that it ensures an easy way to install rampart by using the snakemake-conda installer
+# the only input needed for rampart, is the base_dir
 rule rampart:
-    input: "{out_base}/flags/{batch_id}_minknow_done.flag.ok"
     output: "{out_base}/flags/{batch_id}_rampart.flag.ok",
     conda: "envs/rampart.yml"
     params: fastq = fastq_pass_base
@@ -462,7 +442,10 @@ rule rampart:
 
 
         # Kill any process which is writing to port 3000
-        $(lsof -t -i :3000); [ ! -z $killpid ] && kill $killpid
+        killpid=$(lsof -t -i :3000) \
+            && kill $killpid \
+            && echo "port 3000 is vacant" \
+            || echo "port 3000 was already vacant"
 
         # Spawn firefox with lag before calling the rampart program.
         {{ $(sleep 5; firefox localhost:3000)  & }};
@@ -475,19 +458,47 @@ rule rampart:
 
 
 
+# This target simply waits until the sequencing and basecalling has finished.
+rule wait_for_minknow:
+    output: "{out_base}/flags/{batch_id}_minknow_done.flag.ok",
+    run:
+        
+        # heck that sequencing and basecalling has finished, by checking the existence of the sequence_summary_*.txt-file.
+
+        minutes_wait = 10
+        print("Checking that the sequencing_summary_*.txt-file has been written to disk ...")
+        while True:
+            sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
+            if len(sequencing_summary_file) == 0:
+                print(f"  Still sequencing/basecalling. Waiting {minutes_wait} minutes ..")
+                time.sleep(60*minutes_wait)
+            else:
+                break
+
+            #raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
+        sequencing_summary_file = sequencing_summary_file[0]
+        print("  The sequencing summary has been found                ✓")
+        print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
+
+        os.system(f"touch {output}")
+
+
+
 # Read filtering
 # Because ARTIC protocol can generate chimeric reads, we perform length filtering.
 # This step is performed for each barcode in the run.
 # We first collect all the FASTQ files (typically stored in files each containing 4000 reads) into a single file.
 # Because we're only using the "pass" reads we can speed up the process with skip-quality-check.
 rule read_filtering:
-    input: directory(lambda wildcards: workflow_table[workflow_table["sample_id"] == wildcards.sample_id]["barcode_path"].values[0])
+    input:
+        minknow_flag = "{out_base}/flags/{batch_id}_minknow_done.flag.ok",
+        barcode_dir = directory(lambda wildcards: workflow_table[workflow_table["sample_id"] == wildcards.sample_id]["barcode_path"].values[0])
     output: "{out_base}/{batch_id}_{sample_id}/read_filtering/{batch_id}_{sample_id}.fastq" #_barcode00.fastq
     conda: "artic-ncov2019/environment.yml"
     shell: """
 
 
-    artic guppyplex --skip-quality-check --min-length 400 --max-length 700 --directory {input} --output {output}
+    artic guppyplex --skip-quality-check --min-length 400 --max-length 700 --directory {input.barcode_dir} --output {output}
 
 
     """
@@ -825,4 +836,4 @@ rule custom_upload:
 
 time.sleep(10)
 
-atexit.register(exit_rampart)
+#atexit.register(exit_rampart)
