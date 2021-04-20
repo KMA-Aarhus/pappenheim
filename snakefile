@@ -270,46 +270,6 @@ print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}")
 
 
 
-# Before I made the switch to medaka and snakemake-conda-rampart, this was how I automatically started rampart.
-# # Start rampart
-# #print(f"Starting rampart ...", end = "", flush = True)
-# #os.system(f'${{HOME}}/miniconda3/etc/profile.d/conda.sh; conda activate artic-rampart && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {fastq_pass_base}')
-
-# # We use sh, not bash, thus . (dot) is the way to soucre the conda.sh script
-# rampart_command = f'killpid=$(lsof -t -i :3000); [ ! -z $killpid ] && kill $killpid; \
-#             . ~/miniconda3/etc/profile.d/conda.sh \
-#             && echo sourced \
-#             && conda activate artic-rampart \
-#             && echo activated \
-#             && rampart --protocol ~/repos/artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {fastq_pass_base}'
-# rampart_process = subprocess.Popen(rampart_command, shell = True)
-
-
-# #if rampart is ok, start firefox
-# #print("poll", rampart_process.poll())
-# if rampart_process.poll() != 0:
-#     #print("rampart is OK")
-#     firefox_command = f"{{ $(sleep 5; firefox localhost:3000) & }};"
-#     firefox_process = subprocess.Popen(firefox_command, shell = True)
-#     print("                            ✓")
-# else:
-#     print("error trying to open Rampart.")
-
-# # Register a function to be called when exiting the script.
-# def exit_rampart():
-#     inp = input("Do you wish to exit Rampart? (y/n) ")
-#     if inp[0:1] == "y":
-#         print("Trying to exit Rampart ...")
-#         os.killpg(os.getpgid(rampart_process.pid), signal.SIGTERM)
-# #atexit.register(rampart_process.kill)
-
-# # This function will be registered as a function to run when the pipeline is done.
-def exit_rampart():
-    os.system("sleep 8; killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}') \
-        && kill -2 $killpid \
-        && echo 'port 3000 is vacant' \
-        || echo 'port 3000 was already vacant'")
-
 
 # base_dir is the place where fastq_pass, fast5_pass and the sequencing summary resides.
 base_dir = os.path.dirname(fastq_pass_base) # This only works because there is NOT a trailing slash on the fastq_pass_base
@@ -430,10 +390,38 @@ rule all:
 
 
 
+def exit_rampart(wait_ = 6):
+    print("Issuing the following command to exit Rampart:")
+    command = f"""
+        
+        sleep {wait_}
+
+        killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}' | grep "")
+        # Check that any 
+        #if lsof -t -i :3000; then
+        if [ ! -z $killpid ]; then
+
+            # filter for only the node-processes writing to port 3000
+            killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}')
+
+            #echo $killpid
+            kill -2 $killpid
+            echo 'Rampart has been exited'
+
+        else
+            echo 'No Rampart job to kill'
+        fi
+
+        """
+    print(command)
+    os.system(command)
+
+exit_rampart(wait_ = 0)
+
 
 # What I like about this rule is that it ensures an easy way to install rampart by using the snakemake-conda installer
 # the only input needed for rampart, is the base_dir
-rule start rampart:
+rule start_rampart:
     output: "{out_base}/flags/{batch_id}_rampart.flag.ok",
     conda: "envs/rampart.yml"
     params: fastq = fastq_pass_base
@@ -443,15 +431,8 @@ rule start rampart:
         rampart --version
 
 
-        # Kill any process which is writing to port 3000
-        killpid=$(lsof -t -i :3000) \
-            && kill $killpid \
-            && echo "port 3000 is vacant" \
-            || echo "port 3000 was already vacant"
-
         # Spawn firefox with lag before calling the rampart program.
-        {{ $(sleep 5; firefox localhost:3000)  & }};
-
+        {{ $(sleep 2; firefox localhost:3000)  & }};
 
 
         # Call rampart forked. Later this pid will be closed.
@@ -838,34 +819,13 @@ rule custom_upload:
 
         # If all went well, we touch the final OK flag.
 
-
-
         """
 
 
-#time.sleep(10)
 
-# This rule will gracefully close the start_rampart job.
-# rule exit_rampart:
-#     input:
-#         clean_upload_flag = "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok",
-#         raw_upload_flag = "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"
-#     output: touch("{out_base}/flags/{batch_id}_rampart_exited.flag.ok"),
-#     shell: """
+# This function will be registered as a function to run when the pipeline is done.
+# It gathers the pid for the node job that serves the rampart web site to port 3000 and closes it.
 
-#         # Wait, for the original rampart to be completely started
-#         sleep 4
-
-
-#         echo "Trying to kill rampart"
-
-#         killpid=$(lsof -t -i :3000) \
-#             && kill -2 $killpid \
-#             && echo $killpid && echo 'Port 3000 is now vacant.' \
-#             || echo 'Port 3000 was already vacant.'
-
-
-#     """
 
 
 atexit.register(exit_rampart)
