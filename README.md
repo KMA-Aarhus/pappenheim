@@ -21,7 +21,7 @@ When the sequencing and basecalling is complete, the following steps are complet
 * Consensus calling using **artic minion** via **nanopolish**
    * Using the [artic nCov-2019 V3](https://github.com/artic-network/artic-ncov2019) reference scheme
 * Variant typing using **pangolin** and **nextclade**
-* Optionally: upload the variant data to a central server which can integrate patient data (pappenheim-receiver).
+* Optionally: Upload the variant data to a central server which can integrate patient data (pappenheim-receiver).
 
 
 When pappenheim runs, it automatically checks and installs the newest versions of pangolin and nextclade. Given that you have a working internet connection at the time of starting the pipeline.
