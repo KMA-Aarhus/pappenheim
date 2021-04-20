@@ -131,7 +131,8 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
    
    * Run this command to get a link of the laboratory-instruction onto the desktop.
    ```
-   ln -s ${HOME}/pappenheim/laboratory/SARS-CoV-2\ sekventeringsinstruks.pdf ~/Desktop
+   ln -s ${HOME}/pappenheim/documentation/SARS-CoV-2\ sekventeringsinstruks.pdf ${HOME}/Desktop/
+
    ```
    
 ### Miscellaneous
