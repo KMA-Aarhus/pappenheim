@@ -20,7 +20,7 @@ Når biblioteket er færdiglavet, og flowcellen skal til at pakkes ud, kan denne
       3. Feltet **Sample ID** skal forblive tomt.
       5. Tryk på **Load saved settings** og vælg "ontseqX SARS-CoV-2" hvor X er maskinens ID ("a" eller "z"). Maskinens navn kan ses på den seddel der sidder på skærmen. Tryk på **Load**.
          1. Der kommer en pop-up som spørger om du ønsker at loade kit "SQK-LSK109", vælg **Yes**.
-      6. Vælg **Skip to end >>** og tjek at alle instillingerne er som på den printede seddel som hænger på skærmen (TODO: ikke printet i skrivende stund.)
+      6. Vælg **Skip to end >>** og tjek at alle instillingerne er som på den blå printede seddel som hænger i nærheden.
       7. Tryk til sidst på **Start**-knappen nede i højre hjørne.
       8. Gå nu ind i **Experiments** (venstre menu) og hold øje med **Run state** for den startede kørsel.
       9. Du vil se meddelelserne: "_Heating to N degrees_" efterfulgt af "_Performing MUX scan_".
