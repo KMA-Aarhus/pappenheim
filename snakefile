@@ -450,7 +450,8 @@ rule start_rampart:
 
 # This target simply waits until the sequencing and basecalling has finished.
 rule wait_for_minknow:
-    output: "{out_base}/flags/{batch_id}_minknow_done.flag.ok",
+    output: flag = "{out_base}/flags/{batch_id}_minknow_done.flag.ok",
+        sequencing_summary_moved = "{out_base}/{batch_id}_sequencing_summary.txt"
     run:
         
         # heck that sequencing and basecalling has finished, by checking the existence of the sequence_summary_*.txt-file.
@@ -470,6 +471,7 @@ rule wait_for_minknow:
         print("  The sequencing summary has been found                ✓")
         print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
 
+        os.system(f"mv {sequencing_summary_file} {output.sequencing_summary_moved}")
         os.system(f"touch {output}")
 
 
@@ -505,33 +507,40 @@ rule minion:
         #input = "../read_filtering/{batch_id}_{sample_id}.fastq",
         #output = "../consensus/{batch_id}_{sample_id}.fasta",
         base_dir = base_dir,
-        output_dir = "{out_base}/{batch_id}_{sample_id}/consensus/"
-        #sequencing_summary_file = sequencing_summary_file
+        output_dir = "{out_base}/{batch_id}_{sample_id}/consensus/",
+        sequencing_summary_file = "{out_base}/{batch_id}_sequencing_summary.txt"
     threads: 4
     shell: """
 
 
 
 
-    # artic minion \
-    #     --normalise 200 \
-    #     --threads 4 \
-    #     --scheme-directory artic-ncov2019/primer_schemes \
-    #     --scheme-version 3 \
-    #     --read-file {input} \
-    #     --fast5-directory {params.base_dir}/fast5_pass \
-    #     --sequencing-summary params.sequencing_summary_file \
-    #     nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id}
 
 
+
+    # Original nanopolish
     artic minion \
-        --medaka \
         --normalise 200 \
         --threads 4 \
         --scheme-directory artic-ncov2019/primer_schemes \
         --scheme-version 3 \
         --read-file {input} \
-        nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id}
+        --fast5-directory {params.base_dir}/fast5_pass \
+        --sequencing-summary {params.sequencing_summary_file} \
+        nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} 
+
+    mv {wildcards.batch_id}_{wildcards.sample_id}.* {params.output_dir}
+
+
+    # # New medaka
+    # artic minion \
+    #     --medaka \
+    #     --normalise 200 \
+    #     --threads 4 \
+    #     --scheme-directory artic-ncov2019/primer_schemes \
+    #     --scheme-version 3 \
+    #     --read-file {input} \
+    #     nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id}
 
 
 
