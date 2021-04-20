@@ -303,7 +303,12 @@ print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}")
 #         os.killpg(os.getpgid(rampart_process.pid), signal.SIGTERM)
 # #atexit.register(rampart_process.kill)
 
-
+# # This function will be registered as a function to run when the pipeline is done.
+def exit_rampart():
+    os.system("sleep 8; killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}') \
+        && kill -2 $killpid \
+        && echo 'port 3000 is vacant' \
+        || echo 'port 3000 was already vacant'")
 
 
 # base_dir is the place where fastq_pass, fast5_pass and the sequencing summary resides.
@@ -428,7 +433,7 @@ rule all:
 
 # What I like about this rule is that it ensures an easy way to install rampart by using the snakemake-conda installer
 # the only input needed for rampart, is the base_dir
-rule rampart:
+rule start rampart:
     output: "{out_base}/flags/{batch_id}_rampart.flag.ok",
     conda: "envs/rampart.yml"
     params: fastq = fastq_pass_base
@@ -436,9 +441,6 @@ rule rampart:
         
         # Check that rampart actually works
         rampart --version
-
-        # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
-        #touch {output}
 
 
         # Kill any process which is writing to port 3000
@@ -450,8 +452,15 @@ rule rampart:
         # Spawn firefox with lag before calling the rampart program.
         {{ $(sleep 5; firefox localhost:3000)  & }};
 
-        # Call rampart. This process could possibly be forked so that the snakemake pipeline can exit gracefully.
-        rampart --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq}
+
+
+        # Call rampart forked. Later this pid will be closed.
+        rampart --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} &
+ 
+         # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
+        touch {output}
+
+        
 
     """
 
@@ -834,6 +843,30 @@ rule custom_upload:
         """
 
 
-time.sleep(10)
+#time.sleep(10)
 
-#atexit.register(exit_rampart)
+# This rule will gracefully close the start_rampart job.
+# rule exit_rampart:
+#     input:
+#         clean_upload_flag = "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok",
+#         raw_upload_flag = "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"
+#     output: touch("{out_base}/flags/{batch_id}_rampart_exited.flag.ok"),
+#     shell: """
+
+#         # Wait, for the original rampart to be completely started
+#         sleep 4
+
+
+#         echo "Trying to kill rampart"
+
+#         killpid=$(lsof -t -i :3000) \
+#             && kill -2 $killpid \
+#             && echo $killpid && echo 'Port 3000 is now vacant.' \
+#             || echo 'Port 3000 was already vacant.'
+
+
+#     """
+
+
+atexit.register(exit_rampart)
+
