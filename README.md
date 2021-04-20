@@ -107,6 +107,6 @@ Please create an issue (in this repo) if you encounter any problems or unanswere
 
 ## Affiliations
 
-Pappenheim is developed at Department of Clinical Microbiology (KMA) at Aarhus Universityhospital, Denmark, in response to the political decision of sequencing all positive SARS-CoV-2 samples.
+Pappenheim is developed at Department of Clinical Microbiology (KMA) at Aarhus Universityhospital, Denmark, in response to the political decision of sequencing all positive SARS-CoV-2 samples. We are very open to involving collaborators.
 
 
