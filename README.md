@@ -73,7 +73,7 @@ When the sequencing is done in minknow, minknow writes a specific file to the ru
     
 2. We recommend to use mamba (inside conda) for installing packages onto the miniconda environment.
    
-   Hint: mamba is simply faster than the stock conda installer
+   Hint: mamba is simply faster than the stock conda dependency solver and installer.
 
    ```
    conda install mamba -n base -c conda-forge
