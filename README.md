@@ -90,7 +90,7 @@ When the sequencing is done in minknow, minknow writes a specific file to the ru
     
 4. Install snakemake and other dependencies needed for pappenheim:
 
-    Optional: Make sure to uncomment the `conda create ...` command if you want pappenheim in its own environment.
+    Optionally, uncomment the `conda create ...` command if you want pappenheim and its dependencies in an enclosed environment.
 
     ```    
     # conda create -n pappenheim && conda activate pappenheim    
