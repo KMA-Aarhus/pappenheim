@@ -529,7 +529,7 @@ rule minion:
         --sequencing-summary {params.sequencing_summary_file} \
         nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} 
 
-    mv {wildcards.batch_id}_{wildcards.sample_id}.* {params.output_dir}
+    
 
 
     # # New medaka
