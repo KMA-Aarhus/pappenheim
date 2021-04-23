@@ -18,7 +18,7 @@ from datetime import datetime
 import glob
 import time
 import atexit
-
+import datetime
 
 
 
@@ -364,12 +364,16 @@ if not development_mode:
 
 
 
+rampart_sub_batch_id = datetime.datetime.now().strftime("%y-%m-%dT%H%M%S")
+
+print("this is the rampart sub batch id", rampart_sub_batch_id)
+
 
 
 
 #This is the collection target, it collects all outputs from other targets. 
 rule all:
-   input: expand(["{out_base}/flags/{batch_id}_rampart.flag.ok", \
+   input: expand(["{out_base}/flags/{batch_id}_subbatch{rampart_sub_batch_id}_rampart.flag.ok", \
                   "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
@@ -378,7 +382,7 @@ rule all:
                   "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
                   "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
                   "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
-                 out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
+                 out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id, rampart_sub_batch_id = rampart_sub_batch_id)
 
 
 # # rule all for testing rampart only
@@ -394,23 +398,27 @@ def exit_rampart(wait_ = 6):
     print("Issuing the following command to exit Rampart:")
     command = f"""
         
+        # sleep {wait_}
+
+        # killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}' | grep "")
+        # echo "this is the killpid $killpid"
+        # # Check that any 
+        # #if lsof -t -i :3000; then
+        # if [ ! -z $killpid ]; then
+
+        #     # filter for only the node-processes writing to port 3000
+        #     killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}')
+
+        #     #echo $killpid
+        #     kill -2 $killpid
+        #     echo 'Rampart has been exited'
+
+        # else
+        #     echo 'No Rampart job to kill'
+        # fi
+
         sleep {wait_}
-
-        killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}' | grep "")
-        # Check that any 
-        #if lsof -t -i :3000; then
-        if [ ! -z $killpid ]; then
-
-            # filter for only the node-processes writing to port 3000
-            killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}')
-
-            #echo $killpid
-            kill -2 $killpid
-            echo 'Rampart has been exited'
-
-        else
-            echo 'No Rampart job to kill'
-        fi
+        kill -2 $(lsof -t -i :3000)
 
         """
     print(command)
@@ -422,7 +430,7 @@ exit_rampart(wait_ = 0)
 # What I like about this rule is that it ensures an easy way to install rampart by using the snakemake-conda installer
 # the only input needed for rampart, is the base_dir
 rule start_rampart:
-    output: "{out_base}/flags/{batch_id}_rampart.flag.ok",
+    output: "{out_base}/flags/{batch_id}_subbatch{rampart_sub_batch_id}_rampart.flag.ok"
     conda: "envs/rampart.yml"
     params: fastq = fastq_pass_base
     shell: """
@@ -822,7 +830,7 @@ rule custom_upload:
 
         # Optionally upload the base_dir (raw data)
         touch ~/pappenheim_upload.sh
-        bash ~/pappenheim_upload.sh {base_dir} clinmicrocore/BACKUP/nanopore_sarscov2/pappenheim_raw/
+        #bash ~/pappenheim_upload.sh {base_dir} clinmicrocore/BACKUP/nanopore_sarscov2/pappenheim_raw/
         touch {output.raw_upload_flag}
 
 
