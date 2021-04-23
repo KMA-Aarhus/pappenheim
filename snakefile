@@ -831,7 +831,7 @@ rule custom_upload:
 
         # Optionally upload the base_dir (raw data)
         touch ~/pappenheim_upload.sh
-        #bash ~/pappenheim_upload.sh {base_dir} clinmicrocore/BACKUP/nanopore_sarscov2/pappenheim_raw/
+        bash ~/pappenheim_upload.sh {base_dir} clinmicrocore/BACKUP/nanopore_sarscov2/pappenheim_raw/
         touch {output.raw_upload_flag}
 
 
