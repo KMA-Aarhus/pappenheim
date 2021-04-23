@@ -265,7 +265,7 @@ if not len(fastq_pass_bases) == 1:
 
 fastq_pass_base = fastq_pass_bases[0]
 del fastq_pass_bases
-print(f"Found the following fastq_pass base: {nl}  {fastq_pass_base}{nl}")
+print(f"Found the following fastq_pass base which will be given to rampart: {nl}  {fastq_pass_base}{nl}")
 
 
 
@@ -436,6 +436,7 @@ rule start_rampart:
 
 
         # Call rampart forked. Later this pid will be closed.
+        echo "Starting rampart now."
         rampart --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} &
  
          # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
