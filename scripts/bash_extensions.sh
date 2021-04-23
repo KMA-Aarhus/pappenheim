@@ -33,7 +33,7 @@ start_pappenheim () {
  else
 
      #clear
-     cd ~/pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" ${3} && echo "pappenheim finished successfully."
+     cd ~/pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" ${3} && echo && echo "pappenheim finished successfully."
  fi
 }
 
