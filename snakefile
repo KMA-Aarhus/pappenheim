@@ -418,7 +418,7 @@ def exit_rampart(wait_ = 6):
         # fi
 
         sleep {wait_}
-        kill -2 $(lsof -t -i :3000)
+        $(lsof -t -i :3000) && kill -2 $(lsof -t -i :3000) || echo "no rampart job to kill"
 
         """
     print(command)
