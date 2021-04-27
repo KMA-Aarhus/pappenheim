@@ -846,5 +846,5 @@ rule custom_upload:
 
 
 
-atexit.register(exit_rampart)
+#atexit.register(exit_rampart)
 
