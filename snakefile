@@ -424,7 +424,7 @@ def exit_rampart(wait_ = 6):
     print(command)
     os.system(command)
 
-exit_rampart(wait_ = 0)
+#exit_rampart(wait_ = 0)
 
 
 # What I like about this rule is that it ensures an easy way to install rampart by using the snakemake-conda installer
@@ -436,19 +436,21 @@ rule start_rampart:
     shell: """
         
         # Check that rampart actually works
-        rampart --version
+        echo "Rampart version $(rampart --version)"
 
 
         # Spawn firefox with lag before calling the rampart program.
         {{ $(sleep 2; firefox localhost:3000)  & }};
 
 
+
+        # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
+        touch {output}
+
         # Call rampart forked. Later this pid will be closed.
         echo "Starting rampart now."
-        rampart --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} &
+        rampart --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} || echo "rampart was stopped"
  
-         # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
-        touch {output}
 
         
 
@@ -465,7 +467,7 @@ rule wait_for_minknow:
         
         # heck that sequencing and basecalling has finished, by checking the existence of the sequence_summary_*.txt-file.
 
-        minutes_wait = 10
+        minutes_wait = 2
         print("Checking that the sequencing_summary_*.txt-file has been written to disk ...")
         while True:
             sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
@@ -572,12 +574,10 @@ rule pangolin_downloader:
     output: "{out_base}/flags/pangolin_downloader.flag.ok"
     shell: """
 
-
         cd pangolin
         git submodule update --remote
 
         touch {output}
-
 
         """
 
@@ -836,6 +836,9 @@ rule custom_upload:
 
 
         # If all went well, we touch the final OK flag.
+
+        # and we can gracefully stop rampart
+        sh ~/pappenheim/scripts/stop_rampart.sh
 
         """
 
