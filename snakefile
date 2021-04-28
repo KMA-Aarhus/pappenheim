@@ -467,7 +467,7 @@ rule wait_for_minknow:
         
         # heck that sequencing and basecalling has finished, by checking the existence of the sequence_summary_*.txt-file.
 
-        minutes_wait = 2
+        minutes_wait = 10
         print("Checking that the sequencing_summary_*.txt-file has been written to disk ...")
         while True:
             sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
