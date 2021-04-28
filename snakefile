@@ -452,7 +452,7 @@ rule start_rampart:
         
         # Check that rampart actually works
         echo "Rampart version $(rampart --version)"
-
+        rampart --help
 
         # Spawn firefox with lag before calling the rampart program.
         {{ $(sleep 2; firefox localhost:3000)  & }};
@@ -464,7 +464,7 @@ rule start_rampart:
 
         # Call rampart forked. Later this pid will be closed.
         echo "Starting rampart now."
-        rampart --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} || echo "rampart was stopped"
+        rampart --title "KMA {batch_id}" --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} || echo "rampart was stopped"
  
 
         
