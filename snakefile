@@ -195,12 +195,27 @@ print("✓")
 print("Checking that the barcodes are unique ...              ", end = "", flush = True)
 lag()
 if not len(df_mini["barcode"]) == len(set(df_mini["barcode"])):
-    counts = pd.DataFrame(df_mini['barcode'].value_counts())
-    counts.columns = ["count"]
-    counts = counts[counts["count"] > 1]
-    #print(nl, counts)
-    raise Exception(f"{nl}One or more barcodes are duplicated. Each barcode may only be used once:{nl}{counts}")
+    bc_counts = pd.DataFrame(df_mini['barcode'].value_counts())
+    bc_counts.columns = ["count"]
+    bc_counts = bc_counts[bc_counts["count"] > 1]
+    #print(nl, bc_counts)
+    raise Exception(f"{nl}One or more barcodes are duplicated. Each barcode may only be used once:{nl}{bc_counts}")
 print("✓")
+
+
+
+print("Checking that the sample id's are unique ...           ", end = "", flush = True)
+lag()
+if not len(df_mini["sample_id"]) == len(set(df_mini["sample_id"])):
+    sid_counts = pd.DataFrame(df_mini['sample_id'].value_counts())
+    sid_counts.columns = ["count"]
+    sid_counts = sid_counts[sid_counts["count"] > 1]
+    #print(nl, sid_counts)
+    raise Exception(f"{nl}One or more sample_id's are duplicated. Each sample_id may only be used once:{nl}{sid_counts}")
+print("✓")
+
+
+
 
 print("Marking sample-types following these definitions:")
 print("  positive_control: the sample_id must start with \"SEQPOS\" (case insensitive).")
