@@ -42,6 +42,7 @@ Have a  .xlsx-sample sheet ready for input to the pipeline. This samplesheet sho
 ### CLI-argument: `rundir` 
 Because pappenheim is designed to trail the output of minknow, you must first have started the sequencing (including high accuracy basecalling) in the minknow user interface and decided where the output should be written. Pappenheim needs to know this rundir such that it can start taking the correct reads for downstream analysis.
 
+### Starting the pipeline
 
 When you have a sample sheet ready and know the rundir, you can start the pappenheim pipeline:
 
