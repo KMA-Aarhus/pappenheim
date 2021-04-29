@@ -449,6 +449,11 @@ rule start_rampart:
     conda: "envs/rampart.yml"
     params: fastq = fastq_pass_base
     shell: """
+
+        # First, kill any old Rampart job
+        sh ~/pappenheim/scripts/stop_rampart.sh
+
+
         
         # Check that rampart actually works
         echo "Rampart version $(rampart --version)"
@@ -541,7 +546,8 @@ rule minion:
 
 
 
-
+    # Check that artic minion can run, so we are sure that we are not or-exiting due to dependency errors.
+    artic minion --version && echo "artic minion in itself runs fine."
 
 
     # Original nanopolish
@@ -553,9 +559,11 @@ rule minion:
         --read-file {input} \
         --fast5-directory {params.base_dir}/fast5_pass \
         --sequencing-summary {params.sequencing_summary_file} \
-        nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} 
+        nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} || echo ">{wildcards.batch_id}_{wildcards.sample_id}_notenoughdata" > {output} && cat scripts/29903N.txt >> {output} # If there is not enough data, the job should exit gracefully and create a fake output file with 29903 N's
 
-    
+
+    # I have considered that it should only or-exit gracefully when the sample type is "positive_control" or "negative_control". But I think it is very possible that normal samples can also fail, which should not halt the complete batch in terms of the pipeline.
+
 
 
     # # New medaka
