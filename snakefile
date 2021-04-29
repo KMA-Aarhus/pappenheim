@@ -547,7 +547,7 @@ rule minion:
 
 
     # Check that artic minion can run, so we are sure that we are not or-exiting due to dependency errors.
-    artic minion --version && echo "artic minion in itself runs fine."
+    artic minion -h && echo "artic minion in itself runs fine."
 
 
     # Original nanopolish
