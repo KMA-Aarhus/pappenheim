@@ -559,7 +559,7 @@ rule minion:
         --read-file {input} \
         --fast5-directory {params.base_dir}/fast5_pass \
         --sequencing-summary {params.sequencing_summary_file} \
-        nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} || echo ">{wildcards.batch_id}_{wildcards.sample_id}_notenoughdata" > {output} && cat scripts/29903N.txt >> {output} # If there is not enough data, the job should exit gracefully and create a fake output file with 29903 N's
+        nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} || {{ echo ">{wildcards.batch_id}_{wildcards.sample_id}_notenoughdata" > {output} && cat scripts/29903N.txt >> {output} }} # If there is not enough data, the job should exit gracefully and create a fake output file with 29903 N's
 
 
     # I have considered that it should only or-exit gracefully when the sample type is "positive_control" or "negative_control". But I think it is very possible that normal samples can also fail, which should not halt the complete batch in terms of the pipeline.
