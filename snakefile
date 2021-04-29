@@ -469,7 +469,7 @@ rule start_rampart:
 
         # Call rampart forked. Later this pid will be closed.
         echo "Starting rampart now."
-        rampart --title "KMA {batch_id}" --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} || echo "rampart was stopped"
+        rampart --title "pappenheim batch {batch_id}" --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} || echo "rampart was stopped"
  
 
         
