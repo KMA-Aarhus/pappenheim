@@ -39,7 +39,7 @@ NOTE: if black screen after restart, switch monitor cable ports.
    sudo apt upgrade -y
    
    # Install latest versions useful software:
-   sudo apt install git vim tree htop libreoffice filezilla tmux
+   sudo apt install git vim tree htop libreoffice filezilla tmux cowsay
    ```
 
 
