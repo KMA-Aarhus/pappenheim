@@ -179,7 +179,7 @@ df_mini = df_mini.dropna(how='all') # Drop the rows where all elements are missi
 print("✓")
 
 
-acceptable_barcodes = [f"NB{i:02d}" for i in range(1,99)]
+acceptable_barcodes = [f"NB{i:02d}" for i in range(1,97)]
 #print(acceptable_barcodes)
 
 
