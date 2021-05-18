@@ -7,7 +7,7 @@ Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-baseca
 
 ## What it does
 
-Pappenheim is designed to trail a ONT-minknow sequencing run. When you have started sequencing in minknow, you can start this pipeline and it will progress through the following steps.
+Pappenheim is designed to trail a ONT-minknow sequencing run. When you have started sequencing in minknow, you can start this pipeline and it will progress through the following steps:
 
 ### On a batch level:
 * Input validation of the sample sheet
