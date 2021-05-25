@@ -1,2 +1,0 @@
-read_name,read_len,start_time,barcode,best_reference,ref_len,start_coords,end_coords,num_matches,mapping_len
-f1453ad9-55cb-4c72-aa45-a07e74efacf1,498,2021-05-21T01:43:38Z,barcode20,nCoV2019|Wuhan-Hu-1|MN908947|China|Wuhan|2019-12,29904,18612,18977,325,351
