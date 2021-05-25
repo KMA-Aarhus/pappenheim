@@ -1,6 +1,6 @@
 
 __author__ = "Carl Mathias Kobel"
-__version__ = "0.1"
+__version__ = "0.2"
 
 
 # start_pappenheim '/run/user/1000/gvfs/smb-share:server=onerm.dk,share=nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit Molekyl. og Serologi/NanoPore/NanoPore Metadata/5770_seq_2021-03-23_NEB.xlsx'  '/home/ontseqa/Desktop/sc2_sequencing/COVID19-AUH-20210324-5770/' -np
@@ -23,10 +23,6 @@ import datetime
 
 
 
-# When development_mode is True, the development cycle (frequency) is increased.
-development_mode = True
-
-
 configfile: "config.yaml"
 print(config["samplesheet"])
 
@@ -46,35 +42,21 @@ nl = "\n"
 
 
 
-# This will make your code slower
-def lag(time_ = 0.06):
-    if development_mode:
-        pass
-    else:
-        time.sleep(time_)
+# Print a convincing logo, if the window is big enough.
+print()
+print(f"          Pappenheim pipeline v{__version__}  -  Aarhus Universityhospital  -  Department of Clinical Microbiology          ")
+print()
+print("                  ██████╗  █████╗ ██████╗ ██████╗ ███████╗███╗   ██╗██╗  ██╗███████╗██╗███╗   ███╗ ")
+print("                  ██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝████╗  ██║██║  ██║██╔════╝██║████╗ ████║ ")
+print("                  ██████╔╝███████║██████╔╝██████╔╝█████╗  ██╔██╗ ██║███████║█████╗  ██║██╔████╔██║ ")
+print("                  ██╔═══╝ ██╔══██║██╔═══╝ ██╔═══╝ ██╔══╝  ██║╚██╗██║██╔══██║██╔══╝  ██║██║╚██╔╝██║ ")
+print("                  ██║     ██║  ██║██║     ██║     ███████╗██║ ╚████║██║  ██║███████╗██║██║ ╚═╝ ██║ ")
+print("                  ╚═╝     ╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝     ╚═╝ ")
+print()
+print("                                      Press ctrl+c at any time to stop this pipeline."              )
+print()
 
 
-
-# Print a convincing logo, if the windows is big enough.
-
-terminal_rows, terminal_columns = os.popen('stty size', 'r').read().split()
-
-if int(terminal_columns) >= 126:
-    print()
-    print(f"          Pappenheim pipeline v{__version__}  -  Aarhus Universityhospital  -  Department of Clinical Microbiology          ")
-    print()
-    print("                  ██████╗  █████╗ ██████╗ ██████╗ ███████╗███╗   ██╗██╗  ██╗███████╗██╗███╗   ███╗ ")
-    print("                  ██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝████╗  ██║██║  ██║██╔════╝██║████╗ ████║ ")
-    print("                  ██████╔╝███████║██████╔╝██████╔╝█████╗  ██╔██╗ ██║███████║█████╗  ██║██╔████╔██║ ")
-    print("                  ██╔═══╝ ██╔══██║██╔═══╝ ██╔═══╝ ██╔══╝  ██║╚██╗██║██╔══██║██╔══╝  ██║██║╚██╔╝██║ ")
-    print("                  ██║     ██║  ██║██║     ██║     ███████╗██║ ╚████║██║  ██║███████╗██║██║ ╚═╝ ██║ ")
-    print("                  ╚═╝     ╚═╝  ╚═╝╚═╝     ╚═╝     ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝     ╚═╝ ")
-    print()
-    print("                                      Press ctrl+c at any time to stop this pipeline."              )
-    print()
-
-else:
-    print("Warning: Please increase your terminal window width.")
 
 
 
@@ -93,19 +75,6 @@ print(f"These are the parameters given:")
 print(f"  samplesheet: {samplesheet}")
 print(f"  rundir: {rundir}")
 print()
-
-
-def check_user(prompt):
-    input_OK = input(f"{prompt} [y/n]: ").strip()
-    print(f"User entered \"{input_OK}\": ", end = "", flush = True)
-    #sys.stdin.read(1)
-    if not str(input_OK).lower()[0:1] == "y":
-        print("Exiting ...")
-        print(f"Hint: Press <uparrow> <enter> to rerun this pipeline with the same input files.")
-        exit(1)
-
-    print("Proceeding ...")
-    print()
 
 
 
@@ -150,7 +119,6 @@ else:
 
 # Clean up the spreadsheet
 print("Cleaning sample sheet ...                              ", end = "", flush = True)
-lag()
 df.columns = map(str.lower, df.columns) # Lowercase
 df.columns = map(str.strip, df.columns) # Remove edge-spaces
 df.columns = map(lambda x: str(x).replace(" ", "_"), df.columns) # Replace spaces with underscore
@@ -161,7 +129,6 @@ print("✓")
 #print("ee", "barcode" in list(df.columns))
 # Check that the spreadsheet complies
 print("Checking that the necessary columns exist ...          ", end = "", flush = True)
-lag()
 for i in ["barcode", "sample_id"]:
     if not i in df.columns:
         raise Exception(f"The sample sheet is missing a necessary column. The sample sheet must contain the column {i}, but it only contains {df.columns.tolist()}")
@@ -172,7 +139,6 @@ print("✓")
 
 # df_mini is the df, with just two columns for easier handling.
 print("Minimizing sample sheet ...                            ", end = "", flush = True)
-lag()
 df_mini = df[["barcode", "sample_id"]] # Select the only necessary columns
 df_mini = df_mini.apply(np.vectorize(lambda x: str(x).strip().replace(" ", ""))) # strip whitespace and replace spaces with underscoresnothing.
 df_mini = df_mini.dropna(how='all') # Drop the rows where all elements are missing.
@@ -184,7 +150,6 @@ acceptable_barcodes = [f"NB{i:02d}" for i in range(1,97)]
 
 
 print("Checking that the barcodes are correctly formatted ... ", end = "", flush = True)
-lag()
 for i in df_mini["barcode"]:
     #print("checking", i)
     if not i in acceptable_barcodes: 
@@ -193,7 +158,6 @@ print("✓")
 
 
 print("Checking that the barcodes are unique ...              ", end = "", flush = True)
-lag()
 if not len(df_mini["barcode"]) == len(set(df_mini["barcode"])):
     bc_counts = pd.DataFrame(df_mini['barcode'].value_counts())
     bc_counts.columns = ["count"]
@@ -205,7 +169,6 @@ print("✓")
 
 
 print("Checking that the sample id's are unique ...           ", end = "", flush = True)
-lag()
 if not len(df_mini["sample_id"]) == len(set(df_mini["sample_id"])):
     sid_counts = pd.DataFrame(df_mini['sample_id'].value_counts())
     sid_counts.columns = ["count"]
@@ -232,10 +195,6 @@ print("These are the samples from the samplesheet you have given:")
 print(df_mini.to_string(index = False))
 print("//")
 print()
-
-if not development_mode:
-    check_user("Do you wish to proceed?")
-
 
 
 
@@ -333,6 +292,24 @@ out_base = os.path.join(base_dir, "pappenheim_output") # out_base is the directo
 # print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
 
 
+# And here is the code from the rule wait_for_minknow
+minutes_wait = 10
+print("Checking that the sequencing_summary_*.txt-file has been written to disk ...")
+while True:
+    sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
+    if len(sequencing_summary_file) == 0:
+        print(f"  Still sequencing/basecalling. Waiting {minutes_wait} minutes ..")
+        time.sleep(60*minutes_wait)
+    else:
+        break
+
+
+#raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
+sequencing_summary_file = sequencing_summary_file[0]
+print("  The sequencing summary has been found                ✓")
+print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
+
+
 
 sample_sheet_given_file = f"{fastq_pass_base}/../sample_sheet_given.tsv"
 print(f"Backing up the original sample sheet ...               ", end = "", flush = True)
@@ -347,6 +324,13 @@ disk_barcodes_df = pd.DataFrame({'barcode_path': disk_barcodes_list})
 #df_mini = df_mini.assign(type = ['positive_control' if a.lower().startswith("seqpos") else ('negative_control' if a.lower().endswith("neg") else 'sample') for a in df['sample_id']])
 disk_barcodes_df = disk_barcodes_df.assign(barcode_basename = [i.split("/")[-1] for i in disk_barcodes_df["barcode_path"]])
 disk_barcodes_df = disk_barcodes_df.assign(barcode = ["NB" + i[-2:] for i in disk_barcodes_df["barcode_path"]])
+
+
+
+
+
+
+
 
 
 
@@ -365,8 +349,7 @@ print()
 
 
 
-if not development_mode:
-    check_user("These are the samples found on disk that match your input. Do you wish to proceed?")
+
 
 
 
@@ -409,101 +392,102 @@ rule all:
 
 
 
-def exit_rampart(wait_ = 6):
-    print("Issuing the following command to exit Rampart:")
-    command = f"""
+# def exit_rampart(wait_ = 6):
+#     print("Issuing the following command to exit Rampart:")
+#     command = f"""
         
-        # sleep {wait_}
+#         # sleep {wait_}
 
-        # killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}' | grep "")
-        # echo "this is the killpid $killpid"
-        # # Check that any 
-        # #if lsof -t -i :3000; then
-        # if [ ! -z $killpid ]; then
+#         # killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}' | grep "")
+#         # echo "this is the killpid $killpid"
+#         # # Check that any 
+#         # #if lsof -t -i :3000; then
+#         # if [ ! -z $killpid ]; then
 
-        #     # filter for only the node-processes writing to port 3000
-        #     killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}')
+#         #     # filter for only the node-processes writing to port 3000
+#         #     killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}')
 
-        #     #echo $killpid
-        #     kill -2 $killpid
-        #     echo 'Rampart has been exited'
+#         #     #echo $killpid
+#         #     kill -2 $killpid
+#         #     echo 'Rampart has been exited'
 
-        # else
-        #     echo 'No Rampart job to kill'
-        # fi
+#         # else
+#         #     echo 'No Rampart job to kill'
+#         # fi
 
-        sleep {wait_}
-        $(lsof -t -i :3000) && kill -2 $(lsof -t -i :3000) || echo "no rampart job to kill"
+#         sleep {wait_}
+#         $(lsof -t -i :3000) && kill -2 $(lsof -t -i :3000) || echo "no rampart job to kill"
 
-        """
-    print(command)
-    os.system(command)
-
-#exit_rampart(wait_ = 0)
+#         """
+#     print(command)
+#     os.system(command)
 
 
-# What I like about this rule is that it ensures an easy way to install rampart by using the snakemake-conda installer
-# the only input needed for rampart, is the base_dir
-rule start_rampart:
-    output: "{out_base}/flags/{batch_id}_subbatch{rampart_sub_batch_id}_rampart.flag.ok"
-    conda: "envs/rampart.yml"
-    params: fastq = fastq_pass_base
-    shell: """
 
-        # First, kill any old Rampart job
-        sh ~/pappenheim/scripts/stop_rampart.sh
+
+# # What I like about this rule is that it ensures an easy way to install rampart by using the snakemake-conda installer
+# # the only input needed for rampart, is the base_dir
+# rule start_rampart:
+#     output: "{out_base}/flags/{batch_id}_subbatch{rampart_sub_batch_id}_rampart.flag.ok"
+#     conda: "envs/rampart.yml"
+#     params: fastq = fastq_pass_base
+#     shell: """
+
+#         # First, kill any old Rampart job
+#         sh ~/pappenheim/scripts/stop_rampart.sh
 
 
         
-        # Check that rampart actually works
-        echo "Rampart version $(rampart --version)"
-        rampart --help
+#         # Check that rampart actually works
+#         echo "Rampart version $(rampart --version)"
+#         rampart --help
 
-        # Spawn firefox with lag before calling the rampart program.
-        {{ $(sleep 2; firefox localhost:3000)  & }};
+#         # Spawn firefox with lag before calling the rampart program.
+#         {{ $(sleep 2; firefox localhost:3000)  & }};
 
 
 
-        # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
-        touch {output}
+#         # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
+#         touch {output}
 
-        # Call rampart forked. Later this pid will be closed.
-        echo "Starting rampart now."
-        rampart --title "pappenheim batch {batch_id}" --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} || echo "rampart was stopped"
+#         # Call rampart forked. Later this pid will be closed.
+#         echo "Starting rampart now."
+#         rampart --title "pappenheim batch {batch_id}" --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} || echo "rampart was stopped"
  
 
         
 
-    """
+#     """
 
 
 
 
 # This target simply waits until the sequencing and basecalling has finished.
-rule wait_for_minknow:
-    output: flag = "{out_base}/flags/{batch_id}_minknow_done.flag.ok",
-        sequencing_summary_moved = "{out_base}/{batch_id}_sequencing_summary.txt"
-    run:
+# This ought to be a checkpoint
+# rule wait_for_minknow:
+#     output: flag = "{out_base}/flags/{batch_id}_minknow_done.flag.ok",
+#         sequencing_summary_moved = "{out_base}/{batch_id}_sequencing_summary.txt"
+#     run:
         
-        # heck that sequencing and basecalling has finished, by checking the existence of the sequence_summary_*.txt-file.
+#         # heck that sequencing and basecalling has finished, by checking the existence of the sequence_summary_*.txt-file.
 
-        minutes_wait = 10
-        print("Checking that the sequencing_summary_*.txt-file has been written to disk ...")
-        while True:
-            sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
-            if len(sequencing_summary_file) == 0:
-                print(f"  Still sequencing/basecalling. Waiting {minutes_wait} minutes ..")
-                time.sleep(60*minutes_wait)
-            else:
-                break
+#         minutes_wait = 10
+#         print("Checking that the sequencing_summary_*.txt-file has been written to disk ...")
+#         while True:
+#             sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
+#             if len(sequencing_summary_file) == 0:
+#                 print(f"  Still sequencing/basecalling. Waiting {minutes_wait} minutes ..")
+#                 time.sleep(60*minutes_wait)
+#             else:
+#                 break
 
-            #raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
-        sequencing_summary_file = sequencing_summary_file[0]
-        print("  The sequencing summary has been found                ✓")
-        print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
+#             #raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
+#         sequencing_summary_file = sequencing_summary_file[0]
+#         print("  The sequencing summary has been found                ✓")
+#         print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
 
-        os.system(f"mv {sequencing_summary_file} {output.sequencing_summary_moved}")
-        os.system(f"touch {output}")
+#         os.system(f"mv {sequencing_summary_file} {output.sequencing_summary_moved}")
+#         os.system(f"touch {output}")
 
 
 
@@ -514,7 +498,7 @@ rule wait_for_minknow:
 # Because we're only using the "pass" reads we can speed up the process with skip-quality-check.
 rule read_filtering:
     input:
-        minknow_flag = "{out_base}/flags/{batch_id}_minknow_done.flag.ok",
+        #minknow_flag = "{out_base}/flags/{batch_id}_minknow_done.flag.ok",
         barcode_dir = directory(lambda wildcards: workflow_table[workflow_table["sample_id"] == wildcards.sample_id]["barcode_path"].values[0])
     output: "{out_base}/{batch_id}_{sample_id}/read_filtering/{batch_id}_{sample_id}.fastq" #_barcode00.fastq
     conda: "artic-ncov2019/environment.yml"
