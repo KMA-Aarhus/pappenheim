@@ -1,0 +1,46 @@
+import datetime
+
+
+
+configfile: "config.yaml"
+
+
+rampart_sub_batch_id = datetime.datetime.now().strftime("%y-%m-%dT%H%M%S")
+print("this is the rampart sub batch id", rampart_sub_batch_id)
+
+
+rule all:
+    input: expand("{out_base}/flags/{batch_id}_subbatch{rampart_sub_batch_id}_rampart.flag.ok", out_base = config['out_base'], batch_id = config['batch_id'], rampart_sub_batch_id = rampart_sub_batch_id)
+
+
+
+# What I like about this rule is that it ensures an easy way to install rampart by using the snakemake-conda installer
+# the only input needed for rampart, is the base_dir
+rule start_rampart:
+    output: "{out_base}/flags/{batch_id}_subbatch{rampart_sub_batch_id}_rampart.flag.ok"
+    conda: "envs/rampart.yml"
+    params: fastq = config["fastq_pass_base"]
+    shell: """
+
+        # First, kill any old Rampart job
+        sh ../scripts/stop_rampart.sh
+
+
+        
+        # Check that rampart actually works
+        echo "Rampart version $(rampart --version)"
+        rampart --help
+
+        # Spawn firefox with lag before calling the rampart program.
+        {{ $(sleep 2; firefox localhost:3000)  & }};
+
+
+
+        # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
+        touch {output}
+
+        # Call rampart forked. Later this pid will be closed.
+        echo "Starting rampart now."
+        rampart --title "pappenheim batch {wildcards.batch_id}" --protocol ../artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} || echo "rampart was stopped"
+ 
+    """

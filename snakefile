@@ -245,6 +245,8 @@ print(f"Found the following fastq_pass base which will be given to rampart: {nl}
 
 
 
+
+
 # base_dir is the place where fastq_pass, fast5_pass and the sequencing summary resides.
 base_dir = os.path.dirname(fastq_pass_base) # This only works because there is NOT a trailing slash on the fastq_pass_base
 print(f"This is the batch base directory:{nl}  {base_dir}")
@@ -271,6 +273,18 @@ print(f"This is the parsed batch_id:", batch_id)
 
 
 out_base = os.path.join(base_dir, "pappenheim_output") # out_base is the directory where the pipeline will write its output to.
+
+
+#rampart_sub_batch_id = datetime.datetime.now().strftime("%y-%m-%dT%H%M%S")
+#print("this is the rampart sub batch id", rampart_sub_batch_id)
+
+
+# Now we have all resources to start rampart in the background
+print(f"Starting rampart in the background ... ")
+command = f"cd ~/pappenheim/rampart && snakemake --config fastq_pass_base='{fastq_pass_base}' out_base='{out_base}' batch_id='{batch_id}' --use-conda --cores 1' > rampart_log.out 2> rampart_log.err"
+print(command)
+os.system(command)
+
 
 
 
@@ -304,10 +318,14 @@ while True:
         break
 
 
-#raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
+
 sequencing_summary_file = sequencing_summary_file[0]
 print("  The sequencing summary has been found                ✓")
 print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
+
+
+
+
 
 
 
@@ -362,9 +380,7 @@ print()
 
 
 
-rampart_sub_batch_id = datetime.datetime.now().strftime("%y-%m-%dT%H%M%S")
 
-print("this is the rampart sub batch id", rampart_sub_batch_id)
 
 
 
