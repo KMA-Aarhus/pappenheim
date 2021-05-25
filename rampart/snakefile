@@ -17,7 +17,7 @@ rule all:
 # What I like about this rule is that it ensures an easy way to install rampart by using the snakemake-conda installer
 # the only input needed for rampart, is the base_dir
 rule start_rampart:
-    output: "{out_base}/flags/{batch_id}_subbatch{rampart_sub_batch_id}_rampart.flag.ok"
+    output: touch("{out_base}/flags/{batch_id}_subbatch{rampart_sub_batch_id}_rampart.flag.ok")
     conda: "envs/rampart.yml"
     params: fastq = config["fastq_pass_base"]
     shell: """
@@ -32,15 +32,15 @@ rule start_rampart:
         rampart --help
 
         # Spawn firefox with lag before calling the rampart program.
-        {{ $(sleep 2; firefox localhost:3000)  & }};
+        #{{ $(sleep 2; firefox localhost:3000)  & }};
 
 
 
         # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
-        touch {output}
+        #touch {output} deprecated by the touch snakemake function
 
         # Call rampart forked. Later this pid will be closed.
         echo "Starting rampart now."
-        rampart --title "pappenheim batch {wildcards.batch_id}" --protocol ../artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} || echo "rampart was stopped"
+        rampart --title "pappenheim batch {wildcards.batch_id}" --protocol ../artic-ncov2019/rampart/ --basecalledPath {params.fastq} || echo "rampart was stopped"
  
     """

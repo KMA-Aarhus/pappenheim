@@ -23,18 +23,18 @@ start_pappenheim () {
 
 	example="\n\texample:\n\t start_pappenheim path/to/my_samplesheet.xlsx path/to/my_rundir\n"
 
- if [ -z "$1" ]; then
-     echo "Input error: The samplesheet argument is empty. Please specify a samplesheet."
-     echo -e $example
+if [ -z "$1" ]; then
+    echo "Input error: The samplesheet argument is empty. Please specify a samplesheet."
+    echo -e $example
      
- elif [ -z "$2" ]; then
-     echo "Input error: The rundir argument is empty. Please specify a rundir."
-     echo -e $example
- else
+elif [ -z "$2" ]; then
+    echo "Input error: The rundir argument is empty. Please specify a rundir."
+    echo -e $example
+else
 
-     #clear
-     cd ~/pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" ${3} && echo && cowsay "pappenheim finished successfully."
- fi
+    #clear
+    cd ~/pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" ${3} && echo && cowsay "pappenheim finished successfully."
+fi
 }
 
 

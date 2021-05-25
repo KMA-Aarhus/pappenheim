@@ -281,9 +281,16 @@ out_base = os.path.join(base_dir, "pappenheim_output") # out_base is the directo
 
 # Now we have all resources to start rampart in the background
 print(f"Starting rampart in the background ... ")
-command = f"cd ~/pappenheim/rampart && snakemake --config fastq_pass_base='{fastq_pass_base}' out_base='{out_base}' batch_id='{batch_id}' --use-conda --cores 1' > rampart_log.out 2> rampart_log.err"
-print(command)
+command = f"cd ~/pappenheim/rampart && snakemake --config fastq_pass_base='{fastq_pass_base}' out_base='{out_base}' batch_id='{batch_id}' --use-conda --cores 1 --quiet > rampart_log.out 2> rampart_log.err &"
+#print(command)
 os.system(command)
+
+
+print("This is the tail stderr stream of the running rampart job, after 1 sec:")
+os.system("sleep 1") # Wait for the rampart log to become populated.
+os.system("cat rampart/rampart_log.err | tail -n 5")
+print("//\n") # visual separator
+
 
 
 
@@ -307,12 +314,12 @@ os.system(command)
 
 
 # And here is the code from the rule wait_for_minknow
-minutes_wait = 10
+minutes_wait = 1
 print("Checking that the sequencing_summary_*.txt-file has been written to disk ...")
 while True:
     sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
     if len(sequencing_summary_file) == 0:
-        print(f"  Still sequencing/basecalling. Waiting {minutes_wait} minutes ..")
+        print(f"  Still sequencing/basecalling; waiting {minutes_wait} minutes ...")
         time.sleep(60*minutes_wait)
     else:
         break
@@ -321,7 +328,9 @@ while True:
 
 sequencing_summary_file = sequencing_summary_file[0]
 print("  The sequencing summary has been found                ✓")
-print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
+#print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
+print(f"  This is the sequencing_summary_*.txt-file (full): \"{sequencing_summary_file}\"")
+
 
 
 
@@ -387,8 +396,7 @@ print()
 
 #This is the collection target, it collects all outputs from other targets. 
 rule all:
-   input: expand(["{out_base}/flags/{batch_id}_subbatch{rampart_sub_batch_id}_rampart.flag.ok", \
-                  "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
+   input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
                   "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
@@ -396,7 +404,7 @@ rule all:
                   "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
                   "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
                   "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
-                 out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id, rampart_sub_batch_id = rampart_sub_batch_id)
+                 out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
 
 
 # # rule all for testing rampart only
@@ -482,7 +490,7 @@ rule all:
 # This ought to be a checkpoint
 # rule wait_for_minknow:
 #     output: flag = "{out_base}/flags/{batch_id}_minknow_done.flag.ok",
-#         sequencing_summary_moved = "{out_base}/{batch_id}_sequencing_summary.txt"
+#         sequencing_summary_moved = "{out_base}/{batch_id}_sequencing_summary.txt" # apparently, I'm moving the sequencing summary file, because I want it to have a nice name?
 #     run:
         
 #         # heck that sequencing and basecalling has finished, by checking the existence of the sequence_summary_*.txt-file.
@@ -530,7 +538,9 @@ rule read_filtering:
 
 # Run the MinION pipeline
 rule minion:
-    input: "{out_base}/{batch_id}_{sample_id}/read_filtering/{batch_id}_{sample_id}.fastq"
+    input:
+        fastq ="{out_base}/{batch_id}_{sample_id}/read_filtering/{batch_id}_{sample_id}.fastq",
+
     output: "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta"
     conda: "artic-ncov2019/environment.yml"
     params:
@@ -539,7 +549,8 @@ rule minion:
         #output = "../consensus/{batch_id}_{sample_id}.fasta",
         base_dir = base_dir,
         output_dir = "{out_base}/{batch_id}_{sample_id}/consensus/",
-        sequencing_summary_file = "{out_base}/{batch_id}_sequencing_summary.txt"
+        #sequencing_summary_file = "{out_base}/{batch_id}_sequencing_summary.txt"
+        sequencing_summary_file = sequencing_summary_file
     threads: 4
     shell: """
 
@@ -556,7 +567,7 @@ rule minion:
         --threads 4 \
         --scheme-directory artic-ncov2019/primer_schemes \
         --scheme-version 3 \
-        --read-file {input} \
+        --read-file {input.fastq} \
         --fast5-directory {params.base_dir}/fast5_pass \
         --sequencing-summary {params.sequencing_summary_file} \
         nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} \
@@ -853,6 +864,9 @@ rule custom_upload:
 
         # and we can gracefully stop rampart
         sh ~/pappenheim/scripts/stop_rampart.sh
+
+        # Consider also, to remove the files locally.
+        # This is of course, pretty dangerous.
 
         """
 
