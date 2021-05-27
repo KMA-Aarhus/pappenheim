@@ -608,6 +608,7 @@ rule pangolin_downloader:
         touch {output}
 
         """
+        
 
 # Runs once per batch
 rule pangolin_updater: 
@@ -649,6 +650,8 @@ rule pangolin:
         out_dir = "{out_base}/{batch_id}_{sample_id}/pangolin"
     shell: """
 
+
+        pangolin --help
 
 
         pangolin {input.consensuses} \
