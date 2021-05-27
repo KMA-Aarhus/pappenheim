@@ -192,7 +192,7 @@ df_mini = df_mini.assign(type = ['positive_control' if a.lower().startswith("seq
 
 print()
 print("These are the samples from the samplesheet you have given:")
-print(df_mini.to_string(index = False))
+print(df_mini.to_string())
 print("//")
 print()
 
