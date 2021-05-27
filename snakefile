@@ -314,7 +314,7 @@ print("//\n") # visual separator
 
 
 # And here is the code from the rule wait_for_minknow
-minutes_wait = 1
+minutes_wait = 10
 print("Checking that the sequencing_summary_*.txt-file has been written to disk ...")
 while True:
     sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
