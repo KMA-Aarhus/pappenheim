@@ -601,9 +601,9 @@ rule pangolin_downloader:
 
         cd pangolin
         pwd
-        #git pull
+        git pull origin master
         
-        git submodule update --remote 
+        #git submodule update --remote 
 
         touch {output}
 
@@ -620,13 +620,16 @@ rule pangolin_updater:
         cd pangolin
 
         # Install pangolin
-        python setup.py install > latest_pangolin_install_log.stdout 2> latest_pangolin_install_log.stderr
+        #python setup.py install > latest_pangolin_install_log.stdout 2> latest_pangolin_install_log.stderr
+        pip install .
 
         # Disabling pangolin temporarily to check why it fails.
         # Check that the newest dendendencies are installed. 
         
-        pip install git+https://github.com/cov-lineages/pangoLEARN.git --upgrade 
-        pip install git+https://github.com/cov-lineages/lineages.git --upgrade 
+        #pip install git+https://github.com/cov-lineages/pangoLEARN.git --upgrade 
+        #pip install git+https://github.com/cov-lineages/lineages.git --upgrade 
+
+        pangolin --update
 
         
         # Check that the install worked
@@ -651,7 +654,7 @@ rule pangolin:
     shell: """
 
 
-        pangolin --help
+        #pangolin --help
 
 
         pangolin {input.consensuses} \
