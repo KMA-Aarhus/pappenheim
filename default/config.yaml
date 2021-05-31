@@ -1,5 +1,5 @@
 use-conda: True
-keep-going: True
+keep-going: False
 printshellcmds: True
 cores: 8
 
