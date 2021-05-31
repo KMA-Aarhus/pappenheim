@@ -95,9 +95,7 @@ When the sequencing is done in minknow, minknow writes a specific file to the ru
     Optionally, uncomment the `conda create ...` command if you want pappenheim and its dependencies in an enclosed environment.
 
     ```    
-    # conda create -n pappenheim && conda activate pappenheim    
-    
-    mamba env update --file pappenheim/environment.yaml 
+    conda create -n pappenheim && conda activate pappenheim && mamba env update --file ~/pappenheim/environment.yaml 
     ```
     
 Please create an issue (in this repo) if you encounter any problems or unanswered questions during installation or use.
