@@ -33,7 +33,7 @@ elif [ -z "$2" ]; then
 else
 
     #clear
-    cd ~/pappenheim && conda activate pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" ${3} && echo && cowsay "pappenheim finished successfully, you may now close the window."
+    cd ~/pappenheim && conda activate pappenheim && snakemake --profile default --config samplesheet="${1}" rundir="${2}" ${3} && echo && cowsay "pappenheim finished successfully, you may now close this window."
 fi
 }
 
