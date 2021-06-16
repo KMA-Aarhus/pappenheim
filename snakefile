@@ -611,6 +611,8 @@ rule pangolin_downloader:
         
 
 # Runs once per batch
+# It seems like even though we have a new environment.yml-file for pangolin, the environment is not updated?!
+# TODO: Do the git pull command (rule pangolin_downloader) before computing the job dag.
 rule pangolin_updater: 
     input: "{out_base}/flags/pangolin_downloader.flag.ok"
     output: "{out_base}/flags/pangolin_updater.flag.ok"
