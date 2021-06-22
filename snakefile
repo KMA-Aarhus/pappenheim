@@ -397,6 +397,7 @@ print()
 #This is the collection target, it collects all outputs from other targets. 
 rule all:
    input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
+                  "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}_depths.tsv", \
                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
                   "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
@@ -541,7 +542,11 @@ rule minion:
     input:
         fastq ="{out_base}/{batch_id}_{sample_id}/read_filtering/{batch_id}_{sample_id}.fastq",
 
-    output: "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta"
+    output:
+        consensus = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta",
+        depths = ["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.coverage_mask.txt.nCoV-2019_1.depths",
+                  "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.coverage_mask.txt.nCoV-2019_2.depths"]
+
     conda: "artic-ncov2019/environment.yml"
     params:
         #workdir = "{out_base}/{batch_id}/consensus/",
@@ -571,8 +576,8 @@ rule minion:
         --fast5-directory {params.base_dir}/fast5_pass \
         --sequencing-summary {params.sequencing_summary_file} \
         nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} \
-        || echo ">{wildcards.batch_id}_{wildcards.sample_id}_notenoughdata" > {output} \
-            && cat scripts/29903N.txt >> {output} 
+        || echo ">{wildcards.batch_id}_{wildcards.sample_id}_notenoughdata" > {output.consensus} \
+            && cat scripts/29903N.txt >> {output.consensus} 
 
     # If there is not enough data, the job should exit gracefully and create a blank output file with 29903 N's
 
@@ -586,6 +591,22 @@ rule minion:
 
     """
 
+
+
+rule depth:
+    input:
+        depths = ["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.coverage_mask.txt.nCoV-2019_1.depths",
+                  "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.coverage_mask.txt.nCoV-2019_2.depths"]
+    output: "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}_depths.tsv"
+    shell: """
+
+        # hattespase
+
+        cat {input.depths} \
+        | awk -v sample={wildcards.batch_id}_{wildcards.sample_id} '{{ print sample "\\t" $0 }}' \
+        > {output}
+
+    """
 
 
 
