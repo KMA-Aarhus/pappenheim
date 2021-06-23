@@ -831,6 +831,7 @@ rule merge_variant_data:
 rule final_merge:
     input: 
         consensuses = expand("{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", out_base = out_base, batch_id = batch_id, sample_id = workflow_table["sample_id"]),
+        depths = expand("{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}_depths.tsv", out_base = out_base, batch_id = batch_id, sample_id = workflow_table["sample_id"]),
         collected_input = "{out_base}/collected/{batch_id}_collected_input_long.tsv",
         collected_pangolin = "{out_base}/collected/{batch_id}_collected_pangolin_long.tsv",
         collected_nextclade = "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv"
@@ -852,6 +853,7 @@ rule final_merge:
 
         # Copy consensus-files and metadata to the upload directory
         cp {input.consensuses} {output.dir}
+        cat {input.depths} > {output.dir}/depths.tsv
         cp {output.file} {output.dir}
         cp {base_dir}/barcode_alignment*.tsv {output.dir}/{batch_id}_barcode_alignment.tsv
         cp {base_dir}/final_summary_*.txt {output.dir}/{batch_id}_final_summary.txt
