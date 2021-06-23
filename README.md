@@ -3,6 +3,10 @@
 Pipeline for sequencing of SARS-CoV-2 on local workstations with realtime-basecalling (GPU). This pipeline is based on snakemake and uses conda. All intermediary outputs are long-pivoted.
 
 
+Below is the dag for the pipeline, for a single sample:
+![dag1](https://user-images.githubusercontent.com/5913696/123104432-3a387380-d437-11eb-9f78-2562b3a2f9a4.png)
+
+
 
 
 ## What it does
