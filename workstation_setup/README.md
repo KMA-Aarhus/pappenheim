@@ -129,12 +129,7 @@ NOTE: If the installation worked correctly, `Guppy basecaller server` should be 
    echo 'source ~/pappenheim/scripts/bash_extensions.sh' >> ~/.bashrc && source ~/.bashrc
    ```
    
-   * Run this command to get a link of the laboratory-instruction onto the desktop.
-   ```
-   ln -s ${HOME}/pappenheim/documentation/SARS-CoV-2\ sekventeringsinstruks.pdf ${HOME}/Desktop/
 
-   ```
-   
 ### Miscellaneous
 
 Disable printer discovery: https://cirovladimir.wordpress.com/2019/02/11/ubuntu-18-04-disable-network-printer-auto-discovery/
