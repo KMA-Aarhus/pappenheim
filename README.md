@@ -106,6 +106,10 @@ Please create an issue (in this repo) if you encounter any problems or unanswere
 
 
 
+## Caveats
+There is a few _updater_-rules (pangolin_updater and nextclade_updater), which run once each time the pipeline is started. The idea is to update the environment-yaml file that the internal conda handler uses to build conda environments for the jobs. Unfortunately, snakemake only decides whether to update conda environments _before_ building the job-graph. This means that even though the environment-yaml files are updated before the pangolin and nextclade jobs are run, the actual environments are only updated next time the pipeline is run. 
+The worst case scenario is, that if you have an installation which you haven't used for a long time, the pangolin/nextclade calls might be outdated. A fix would be to somehow force snakemake to reinstall those specific conda environments each time the pipeline is run.
+
 
 
 ## Affiliations
