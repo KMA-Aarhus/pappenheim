@@ -87,7 +87,7 @@ def read_mail_list(mail_list_file):
                 continue
             mail_list.append(line.strip())
 
-    return " ".join(mail_list)
+    return ",".join(mail_list)
 
 mail_list_initiate_report = read_mail_list("mail_list_initiate_report.txt") #open("mail_list_variant_status.txt", "r").read()
 
@@ -409,8 +409,7 @@ print()
 
 #This is the collection target, it collects all outputs from other targets. 
 rule all:
-   input: expand(["{out_base}/{batch_id}_{sample_id}_initiate_run_sent.flag", \
-                  "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
+   input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
                   "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}_depths.tsv", \
                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
@@ -419,7 +418,21 @@ rule all:
                   "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
                   "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
                   "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
-                 out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
+                 out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id, mail_list = mail_list_initiate_report)
+                 
+                 
+onstart:
+    print("Initiate report sent to the concerned mails")
+    shell("""
+            # Send a mail to the behooves
+            mail -v -s "Automail: ONT SARS-CoV-2 pipeline start {wildcards.batch_id}_{wildcards.sample_id}" -S "from=Benjamin L. Nichum <bennic@rm.dk>" -b {wildcards.mail_list} <<< "Autogenereret ONT SARS-CoV-2 batch initiate rapport. 
+Batch: "{wildcards.batch_id}".
+
+Denne email er udsendt automatisk af pappenheim på GenomeDK, 
+til alle involverede i SARS-CoV-2 sekventeringen,
+på vegne af Klinisk Mikrobiologisk Afdeling, AUH."
+
+            """)
 
 
 # # rule all for testing rampart only
@@ -527,18 +540,6 @@ rule all:
 
 #         os.system(f"mv {sequencing_summary_file} {output.sequencing_summary_moved}")
 #         os.system(f"touch {output}")
-
-
-rule mail_initiate_report:
-    input: "{out_base}/{batch_id}/{batch_id}_batch_report.html"
-    output: touch("{out_base}/{batch_id}_{sampled_id}_initiate_run_sent.flag")
-    params: mail_list_initiate_report = mail_list_initiate_report
-
-    run:
-        shell("""
-            # Send a mail to the behooves
-            mail -v -s "Automail: ONT SARS-CoV-2 pipeline start {wildcards.batch_id}" -S "from=Benjamin L. Nichum <bennic@rm.dk>" -a {input} {params.mail_list_initiate_report} <<< "Autogenereret ONT SARS-CoV-2 batchsekventeringsrapport vedhæftet. 
-Batch: "{wildcards.batch_id}".
 
 
 
