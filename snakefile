@@ -1,5 +1,5 @@
 
-__author__ = "Carl Mathias Kobel"
+__author__ = "Carl Mathias Kobel, Benjamin L. Nichum"
 __version__ = "0.2"
 
 
@@ -76,7 +76,20 @@ print(f"  samplesheet: {samplesheet}")
 print(f"  rundir: {rundir}")
 print()
 
+def read_mail_list(mail_list_file):
+    """ Reads a line separated file containing email addresses, 
+        and returns them as a space delimited string.
+    """
+    mail_list = []
+    with open(mail_list_file, "r") as mail_list_open:
+        for line in mail_list_open:
+            if line[0] in ["\n", "#"]: # Skip blank lines and comments.
+                continue
+            mail_list.append(line.strip())
 
+    return " ".join(mail_list)
+
+mail_list_initiate_report = read_mail_list("mail_list_initiate_report.txt") #open("mail_list_variant_status.txt", "r").read()
 
 
 #########################
@@ -396,7 +409,8 @@ print()
 
 #This is the collection target, it collects all outputs from other targets. 
 rule all:
-   input: expand(["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
+   input: expand(["{out_base}/{batch_id}_{sample_id}_initiate_run_sent.flag", \
+                  "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", \
                   "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}_depths.tsv", \
                   "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_long.tsv", \
                   "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade_long.tsv", \
@@ -513,6 +527,18 @@ rule all:
 
 #         os.system(f"mv {sequencing_summary_file} {output.sequencing_summary_moved}")
 #         os.system(f"touch {output}")
+
+
+rule mail_initiate_report:
+    input: "{out_base}/{batch_id}/{batch_id}_batch_report.html"
+    output: touch("{out_base}/{batch_id}_{sampled_id}_initiate_run_sent.flag")
+    params: mail_list_initiate_report = mail_list_initiate_report
+
+    run:
+        shell("""
+            # Send a mail to the behooves
+            mail -v -s "Automail: ONT SARS-CoV-2 pipeline start {wildcards.batch_id}" -S "from=Benjamin L. Nichum <bennic@rm.dk>" -a {input} {params.mail_list_initiate_report} <<< "Autogenereret ONT SARS-CoV-2 batchsekventeringsrapport vedhæftet. 
+Batch: "{wildcards.batch_id}".
 
 
 
