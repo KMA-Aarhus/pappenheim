@@ -418,20 +418,14 @@ rule all:
                   "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
                   "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
                   "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
-                 out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id, mail_list = mail_list_initiate_report)
+                 out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
                  
                  
 onstart:
     print("Initiate report sent to the concerned mails")
     shell("""
             # Send a mail to the behooves
-            mail -v -s "Automail: ONT SARS-CoV-2 pipeline start {wildcards.batch_id}_{wildcards.sample_id}" -S "from=Benjamin L. Nichum <bennic@rm.dk>" -b {wildcards.mail_list} <<< "Autogenereret ONT SARS-CoV-2 batch initiate rapport. 
-Batch: "{wildcards.batch_id}".
-
-Denne email er udsendt automatisk af pappenheim på GenomeDK, 
-til alle involverede i SARS-CoV-2 sekventeringen,
-på vegne af Klinisk Mikrobiologisk Afdeling, AUH."
-
+            mail -s "Automail: ONT SARS-CoV-2 pipeline start {wildcards.batch_id}_{wildcards.sample_id}" bennic@rm.dk,rimyje@rm.dk,i.tarpgaard@rm.dk <<< " "
             """)
 
 
