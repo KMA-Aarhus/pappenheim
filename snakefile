@@ -421,12 +421,12 @@ rule all:
                  out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
                  
                  
-onstart:
-    print("Initiate report sent to the concerned mails")
-    shell("""
-            # Send a mail to the behooves
-            mail -s "Automail: ONT SARS-CoV-2 pipeline start {wildcards.batch_id}_{wildcards.sample_id}" bennic@rm.dk,rimyje@rm.dk,i.tarpgaard@rm.dk <<< " "
-            """)
+#onstart:
+#    print("Initiate report sent to the concerned mails")
+#    shell("""
+#            # Send a mail to the behooves
+#            mail -s "Automail: ONT SARS-CoV-2 pipeline start {wildcards.batch_id}_{wildcards.sample_id}" bennic@rm.dk,rimyje@rm.dk,i.tarpgaard@rm.dk <<< " "
+#            """)
 
 
 # # rule all for testing rampart only
@@ -659,7 +659,8 @@ rule pangolin_downloader:
 # TODO: Do the git pull command (rule pangolin_downloader) before computing the job dag.
 rule pangolin_updater: 
     input: "{out_base}/flags/pangolin_downloader.flag.ok"
-    output: "{out_base}/flags/pangolin_updater.flag.ok"
+    output: pangolin_updater_flag = "{out_base}/flags/pangolin_updater.flag.ok"
+            alias_key = "{out_base}/alias_key.json"
     conda: "pangolin/environment.yml"
     shell: """
 
@@ -680,20 +681,21 @@ rule pangolin_updater:
         
         # Check that the install worked
         pangolin -v 
-        pangolin -pv 
+        pangolin -pv
+        pangolin --alias > {output.alias_key} 
         
 
 
-        touch {output}
+        touch {output.pangolin_updater_flag}
 
     """
 
-rule pangolin:
+rule pangolin_pangolearn:
     # input: expand("{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", batch_id = batch_id, sample_id = workflow_table["sample_id"]) # per batch
     input:
         pangolin_flag = "{out_base}/flags/pangolin_updater.flag.ok",
         consensuses = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
-    output: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin.csv"
+    output: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolearn.csv"
     conda: "pangolin/environment.yml"
     params: 
         out_dir = "{out_base}/{batch_id}_{sample_id}/pangolin"
@@ -709,6 +711,40 @@ rule pangolin:
         # This output should be pivoted.
 
     """
+
+rule pangolin_usher:
+    # input: expand("{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", batch_id = batch_id, sample_id = workflow_table["sample_id"]) # per batch
+    input:
+        pangolin_flag = "{out_base}/flags/pangolin_updater.flag.ok",
+        consensuses = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
+    output: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_usher.csv"
+    conda: "pangolin/environment.yml"
+    params: 
+        out_dir = "{out_base}/{batch_id}_{sample_id}/pangolin"
+    shell: """
+
+
+        #pangolin --help
+
+
+        pangolin {input.consensuses} \
+            --usher --outfile {output}
+
+        # This output should be pivoted.
+
+    """
+
+rule align_pango:
+    # input: expand("{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", batch_id = batch_id, sample_id = workflow_table["sample_id"]) # per batch
+    input:
+        pangolearn = "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolearn.csv",
+        usher = "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_usher.csv",
+        alias_key = "{out_base}/alias_key.json"
+    output: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin.csv"
+    params: 
+        out_dir = "{out_base}/{batch_id}_{sample_id}/pangolin"
+    script: 
+        "scripts/align_pango_csv.py"
 
 rule pivot_pangolin:
     input: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin.csv"
