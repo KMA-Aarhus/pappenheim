@@ -89,7 +89,7 @@ def read_mail_list(mail_list_file):
 
     return ",".join(mail_list)
 
-mail_list_initiate_report = read_mail_list("mail_list_initiate_report.txt") #open("mail_list_variant_status.txt", "r").read()
+#mail_list_initiate_report = read_mail_list("mail_list_initiate_report.txt") #open("mail_list_variant_status.txt", "r").read()
 
 
 #########################
@@ -592,7 +592,7 @@ rule minion:
         --normalise 200 \
         --threads 4 \
         --scheme-directory artic-ncov2019/primer_schemes \
-        --scheme-version 3 \
+        --scheme-version 3_VarSkipShort \
         --read-file {input.fastq} \
         --fast5-directory {params.base_dir}/fast5_pass \
         --sequencing-summary {params.sequencing_summary_file} \
@@ -659,7 +659,7 @@ rule pangolin_downloader:
 # TODO: Do the git pull command (rule pangolin_downloader) before computing the job dag.
 rule pangolin_updater: 
     input: "{out_base}/flags/pangolin_downloader.flag.ok"
-    output: pangolin_updater_flag = "{out_base}/flags/pangolin_updater.flag.ok"
+    output: pangolin_updater_flag = "{out_base}/flags/pangolin_updater.flag.ok",
             alias_key = "{out_base}/alias_key.json"
     conda: "pangolin/environment.yml"
     shell: """
