@@ -13,8 +13,8 @@ def align_csv(pangolearn_csv, usher_csv, outfile):
 		usher_lineage = usher[1][usher[0].index("lineage")]
 	csvfile.close()	
 	if pangolearn_lineage != usher_lineage:
-		final_lineage = find_lineage(pangolearn_lineage, usher_lineage, snakemake.input[2])
-		#final_lineage = find_lineage(pangolearn_lineage, usher_lineage, scriptdir+"alias.json")
+		#final_lineage = find_lineage(pangolearn_lineage, usher_lineage, snakemake.input[2])
+		final_lineage = find_lineage(pangolearn_lineage, usher_lineage, scriptdir+"alias.json")
 		output[headers.index("lineage")] = final_lineage
 	with open(outfile, 'w', newline='\n') as csvfile:
 		lineagewriter = csv.writer(csvfile, delimiter=',')
@@ -30,6 +30,8 @@ def find_lineage(pangolearn_lineage, pango_usher_lineage, alias_key_json):
 		alias_keys = json.load(json_file)
 	alias_keys_items = [v for k, v in alias_keys.items()]
 	json_file.close()
+	if pango_usher_lineage in pangolearn_lineage:
+		return pango_usher_lineage
 	if pango_usher_lineage.split(".")[0] in alias_keys.keys() and pango_usher_lineage not in alias_keys_items:
 		print(alias_keys.items())
 		pango_usher_parental = pango_usher_lineage.split(".")[0]
@@ -48,6 +50,6 @@ def find_lineage(pangolearn_lineage, pango_usher_lineage, alias_key_json):
 	else:    
 		return "UNKNOWN - pangoLEARN and USHER disagrees"
 
-#scriptdir = "/Users/admin1/Documents/KMA_AUH/SARS-CoV-2/pappenheim/scripts/"
-#align_csv(scriptdir+"20210917.0954_96627536_pangoLEARN.csv", scriptdir+"20210917.0954_96627536_usher.csv", scriptdir+"aligned.csv" )
-align_csv(snakemake.input[0], snakemake.input[1], snakemake.output[0])
+scriptdir = "/Users/admin1/Documents/KMA_AUH/SARS-CoV-2/pappenheim/scripts/"
+align_csv(scriptdir+"20210920.0947_89333492_pangolearn.csv", scriptdir+"20210920.0947_89333492_usher.csv", scriptdir+"aligned.csv" )
+#align_csv(snakemake.input[0], snakemake.input[1], snakemake.output[0])
