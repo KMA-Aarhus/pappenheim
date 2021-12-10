@@ -135,6 +135,7 @@ print("Cleaning sample sheet ...                              ", end = "", flush
 df.columns = map(str.lower, df.columns) # Lowercase
 df.columns = map(str.strip, df.columns) # Remove edge-spaces
 df.columns = map(lambda x: str(x).replace(" ", "_"), df.columns) # Replace spaces with underscore
+df["sample_id"] = df["sample_id"].str.strip()
 df["barcode"] = df["barcode"].apply(np.vectorize(lambda x: str(x).strip().replace(" ", ""))) # Because we are later going to join using this column, it is necessary to strip it for spaces.
 df = df.dropna(subset = ["sample_id"])# remove rows not containing a sample ID
 print("✓")
@@ -592,7 +593,7 @@ rule minion:
         --normalise 200 \
         --threads 4 \
         --scheme-directory artic-ncov2019/primer_schemes \
-        --scheme-version 3_VarSkipShort \
+        --scheme-version 3 \
         --read-file {input.fastq} \
         --fast5-directory {params.base_dir}/fast5_pass \
         --sequencing-summary {params.sequencing_summary_file} \
@@ -776,12 +777,11 @@ rule pivot_pangolin:
 # Once per batch
 rule nextclade_updater:
     output: "{out_base}/flags/nextclade_updater.flag.ok"
-    conda: "envs/nodejs.yml"
     shell: """
 
 
         # Install or update nextclade to the latest version.
-        npm install --global @neherlab/nextclade
+        curl -fsSL "https://github.com/nextstrain/nextclade/releases/latest/download/nextclade-Linux-x86_64" -o "/home/ontseqa/nextclade/nextclade" && chmod +x /home/ontseqa/nextclade/nextclade
 
 
         touch {output}
@@ -793,14 +793,19 @@ rule nextclade:
         nextclade_flag = "{out_base}/flags/nextclade_updater.flag.ok",
         consensus = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
     output: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"
-    conda: "envs/nodejs.yml"
     shell: """
+        nextclade dataset get --name='sars-cov-2' --output-dir='{out_base}/nextclade_files'
 
-        nextclade.js \
+
+        nextclade run \
             --input-fasta {input.consensus} \
-            --output-tsv {output}
+            --output-tsv {output} \
+            --input-root-seq {out_base}/nextclade_files/reference.fasta \
+            --input-tree {out_base}/nextclade_files/tree.json \
+            --input-qc-config {out_base}/nextclade_files/qc.json
 
     """
+
 
 # Pivot the nextclade output to long format.
 rule pivot_nextclade:
