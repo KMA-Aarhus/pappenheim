@@ -1,6 +1,6 @@
 
-__author__ = "Carl Mathias Kobel, Benjamin L. Nichum"
-__version__ = "0.2"
+__author__ = "Tine S. Ebsen, Carl Mathias Kobel, Benjamin L. Nichum"
+__version__ = "0.3"
 
 
 # start_pappenheim '/run/user/1000/gvfs/smb-share:server=onerm.dk,share=nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit Molekyl. og Serologi/NanoPore/NanoPore Metadata/5770_seq_2021-03-23_NEB.xlsx'  '/home/ontseqa/Desktop/sc2_sequencing/COVID19-AUH-20210324-5770/' -np
@@ -775,14 +775,15 @@ rule pivot_pangolin:
 #############
 
 # Once per batch
+# Temporarily disabled
 rule nextclade_updater:
     output: "{out_base}/flags/nextclade_updater.flag.ok"
+    #curl -fsSL "https://github.com/nextstrain/nextclade/releases/latest/download/nextclade-Linux-x86_64" -o "/home/nextclade/nextclade" && chmod +x "/home/nextclade/nextclade" 
     shell: """
 
 
         # Install or update nextclade to the latest version.
-        curl -fsSL "https://github.com/nextstrain/nextclade/releases/latest/download/nextclade-Linux-x86_64" -o "/home/nextclade/nextclade" && chmod +x /home/ontseqa/nextclade
-        export PATH=/home/ontseqa/nextclade/:$PATH 
+
 
 
         touch {output}
@@ -801,7 +802,7 @@ rule nextclade:
         nextclade run \
             --input-fasta {input.consensus} \
             --output-tsv {output} \
-            --output-dir {output} \
+            --output-dir {out_base} \
             --input-root-seq {out_base}/nextclade_files/reference.fasta \
             --input-tree {out_base}/nextclade_files/tree.json \
             --input-qc-config {out_base}/nextclade_files/qc.json
