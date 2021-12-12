@@ -781,7 +781,8 @@ rule nextclade_updater:
 
 
         # Install or update nextclade to the latest version.
-        curl -fsSL "https://github.com/nextstrain/nextclade/releases/latest/download/nextclade-Linux-x86_64" -o "/home/ontseqa/nextclade/nextclade" && chmod +x /home/ontseqa/nextclade/nextclade
+        curl -fsSL "https://github.com/nextstrain/nextclade/releases/latest/download/nextclade-Linux-x86_64" -o "/home/nextclade/nextclade" && chmod +x /home/ontseqa/nextclade
+        export PATH=/home/ontseqa/nextclade/:$PATH 
 
 
         touch {output}
@@ -800,6 +801,7 @@ rule nextclade:
         nextclade run \
             --input-fasta {input.consensus} \
             --output-tsv {output} \
+            --output-dir {output} \
             --input-root-seq {out_base}/nextclade_files/reference.fasta \
             --input-tree {out_base}/nextclade_files/tree.json \
             --input-qc-config {out_base}/nextclade_files/qc.json
