@@ -1,10 +1,10 @@
 
-__author__ = "Tine S. Ebsen, Carl Mathias Kobel, Benjamin L. Nichum"
-__version__ = "0.3"
+__author__ = "Tine Sneibjerg Ebsen, Carl Mathias Kobel, Benjamin L. Nichum"
+__version__ = "0.2"
 
 
 # start_pappenheim '/run/user/1000/gvfs/smb-share:server=onerm.dk,share=nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit Molekyl. og Serologi/NanoPore/NanoPore Metadata/5770_seq_2021-03-23_NEB.xlsx'  '/home/ontseqa/Desktop/sc2_sequencing/COVID19-AUH-20210324-5770/' -np
-
+# start_pappenheim "/home/ontseq4/Desktop/9493_seq_2021-12-02_NEB_rettet_iretar.xlsx" "/media/ontseq4/ssd/sc_sequencing/2021-12-03/"
 
 import sys
 import os
@@ -19,6 +19,9 @@ import glob
 import time
 import atexit
 import datetime
+
+# new imports
+from pathlib import Path
 
 
 
@@ -89,8 +92,8 @@ def read_mail_list(mail_list_file):
 
     return ",".join(mail_list)
 
-#mail_list_initiate_report = read_mail_list("mail_list_initiate_report.txt") #open("mail_list_variant_status.txt", "r").read()
-
+mail_list = read_mail_list("mail_list.txt") 
+print("mail_list:", mail_list)
 
 #########################
 # Parse the samplesheet #
@@ -103,21 +106,6 @@ if samplesheet_extension == "ods":
     raise Exception(f"The spreadsheet file extension {samplesheet_extension} is not yet implemented.")
 
 
-    # # load a sheet based on its index (1 based)
-    # sheet_idx = 1
-    # df = read_ods(samplesheet, sheet_idx)
-
-
-    # # load a file that does not contain a header row
-    # # if no columns are provided, they will be numbered
-    # df = read_ods(samplesheet, 1, headers=True)
-
-    # # Clean up the spreadsheet
-    # df.columns = map(str.lower, df.columns) # Lowercase
-    # df.columns = map(str.strip, df.columns) # Remove edge-spaces
-    # df.columns = map(lambda x: str(x).replace(" ", "_"), df.columns) # Replace spaces with underscore
-    # df = df[["barcode", "sample_id"]]
-    # df = df.astype(str)
 
 
 elif samplesheet_extension == "xlsx":
@@ -135,7 +123,6 @@ print("Cleaning sample sheet ...                              ", end = "", flush
 df.columns = map(str.lower, df.columns) # Lowercase
 df.columns = map(str.strip, df.columns) # Remove edge-spaces
 df.columns = map(lambda x: str(x).replace(" ", "_"), df.columns) # Replace spaces with underscore
-df["sample_id"] = df["sample_id"].str.strip()
 df["barcode"] = df["barcode"].apply(np.vectorize(lambda x: str(x).strip().replace(" ", ""))) # Because we are later going to join using this column, it is necessary to strip it for spaces.
 df = df.dropna(subset = ["sample_id"])# remove rows not containing a sample ID
 print("✓")
@@ -389,12 +376,6 @@ print()
 
 
 
-
-
-
-
-
-
 ####################################################################
 # Finally we can run the artic protocol                            #
 # https://artic.network/ncov-2019/ncov2019-bioinformatics-sop.html #
@@ -404,9 +385,8 @@ print()
 
 
 
-
-
-
+#                   "{out_base}/{batch_id}/{batch_id}_metadata_init.tsv"], \
+#                   "{out_base}/collected/{batch_id}_df.csv", \
 
 #This is the collection target, it collects all outputs from other targets. 
 rule all:
@@ -417,125 +397,12 @@ rule all:
                   "{out_base}/collected/{batch_id}_collected_nextclade_long.tsv", \
                   "{out_base}/collected/{batch_id}_collected_input_long.tsv", \
                   "{out_base}/flags/{batch_id}_clean_ready.flag.ok", \
-                  "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
-                  "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
+                  "{out_base}/collected/{batch_id}_all.tsv", \
+                  "{out_base}/{batch_id}/{batch_id}_batch_report.html", \
+                  "{out_base}/{batch_id}/{batch_id}_metadata_init.tsv", \
+                  "{out_base}/flags/{batch_id}_output_mail_sent.flag"], \
                  out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
                  
-                 
-#onstart:
-#    print("Initiate report sent to the concerned mails")
-#    shell("""
-#            # Send a mail to the behooves
-#            mail -s "Automail: ONT SARS-CoV-2 pipeline start {wildcards.batch_id}_{wildcards.sample_id}" bennic@rm.dk,rimyje@rm.dk,i.tarpgaard@rm.dk <<< " "
-#            """)
-
-
-# # rule all for testing rampart only
-# rule all:
-#     input: expand("{out_base}/{batch_id}_{sample_id}/read_filtering/{batch_id}_{sample_id}.fastq", \
-#                   out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
-
-
-
-
-
-# def exit_rampart(wait_ = 6):
-#     print("Issuing the following command to exit Rampart:")
-#     command = f"""
-        
-#         # sleep {wait_}
-
-#         # killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}' | grep "")
-#         # echo "this is the killpid $killpid"
-#         # # Check that any 
-#         # #if lsof -t -i :3000; then
-#         # if [ ! -z $killpid ]; then
-
-#         #     # filter for only the node-processes writing to port 3000
-#         #     killpid=$(lsof -n -i :3000 | grep -E \"^node\" | awk '{{ print $2 }}')
-
-#         #     #echo $killpid
-#         #     kill -2 $killpid
-#         #     echo 'Rampart has been exited'
-
-#         # else
-#         #     echo 'No Rampart job to kill'
-#         # fi
-
-#         sleep {wait_}
-#         $(lsof -t -i :3000) && kill -2 $(lsof -t -i :3000) || echo "no rampart job to kill"
-
-#         """
-#     print(command)
-#     os.system(command)
-
-
-
-
-# # What I like about this rule is that it ensures an easy way to install rampart by using the snakemake-conda installer
-# # the only input needed for rampart, is the base_dir
-# rule start_rampart:
-#     output: "{out_base}/flags/{batch_id}_subbatch{rampart_sub_batch_id}_rampart.flag.ok"
-#     conda: "envs/rampart.yml"
-#     params: fastq = fastq_pass_base
-#     shell: """
-
-#         # First, kill any old Rampart job
-#         sh ~/pappenheim/scripts/stop_rampart.sh
-
-
-        
-#         # Check that rampart actually works
-#         echo "Rampart version $(rampart --version)"
-#         rampart --help
-
-#         # Spawn firefox with lag before calling the rampart program.
-#         {{ $(sleep 2; firefox localhost:3000)  & }};
-
-
-
-#         # Before running rampart we may touch the output such that the pipeline can finish gracefully. Of course, we then have the problem that it wont rerun when the pipeline is started again.
-#         touch {output}
-
-#         # Call rampart forked. Later this pid will be closed.
-#         echo "Starting rampart now."
-#         rampart --title "pappenheim batch {batch_id}" --protocol artic-ncov2019/rampart/ --clearAnnotated --basecalledPath {params.fastq} || echo "rampart was stopped"
- 
-
-        
-
-#     """
-
-
-
-
-# This target simply waits until the sequencing and basecalling has finished.
-# This ought to be a checkpoint
-# rule wait_for_minknow:
-#     output: flag = "{out_base}/flags/{batch_id}_minknow_done.flag.ok",
-#         sequencing_summary_moved = "{out_base}/{batch_id}_sequencing_summary.txt" # apparently, I'm moving the sequencing summary file, because I want it to have a nice name?
-#     run:
-        
-#         # heck that sequencing and basecalling has finished, by checking the existence of the sequence_summary_*.txt-file.
-
-#         minutes_wait = 10
-#         print("Checking that the sequencing_summary_*.txt-file has been written to disk ...")
-#         while True:
-#             sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
-#             if len(sequencing_summary_file) == 0:
-#                 print(f"  Still sequencing/basecalling. Waiting {minutes_wait} minutes ..")
-#                 time.sleep(60*minutes_wait)
-#             else:
-#                 break
-
-#             #raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
-#         sequencing_summary_file = sequencing_summary_file[0]
-#         print("  The sequencing summary has been found                ✓")
-#         print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
-
-#         os.system(f"mv {sequencing_summary_file} {output.sequencing_summary_moved}")
-#         os.system(f"touch {output}")
-
 
 
 # Read filtering
@@ -593,7 +460,7 @@ rule minion:
         --normalise 200 \
         --threads 4 \
         --scheme-directory artic-ncov2019/primer_schemes \
-        --scheme-version 3 \
+        --scheme-version 3_VarSkipShort \
         --read-file {input.fastq} \
         --fast5-directory {params.base_dir}/fast5_pass \
         --sequencing-summary {params.sequencing_summary_file} \
@@ -783,9 +650,12 @@ rule nextclade_updater:
 
 
         # Install or update nextclade to the latest version.
-
-
-
+        cd /home/nextclade/
+        wget https://github.com/nextstrain/nextclade/releases/latest/download/nextclade-Linux-x86_64
+        mv nextclade-Linux-x86_64 nextclade
+        chmod +x "/home/nextclade/nextclade" 
+        cd ~/pappenheim/
+        nextclade dataset get --name='sars-cov-2' --output-dir='{out_base}/nextclade_files'
         touch {output}
 
     """
@@ -796,19 +666,27 @@ rule nextclade:
         consensus = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
     output: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"
     shell: """
-        nextclade dataset get --name='sars-cov-2' --output-dir='{out_base}/nextclade_files'
 
+    nextclade run \
+        --input-fasta {input.consensus} \
+        --output-tsv {output} \
+        --output-dir {out_base}/{batch_id}_{wildcards.sample_id}/nextclade/ \
+        --input-root-seq {out_base}/nextclade_files/reference.fasta \
+        --input-tree {out_base}/nextclade_files/tree.json \
+        --input-qc-config {out_base}/nextclade_files/qc.json
 
-        nextclade run \
-            --input-fasta {input.consensus} \
-            --output-tsv {output} \
-            --output-dir {out_base} \
-            --input-root-seq {out_base}/nextclade_files/reference.fasta \
-            --input-tree {out_base}/nextclade_files/tree.json \
-            --input-qc-config {out_base}/nextclade_files/qc.json
+    if wc -l {output} < 2
+    then
+      nextclade run \
+        --input-fasta {input.consensus} \
+        --output-tsv {output} \
+        --output-dir {out_base}/{batch_id}_{wildcards.sample_id}/nextclade/ \
+        --input-root-seq {out_base}/nextclade_files/reference.fasta \
+        --input-tree {out_base}/nextclade_files/tree.json \
+        --input-qc-config {out_base}/nextclade_files/qc.json
+    fi
 
     """
-
 
 # Pivot the nextclade output to long format.
 rule pivot_nextclade:
@@ -823,10 +701,6 @@ rule pivot_nextclade:
         long = long.rename(columns = {"batch_id": "#batch_id"})
 
         long.to_csv(str(output), index = False, sep = "\t")
-
-
-
-
 
 
 
@@ -923,6 +797,7 @@ rule final_merge:
         cat {input.depths} > {output.dir}/depths.tsv
         cp {output.file} {output.dir}
         cp {base_dir}/barcode_alignment*.tsv {output.dir}/{batch_id}_barcode_alignment.tsv
+        cp {base_dir}/barcode_alignment*.tsv {out_base}/collected/{batch_id}_barcode_alignment.tsv
         cp {base_dir}/final_summary_*.txt {output.dir}/{batch_id}_final_summary.txt
         echo "machine_hostname=$(hostname)" >> {output.dir}/{batch_id}_final_summary.txt
         echo "final_merge_date=$(date --iso-8601=s)" >> {output.dir}/{batch_id}_final_summary.txt
@@ -941,46 +816,128 @@ rule final_merge:
         """
 
 
-# This is a rule that you can costumize however you want to upload your data somewhere
-rule custom_upload:
-    input: 
-        clean_flag = "{out_base}/flags/{batch_id}_clean_ready.flag.ok"
-    output:
-        clean_upload_flag = "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok",
-        raw_upload_flag = "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"
-    params:
-        clean_dir = "{out_base}/clean_upload_{batch_id}"
-    shell: """
-
-
-        # Optionally upload the output.dir (clean data)
-        touch ~/pappenheim_upload.sh
-        bash ~/pappenheim_upload.sh {params.clean_dir} clinmicrocore/BACKUP/nanopore_sarscov2/pappenheim_clean/
-        touch {output.clean_upload_flag}
-
-
-        # Optionally upload the base_dir (raw data)
-        touch ~/pappenheim_upload.sh
-        bash ~/pappenheim_upload.sh {base_dir} clinmicrocore/BACKUP/nanopore_sarscov2/pappenheim_raw/
-        touch {output.raw_upload_flag}
-
-
-        # If all went well, we touch the final OK flag.
-
-        # and we can gracefully stop rampart
-        sh ~/pappenheim/scripts/stop_rampart.sh
-
-        # Consider also, to remove the files locally.
-        # This is of course, pretty dangerous.
-
-        """
-
-
-
-# This function will be registered as a function to run when the pipeline is done.
-# It gathers the pid for the node job that serves the rampart web site to port 3000 and closes it.
+###
+# Upload_rule
+###
 
 
 
 #atexit.register(exit_rampart)
 
+
+
+
+#######################
+# pappenheim-receiver #
+#######################
+
+###################################
+# pappenheim-receiver necessities #
+###################################
+
+
+# There is a lot of tweaking between pappenheim and pappenheim-receiver.
+# Here we do that in rule, instead of before we start the pipeline.
+
+rule receiver_necessities:
+    input:
+    output: 
+        new_data_frame = "{out_base}/collected/{batch_id}_df.csv"
+    params:
+        out_base = out_base,
+        clean_dir = "{out_base}/clean_upload_{batch_id}",
+        out_path = "{out_base}/collected/",
+        batch_id = batch_id
+    shell: """
+
+    python scripts/receiver_necessities.py {params.out_base} {params.clean_dir} {params.out_path} {params.batch_id} 
+
+    """
+
+####################
+# Initial metadata #
+####################
+
+
+
+# Read the long metadata from the clean upload.
+rule metadata_init:
+    input: 
+        "{out_base}/flags/{batch_id}_clean_ready.flag.ok"
+        #lambda wildcards: df[df["batch_id"]==wildcards.batch_id]["long_metadata"].values[0]
+    output: 
+        file = "{out_base}/{batch_id}/{batch_id}_metadata_init.tsv"
+    conda: "configs/tidyverse.yaml"
+
+    shell: """
+        Rscript scripts/metadata_init.r {wildcards.batch_id} {out_base}/clean_upload_{batch_id}/{batch_id} {output.file}
+
+    """
+
+
+
+
+# Make a csv-file following the mads-specification.
+rule mads_output:
+    input: "{out_base}/{batch_id}/{batch_id}_metadata_init.tsv"
+    params:
+        mads_csv = "{out_base}/{batch_id}/{batch_id}_mads.csv",
+        obey_quality_control = config["mads_output_obey_quality_control"]
+    output: "{out_base}/{batch_id}/{batch_id}_mads.csv"
+    conda: "configs/tidyverse.yaml"
+    shell: """
+        Rscript scripts/mads_output.r {wildcards.batch_id} {input} {params.mads_csv} {params.obey_quality_control}
+            """
+
+
+rule batch_report:
+    input: 
+        metadata_init="{out_base}/{batch_id}/{batch_id}_metadata_init.tsv"
+    output: "{out_base}/{batch_id}/{batch_id}_batch_report.html"
+    params:
+        markdown_template_rmd = "scripts/batch_report.rmd",
+        markdown_template_html = "scripts/batch_report.html"
+        #mail_list_batch_report = mail_list_batch_report
+    conda: "configs/tidyverse.yaml"
+    shell: """
+
+        # The R-markdown template runs with the same working dir as where it lies.
+        # It is also hard to give command line arguments to the template.
+        # Therefore we need to move the template and the data to a predictable location:
+        cp {input.metadata_init} scripts/metadata_init.tsv
+        cp {out_base}/clean_upload_{batch_id}/depths.tsv scripts/depths.tsv
+
+        # Generate the batch report
+        Rscript -e 'library(rmarkdown); rmarkdown::render("scripts/batch_report.rmd", "html_document")'
+
+        # Clean up temporary files
+        mv {params.markdown_template_html} {output}
+        rm scripts/metadata_init.tsv
+        rm scripts/depths.tsv
+
+        """
+
+
+# lentofni@rm.dk,rimyje@rm.dk,bennic@rm.dk,johals@rm.dk,annesowi@rm.dk,tine.ebsen@rm.dk 
+
+# Send csv file to the party responsible for mads upload 
+rule mail_run_complete:
+    input: 
+        batch_report = "{out_base}/{batch_id}/{batch_id}_batch_report.html",
+        mads_output = "{out_base}/{batch_id}/{batch_id}_mads.csv"
+    output: touch("{out_base}/flags/{batch_id}_output_mail_sent.flag")
+    params: mail_list = mail_list
+    shell: """
+    cp {out_base}/{batch_id}/{batch_id}_batch_report.html '/run/user/1000/gvfs/smb-share:server=onerm.dk,share=nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit Molekyl. og Serologi/NanoPore/pappenheim_output'/{batch_id}_batch_report.html
+    cp {out_base}/{batch_id}/{batch_id}_mads.csv '/run/user/1000/gvfs/smb-share:server=onerm.dk,share=nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit Molekyl. og Serologi/NanoPore/pappenheim_output'/{batch_id}_mads.csv
+
+     echo "Genererede WGS-mads-svar og batch report for nanopore-sekventerings-batch-id: {wildcards.batch_id}. 
+(Bemærk at batch-id'et kun relaterer sig løst til prøvernes sekventeringsdato) 
+
+Filerne er kopieret til fællesdrevet: smb://onerm.dk/nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit%20Molekyl.%20og%20Serologi/NanoPore/pappenheim_output
+
+Disse svar er ajour med 'Typningstabel version 05072021'." > email_body.txt 
+
+    mail -s 'Automail: WGS-svar {wildcards.batch_id}' {params.mail_list} < email_body.txt
+                
+    """

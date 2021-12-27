@@ -117,3 +117,4 @@ The worst case scenario is, that if you have an installation which you haven't u
 Pappenheim is developed at Department of Clinical Microbiology (KMA) at Aarhus Universityhospital, Denmark, in response to the political decision of sequencing all positive SARS-CoV-2 samples. We are highly open to involving collaborators from other regions.
 
 
+# pap2

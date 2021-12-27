@@ -1,3 +1,14 @@
-samplesheet: "NA"
-rundir: "NA"
+# pappenheim
+
+samplesheet: "/home/ontseq4/Desktop/9493_seq_2021-12-02_NEB_rettet_iretar.xlsx"
+rundir: "/media/ontseq4/ssd/sc_sequencing/2021-12-03/"
 run_rampart: True
+
+# pappenheim-reciever
+
+blacklisted_samples_file: "blacklisted_samples.tsv"
+batch_blacklist:
+  - '20210422.1311'
+  - '20210409.1356'
+mads_output_obey_quality_control: "TRUE" # Can be set to "FALSE" with ' --config mads_output_obey_quality_control="FALSE" ' on the command line.
+clean_dir: "../BACKUP/nanopore_sarscov2/pappenheim_clean"
