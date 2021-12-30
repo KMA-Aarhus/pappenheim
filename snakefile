@@ -400,7 +400,9 @@ rule all:
                   "{out_base}/collected/{batch_id}_all.tsv", \
                   "{out_base}/{batch_id}/{batch_id}_batch_report.html", \
                   "{out_base}/{batch_id}/{batch_id}_metadata_init.tsv", \
-                  "{out_base}/flags/{batch_id}_output_mail_sent.flag"], \
+                  "{out_base}/flags/{batch_id}_output_mail_sent.flag", \
+                  "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
+                  "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
                  out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
                  
 
@@ -815,6 +817,39 @@ rule final_merge:
 
         """
 
+rule custom_upload:
+    input: 
+        clean_flag = "{out_base}/flags/{batch_id}_clean_ready.flag.ok"
+    output:
+        clean_upload_flag = "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok",
+        raw_upload_flag = "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"
+    params:
+        clean_dir = "{out_base}/clean_upload_{batch_id}"
+    shell: """
+
+
+        # Optionally upload the output.dir (clean data)
+        touch ~/pappenheim_upload.sh
+        bash ~/pappenheim_upload.sh {params.clean_dir} clinmicrocore/BACKUP/nanopore_sarscov2/pappenheim_clean/
+        touch {output.clean_upload_flag}
+
+
+        # Optionally upload the base_dir (raw data)
+        touch ~/pappenheim_upload.sh
+        bash ~/pappenheim_upload.sh {base_dir} clinmicrocore/BACKUP/nanopore_sarscov2/pappenheim_raw/
+        touch {output.raw_upload_flag}
+
+
+        # If all went well, we touch the final OK flag.
+
+        # and we can gracefully stop rampart
+        sh ~/pappenheim/scripts/stop_rampart.sh
+
+        # Consider also, to remove the files locally.
+        # This is of course, pretty dangerous.
+
+        """
+
 
 ###
 # Upload_rule
@@ -936,7 +971,7 @@ rule mail_run_complete:
 
 Filerne er kopieret til fællesdrevet: smb://onerm.dk/nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit%20Molekyl.%20og%20Serologi/NanoPore/pappenheim_output
 
-Disse svar er ajour med 'Typningstabel version 05072021'." > email_body.txt 
+Disse svar er ajour med 'Typningstabel version 29112021'." > email_body.txt 
 
     mail -s 'Automail: WGS-svar {wildcards.batch_id}' {params.mail_list} < email_body.txt
                 
