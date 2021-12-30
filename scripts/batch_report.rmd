@@ -134,7 +134,7 @@ metadata_init %>%
 metadata_init %>% 
     group_by(pa_lineage, type) %>% 
     #summarize(count = length(type), `type(s)` = paste(type %>% table %>% as_tibble %>%  format_delim(delim = " "), collapse = " ")) %>% 
-    summarize(count = length(type)) %>% 
+    summarize(count = length(pa_lineage)) %>% 
     arrange(desc(count)) %>% 
     knitr::kable() #%>% 
     #not_full_width()
