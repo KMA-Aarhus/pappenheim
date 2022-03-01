@@ -673,9 +673,7 @@ rule nextclade:
         --input-fasta {input.consensus} \
         --output-tsv {output} \
         --output-dir {out_base}/{batch_id}_{wildcards.sample_id}/nextclade/ \
-        --input-root-seq {out_base}/nextclade_files/reference.fasta \
-        --input-tree {out_base}/nextclade_files/tree.json \
-        --input-qc-config {out_base}/nextclade_files/qc.json
+        --input-dataset  {out_base}/nextclade_files
 
     if wc -l {output} < 2
     then
@@ -683,9 +681,7 @@ rule nextclade:
         --input-fasta {input.consensus} \
         --output-tsv {output} \
         --output-dir {out_base}/{batch_id}_{wildcards.sample_id}/nextclade/ \
-        --input-root-seq {out_base}/nextclade_files/reference.fasta \
-        --input-tree {out_base}/nextclade_files/tree.json \
-        --input-qc-config {out_base}/nextclade_files/qc.json
+        --input-dataset  {out_base}/nextclade_files
     fi
 
     """
