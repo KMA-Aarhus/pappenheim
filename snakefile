@@ -577,7 +577,7 @@ rule pangolin:
         #pangolin --help
 
 
-        pangolin {input.consensuses} --outfile {output}
+        pangolin {input.consensuses} --max-ambig 0.168 --outfile {output}
 
         # This output should be pivoted.
 
