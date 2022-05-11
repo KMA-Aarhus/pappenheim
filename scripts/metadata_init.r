@@ -81,6 +81,7 @@ df_long = read_delim(paste0(file_prefix, "_all.tsv"), delim = "\t", col_types = 
 required_columns = tibble(batch_id = NA,
                           sample_id = NA,
                           rack_id = NA,
+                          position = NA,
                           #cavity_id = NA,
                           #position = NA,
                           #concentration = NA,
@@ -96,7 +97,6 @@ required_columns = tibble(batch_id = NA,
                           barcode = NA)
 
 unwanted_columns = tibble(cavity_id = NA,
-                          position = NA,
                           concentration = NA,
                           concentrationunit = NA,
                           volume = NA,

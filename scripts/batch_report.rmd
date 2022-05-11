@@ -78,7 +78,7 @@ figno = function() {
 
 ------
 
-
+*Tabel `r tableno()`: Overordnet statistik.*
 
 ```{r echo=F, message=F, warning=F}
 
@@ -94,7 +94,8 @@ metadata_init %>%
     knitr::kable()
 ```
 
-*Tabel `r tableno()`: Overordnet statistik.*
+
+*Tabel `r tableno()`: Antal prøver per kontroltype.*
 
 
 ```{r echo=F, message=F, warning=F}
@@ -104,27 +105,26 @@ metadata_init %>%
     summarize(count = length(type)) %>%  
     ungroup() %>% 
     arrange(desc(count)) %>% 
-    knitr::kable() #%>% 
-    #not_full_width()
+    knitr::kable()
 
 ```
 
-*Tabel `r tableno()`: Antal prøver per kontroltype.*
-
-
 ```{r echo=F, message=F, warning=F}
+metadata_init$monitorering <- NA
 
-metadata_init %>% 
-    
-    mutate(mads_type = case_when(type == "sample" ~ str_sub(ya_sample_id, 1, 1), # Insert the sample type letter into the table.
-                                 TRUE ~ ""),
-           pa_note = case_when(grepl("scorpio", pa_note) ~ "",
-                                is.na(pa_note) ~ "",
-                                TRUE ~ pa_note),
-           pa_note = str_replace_all(pa_note, ":", "=")) %>% 
-    select(barcode, type, mads_type, pa_lineage, pa_note, `totalMissing` = ne_totalMissing_interpreted, `numberOfReads` = ba_reads, ct, ) %>% 
-    knitr::kable()
-
+for (i in 1:nrow(metadata_init)) {
+  if (grepl("BA.2", metadata_init$pa_lineage[i]) & grepl("H78Y", metadata_init$ne_aaSubstitutions[i])) {
+    metadata_init$monitorering[i] <-  "BA.2 + H78Y"
+  }
+  
+  else if (grepl("BA.2", metadata_init$pa_lineage[i]) & grepl("L452R", metadata_init$ne_aaSubstitutions[i])) {
+    metadata_init$monitorering[i] <-  "BA.2 + L452R" }
+  
+  else if (metadata_init$ne_totalMissing_interpreted[i] > 5000) {
+    metadata_init$pa_lineage[i] <- "Unassigned"
+  }
+  
+}
 ```
 *Tabel `r tableno()`: Prøvelisteoversigt. For flere informationer (fx. prøvenumre) henvises til `~/clinmicrocore/pappenheim-receiver/output/metadata_init.tsv` på GenomeDK.*
 
@@ -132,18 +132,25 @@ metadata_init %>%
 ```{r echo=F, message=F, warning=F, fig.height = 3, fig.width = 7, cache=TRUE}
 
 metadata_init %>% 
-    group_by(pa_lineage, type) %>% 
-    #summarize(count = length(type), `type(s)` = paste(type %>% table %>% as_tibble %>%  format_delim(delim = " "), collapse = " ")) %>% 
-    summarize(count = length(pa_lineage)) %>% 
-    arrange(desc(count)) %>% 
-    knitr::kable() #%>% 
-    #not_full_width()
+    
+    mutate(mads_type = case_when(type == "sample" ~ str_sub(ya_sample_id, 1, 1), # Insert the sample type letter into the table.
+                                 TRUE ~ "")) %>%
+    select(barcode, rack_id, position, sample_id, type, pa_lineage, `totalMissing` = ne_totalMissing_interpreted, `numberOfReads` = ba_reads, monitorering) %>%
+    knitr::kable()
 
 
 ```
 *Tabel `r tableno()`: Fordeling af Pangolin lineage kald på prøve-typer. Den positive kontrol bør altid få det samme lineage kald på tværs af sekventeringsbatches.*
 
+```{r echo=F, message=F, warning=F, fig.height = 3, fig.width = 7, cache=TRUE}
 
+metadata_init %>% 
+    group_by(pa_lineage, type) %>% 
+    summarize(count = length(type)) %>% 
+    arrange(desc(count)) %>% 
+    knitr::kable()
+
+```
 
 
 Genomer er rekonstrueret lokalt på sekventeringsworkstations med [artic minion](https://artic.network/ncov-2019/ncov2019-bioinformatics-sop.html).
@@ -370,7 +377,7 @@ plot_depth = depths_df %>%
     labs(x = "amplicon #")
     
     
-ggsave(paste0(batch_id, "_depths.pdf"), plot = plot_depth, height = fig_height, width = 12)
+#ggsave(paste0(batch_id, "_depths.pdf"), plot = plot_depth, height = fig_height, width = 12)
 
 plot_depth
         

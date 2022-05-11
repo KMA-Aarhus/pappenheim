@@ -560,61 +560,37 @@ rule pangolin_updater:
 
     """
 
-rule pangolin_pangolearn:
+
+rule pangolin:
+    # In pangolin v4 usher is now the default method
     # input: expand("{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", batch_id = batch_id, sample_id = workflow_table["sample_id"]) # per batch
     input:
         pangolin_flag = "{out_base}/flags/pangolin_updater.flag.ok",
         consensuses = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
-    output: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolearn.csv"
-    conda: "pangolin/environment.yml"
-    params: 
-        out_dir = "{out_base}/{batch_id}_{sample_id}/pangolin"
-    shell: """
-
-
-        #pangolin --help
-
-
-        pangolin {input.consensuses} \
-            --outfile {output}
-
-        # This output should be pivoted.
-
-    """
-
-rule pangolin_usher:
-    # input: expand("{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", batch_id = batch_id, sample_id = workflow_table["sample_id"]) # per batch
-    input:
-        pangolin_flag = "{out_base}/flags/pangolin_updater.flag.ok",
-        consensuses = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
-    output: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_usher.csv"
-    conda: "pangolin/environment.yml"
-    params: 
-        out_dir = "{out_base}/{batch_id}_{sample_id}/pangolin"
-    shell: """
-
-
-        #pangolin --help
-
-
-        pangolin {input.consensuses} \
-            --usher --outfile {output}
-
-        # This output should be pivoted.
-
-    """
-
-rule align_pango:
-    # input: expand("{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta", batch_id = batch_id, sample_id = workflow_table["sample_id"]) # per batch
-    input:
-        pangolearn = "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolearn.csv",
-        usher = "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin_usher.csv",
-        alias_key = "{out_base}/alias_key.json"
     output: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin.csv"
+    conda: "pangolin/environment.yml"
     params: 
         out_dir = "{out_base}/{batch_id}_{sample_id}/pangolin"
-    script: 
-        "scripts/align_pango_csv.py"
+    shell: """
+
+
+        #pangolin --help
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+        pangolin {input.consensuses} --outfile {output}
+=======
+        pangolin {input.consensuses} --max-ambig 0.168 --outfile {output}
+>>>>>>> 3e7b2699c8536140ada0489c6495b597d15dccdf
+=======
+        pangolin {input.consensuses} --max-ambig 0.168 --outfile {output}
+>>>>>>> 3e7b2699c8536140ada0489c6495b597d15dccdf
+
+        # This output should be pivoted.
+
+    """
+
 
 rule pivot_pangolin:
     input: "{out_base}/{batch_id}_{sample_id}/pangolin/{batch_id}_{sample_id}.pangolin.csv"
