@@ -421,7 +421,7 @@ rule read_filtering:
     shell: """
 
 
-    artic guppyplex --skip-quality-check --min-length 400 --max-length 700 --directory {input.barcode_dir} --output {output}
+    artic guppyplex --skip-quality-check --min-length 400 --directory {input.barcode_dir} --output {output}
 
 
     """
@@ -435,8 +435,8 @@ rule minion:
 
     output:
         consensus = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta",
-        depths = ["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.coverage_mask.txt.nCoV-2019_1.depths",
-                  "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.coverage_mask.txt.nCoV-2019_2.depths"]
+        depths = ["{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.coverage_mask.txt.1.depths",
+                  "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.coverage_mask.txt.2.depths"]
 
     conda: "artic-ncov2019/environment.yml"
     params:
@@ -469,8 +469,8 @@ rule minion:
         nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} \
         || echo ">{wildcards.batch_id}_{wildcards.sample_id}_notenoughdata" > {output.consensus} \
             && cat scripts/29903N.txt >> {output.consensus} \
-            && touch {wildcards.batch_id}_{wildcards.sample_id}.coverage_mask.txt.nCoV-2019_1.depths \
-            && touch {wildcards.batch_id}_{wildcards.sample_id}.coverage_mask.txt.nCoV-2019_2.depths
+            && touch {wildcards.batch_id}_{wildcards.sample_id}.coverage_mask.txt.1.depths \
+            && touch {wildcards.batch_id}_{wildcards.sample_id}.coverage_mask.txt.2.depths
 
     # If there is not enough data, the job should exit gracefully and create a blank output file with 29903 N's
 
