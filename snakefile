@@ -421,7 +421,7 @@ rule read_filtering:
     shell: """
 
 
-    artic guppyplex --skip-quality-check --min-length 400 --directory {input.barcode_dir} --output {output}
+    artic guppyplex --skip-quality-check --min-length 100 --directory {input.barcode_dir} --output {output}
 
 
     """
@@ -614,17 +614,16 @@ rule pivot_pangolin:
 #############
 
 # Once per batch
-# Temporarily disabled
+
 rule nextclade_updater:
     output: "{out_base}/flags/nextclade_updater.flag.ok"
-    #curl -fsSL "https://github.com/nextstrain/nextclade/releases/latest/download/nextclade-Linux-x86_64" -o "/home/nextclade/nextclade" && chmod +x "/home/nextclade/nextclade" 
     shell: """
 
 
         # Install or update nextclade to the latest version.
         cd /home/nextclade/
-        wget https://github.com/nextstrain/nextclade/releases/latest/download/nextclade-Linux-x86_64
-        mv nextclade-Linux-x86_64 nextclade
+        wget https://github.com/nextstrain/nextclade/releases/latest/download/nextclade-x86_64-unknown-linux-gnu
+        mv nextclade-x86_64-unknown-linux-gnu nextclade
         chmod +x "/home/nextclade/nextclade" 
         cd ~/pappenheim/
         nextclade dataset get --name='sars-cov-2' --output-dir='{out_base}/nextclade_files'
@@ -638,20 +637,21 @@ rule nextclade:
         consensus = "{out_base}/{batch_id}_{sample_id}/consensus/{batch_id}_{sample_id}.consensus.fasta" # per sample
     output: "{out_base}/{batch_id}_{sample_id}/nextclade/{batch_id}_{sample_id}.nextclade.tsv"
     shell: """
-
     nextclade run \
-        --input-fasta {input.consensus} \
-        --output-tsv {output} \
-        --output-dir {out_base}/{batch_id}_{wildcards.sample_id}/nextclade/ \
-        --input-dataset  {out_base}/nextclade_files
+    	-D  {out_base}/nextclade_files \
+    	-O {out_base}/{batch_id}_{wildcards.sample_id}/nextclade/ \
+    	--output-tsv {output} \
+        {input.consensus} 
+         
+        
 
     if wc -l {output} < 2
     then
-      nextclade run \
-        --input-fasta {input.consensus} \
-        --output-tsv {output} \
-        --output-dir {out_base}/{batch_id}_{wildcards.sample_id}/nextclade/ \
-        --input-dataset  {out_base}/nextclade_files
+	nextclade run \
+    	-D  {out_base}/nextclade_files \
+    	-O {out_base}/{batch_id}_{wildcards.sample_id}/nextclade/ \
+    	--output-tsv {output} \
+        {input.consensus}
     fi
 
     """
