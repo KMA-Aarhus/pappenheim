@@ -182,6 +182,12 @@ out = metadata %>%
                                  TRUE ~paste0(paste0("WGS: ", sub("\\).*", "", sub(".*\\(", "", clade)), " (", sub("\\ .*", "", clade),"), ", lineage)))) %>% 
     ungroup()
 
+# Ensure that the output is obvious to the clinic receiving it
+out = out %>%
+    mutate(WGS_linje = case_when(grepl("BE",WGS_linje) ~ paste0(sub("BE", "BA.5.3.1", WGS_linje), " (",lineage,")"),
+                                 grepl("BG",WGS_linje) ~ paste0(sub("BG", "BA.2.12.1", WGS_linje), " (",lineage,")"),
+                                 TRUE ~WGS_linje))
+
 write("This is the results and their reasons:", stdout())
 out %>% 
     select(ya_sample_id, WGS_linje) %>% 
