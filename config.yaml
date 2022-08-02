@@ -2,7 +2,9 @@
 
 samplesheet: "/home/ontseq4/Desktop/9493_seq_2021-12-02_NEB_rettet_iretar.xlsx"
 rundir: "/media/ontseq4/ssd/sc_sequencing/2021-12-03/"
-run_rampart: True
+reference: "~/pappenheim/artic-ncov2019/primer_schemes/nCoV-2019/V3/nCoV-2019.reference.fasta"
+regions: "~/pappenheim/artic-ncov2019/primer_schemes/nCoV-2019/V3/nCoV-2019.insert.bed"
+run_monitoring: True
 
 # pappenheim-reciever
 

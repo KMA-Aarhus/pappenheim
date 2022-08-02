@@ -38,6 +38,8 @@ rundir = "../testdata"
 # Actually given on the command line:
 samplesheet = config["samplesheet"]
 rundir = config["rundir"]
+reference = config["reference"]
+regions = config["regions"]
 
 
 tab = "\t"
@@ -275,43 +277,15 @@ print(f"This is the parsed batch_id:", batch_id)
 
 out_base = os.path.join(base_dir, "pappenheim_output") # out_base is the directory where the pipeline will write its output to.
 
-
-#rampart_sub_batch_id = datetime.datetime.now().strftime("%y-%m-%dT%H%M%S")
-#print("this is the rampart sub batch id", rampart_sub_batch_id)
-
-
-# Now we have all resources to start rampart in the background
-print(f"Starting rampart in the background ... ")
-command = f"cd ~/pappenheim/rampart && snakemake --config fastq_pass_base='{fastq_pass_base}' out_base='{out_base}' batch_id='{batch_id}' --use-conda --cores 1 --quiet > rampart_log.out 2> rampart_log.err &"
-#print(command)
-os.system(command)
-
-
-print("This is the tail stderr stream of the running rampart job, after 1 sec:")
-os.system("sleep 1") # Wait for the rampart log to become populated.
-os.system("cat rampart/rampart_log.err | tail -n 5")
-print("//\n") # visual separator
-
-
-
-
-
-# Check that the sequence_summary.txt file exists. If it doesn't, we won't be able to polish the assemblies.
-# Edit: since we're using medaka, we don't need this file up front. We can make a rule, that checks that sequencing and basecalling has stopped, and take it from there.
-# print("Checking that the sequencing_summary_*.txt-file has been written to disk")
-# while True:
-
-#     sequencing_summary_file = glob.glob(base_dir + "/sequencing_summary_*.txt")
-#     if len(sequencing_summary_file) == 0:
-#         print("  No file yet. Waiting 15 minutes ..")
-#         time.sleep(60*15)
-#     else:
-#         break
-
-#     #raise Exception("sequence_summary.txt does not exist yet. Rerun the pipeline when it has been written to disk.")
-# sequencing_summary_file = sequencing_summary_file[0]
-# print("  The sequencing summary has been found                ✓")
-# print(f"  This is the sequencing_summary_*.txt-file: \"{sequencing_summary_file.split('/')[-1]}\"")
+if config["run_monitoring"]:
+    # Now we have all resources to start monitoring in the background
+    print(f"Starting monitoring in the background ... ")
+    cov_mon_sh = open("start_mon.sh", "w")
+    command = f"#!/bin/bash{nl}source ~/miniconda3/etc/profile.d/conda.sh{nl}cd ~/CoverMon{nl}conda activate covermon {nl}python seq_mon.py '{samplesheet}' {rundir} {reference} {regions}"
+    cov_mon_sh.write(command)
+    cov_mon_sh.close()
+    # Start the sequence monitoring in a new terminal
+    os.system("gnome-terminal --tab -- bash start_mon.sh")
 
 
 # And here is the code from the rule wait_for_minknow
@@ -808,8 +782,8 @@ rule custom_upload:
 
         # If all went well, we touch the final OK flag.
 
-        # and we can gracefully stop rampart
-        sh ~/pappenheim/scripts/stop_rampart.sh
+        # and we can gracefully stop monitoring
+        sh ~/pappenheim/scripts/stop_monitoring.sh
 
         # Consider also, to remove the files locally.
         # This is of course, pretty dangerous.
