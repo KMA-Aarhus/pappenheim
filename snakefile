@@ -40,6 +40,8 @@ samplesheet = config["samplesheet"]
 rundir = config["rundir"]
 reference = config["reference"]
 regions = config["regions"]
+threshold = config["threshold"]
+maxDepth = config["maxDepth"]
 
 
 tab = "\t"
@@ -79,6 +81,9 @@ if config["rundir"] == "NA":
 print(f"These are the parameters given:")
 print(f"  samplesheet: {samplesheet}")
 print(f"  rundir: {rundir}")
+print(f"  regions: {regions}")
+print(f"  threshold: {threshold}")
+print(f"  maxDepth: {maxDepth}")
 print()
 
 def read_mail_list(mail_list_file):
@@ -277,11 +282,11 @@ print(f"This is the parsed batch_id:", batch_id)
 
 out_base = os.path.join(base_dir, "pappenheim_output") # out_base is the directory where the pipeline will write its output to.
 
-if config["run_monitoring"]:
+if config["run_monitoring"] and not os.path.isdir(f"{out_base}/Covermon"):
     # Now we have all resources to start monitoring in the background
     print(f"Starting monitoring in the background ... ")
     cov_mon_sh = open("start_mon.sh", "w")
-    command = f"#!/bin/bash{nl}source ~/miniconda3/etc/profile.d/conda.sh{nl}cd ~/CoverMon{nl}conda activate covermon {nl}python seq_mon.py '{samplesheet}' {rundir} {reference} {regions}"
+    command = f"#!/bin/bash{nl}source ~/miniconda3/etc/profile.d/conda.sh{nl}cd ~/CoverMon{nl}conda activate covermon {nl}python seq_mon.py '{samplesheet}' {rundir} {reference} {threshold} {maxDepth} {regions}"
     cov_mon_sh.write(command)
     cov_mon_sh.close()
     # Start the sequence monitoring in a new terminal
