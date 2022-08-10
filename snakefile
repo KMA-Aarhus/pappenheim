@@ -9,7 +9,7 @@ __version__ = "0.2"
 import sys
 import os
 from os import listdir
-from os.path import isfile, isdir, join
+from os.path import isfile, isdir, join, exists, expanduser
 import yaml
 import pandas as pd
 import numpy as np
@@ -282,8 +282,11 @@ print(f"This is the parsed batch_id:", batch_id)
 
 out_base = os.path.join(base_dir, "pappenheim_output") # out_base is the directory where the pipeline will write its output to.
 
-if config["run_monitoring"] and not os.path.isdir(f"{out_base}/Covermon"):
+print("DOES FLAG EXIST:", exists("~/pappenheim/CoverMon.flag"))
+
+if config["run_monitoring"] and exists(expanduser("~/pappenheim/CoverMon.flag")):
     # Now we have all resources to start monitoring in the background
+    os.system("rm ~/pappenheim/CoverMon.flag") 
     print(f"Starting monitoring in the background ... ")
     cov_mon_sh = open("start_mon.sh", "w")
     command = f"#!/bin/bash{nl}source ~/miniconda3/etc/profile.d/conda.sh{nl}cd ~/CoverMon{nl}conda activate covermon {nl}python seq_mon.py '{samplesheet}' {rundir} {reference} {threshold} {maxDepth} {regions}"
