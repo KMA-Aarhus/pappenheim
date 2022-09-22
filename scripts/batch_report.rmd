@@ -1,26 +1,19 @@
 ---
 title: "ONT SARS-CoV-2 batchsekventeringsrapport"
-#subtitle: "KMA AUH"
-#subtitle: "`r head(tail(unlist(strsplit(getwd(), "/")) ,2) ,1)`" # use the title variable from the pipeline instead somehow
-#date: "generated at `r Sys.Date()`"
+
 output:
   html_document:
     toc: False
     toc_depth: 2
-  #prettydoc::html_pretty:
-    #theme: cayman
-    #highlight: github
 editor_options: 
   chunk_output_type: console
-  cache: True
-#css: "max-width: 5000px; margin: auto; padding: 1em; line-height: 20px"
+css: "max-width: 5000px; margin: auto; padding: 1em; line-height: 20px"
 ---
   
 ```{r echo=F, message=F, warning=F}
 # Field variables and functions
 
 library(tidyverse)
-
 # Set develop to true if you want to develop locally
 develop = F
 if (develop) {
@@ -56,20 +49,6 @@ figno = function() {
     figno_var <<- figno_var + 1
     figno_var
 }
-```
-
-  
-```{r echo=F, message=F, warning=F}
-
-
-
-
-# 
-# not_full_width = function(input, ...) {
-#     #kableExtra::kable_styling(input, full_width = F, position = "left", ...)
-#     kableExtra::kable_styling(input, full_width = F)
-# }
-
 ```
 
 ## Batch `r paste(batch_id)`
@@ -129,7 +108,7 @@ for (i in 1:nrow(metadata_init)) {
 *Tabel `r tableno()`: Prøvelisteoversigt. For flere informationer (fx. prøvenumre) henvises til `~/clinmicrocore/pappenheim-receiver/output/metadata_init.tsv` på GenomeDK.*
 
 
-```{r echo=F, message=F, warning=F, fig.height = 3, fig.width = 7, cache=TRUE}
+```{r echo=F, message=F, warning=F, fig.height = 3, fig.width = 7}
 
 metadata_init %>% 
     
@@ -142,7 +121,7 @@ metadata_init %>%
 ```
 *Tabel `r tableno()`: Fordeling af Pangolin lineage kald på prøve-typer. Den positive kontrol bør altid få det samme lineage kald på tværs af sekventeringsbatches.*
 
-```{r echo=F, message=F, warning=F, fig.height = 3, fig.width = 7, cache=TRUE}
+```{r echo=F, message=F, warning=F, fig.height = 3, fig.width = 7}
 
 metadata_init %>% 
     group_by(pa_lineage, type) %>% 
@@ -221,7 +200,7 @@ metadata_init %>%
 ------
 
 ### PCR-produkt
-```{r echo=F, message=F, warning=F, fig.height = 4, fig.width = 7, cache=TRUE}
+```{r echo=F, message=F, warning=F, fig.height = 4, fig.width = 7}
 
 
 na_text = paste(paste(metadata_init$ct %>% is.na %>% sum), "prøver mangler angivelse af Mads Ct-værdi.")
@@ -246,7 +225,7 @@ metadata_init %>%
 
 
 
-```{r echo=F, message=F, warning=F, fig.height = 4, fig.width = 7, cache=TRUE}
+```{r echo=F, message=F, warning=F, fig.height = 4, fig.width = 7}
 
 na_text = paste(paste(metadata_init$ct %>% is.na %>% sum), "prøver mangler angivelse af Mads Ct-værdi.")
 

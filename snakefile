@@ -289,7 +289,7 @@ if config["run_monitoring"] and exists(expanduser("~/pappenheim/CoverMon.flag"))
     os.system("rm ~/pappenheim/CoverMon.flag") 
     print(f"Starting monitoring in the background ... ")
     cov_mon_sh = open("start_mon.sh", "w")
-    command = f"#!/bin/bash{nl}source ~/miniconda3/etc/profile.d/conda.sh{nl}cd ~/CoverMon{nl}conda activate covermon {nl}python seq_mon.py '{samplesheet}' {rundir} {reference} {threshold} {maxDepth} {regions}"
+    command = f"#!/bin/bash{nl}source ~/miniconda3/etc/profile.d/conda.sh{nl}cd ~/pappenheim/CoverMon{nl}conda activate covermon {nl}python seq_mon.py '{samplesheet}' {rundir} {reference} {threshold} {maxDepth} {regions}"
     cov_mon_sh.write(command)
     cov_mon_sh.close()
     # Start the sequence monitoring in a new terminal
@@ -382,12 +382,11 @@ rule all:
                   "{out_base}/collected/{batch_id}_all.tsv", \
                   "{out_base}/{batch_id}/{batch_id}_batch_report.html", \
                   "{out_base}/{batch_id}/{batch_id}_metadata_init.tsv", \
-                  "{out_base}/flags/{batch_id}_output_mail_sent.flag", \
                   "{out_base}/flags/{batch_id}_clean_uploaded.flag.ok", \
                   "{out_base}/flags/{batch_id}_raw_uploaded.flag.ok"], \
                  out_base = out_base, sample_id = workflow_table["sample_id"], batch_id = batch_id)
                  
-
+#                  "{out_base}/flags/{batch_id}_output_mail_sent.flag", \
 
 # Read filtering
 # Because ARTIC protocol can generate chimeric reads, we perform length filtering.
@@ -422,18 +421,11 @@ rule minion:
 
     conda: "artic-ncov2019/environment.yml"
     params:
-        #workdir = "{out_base}/{batch_id}/consensus/",
-        #input = "../read_filtering/{batch_id}_{sample_id}.fastq",
-        #output = "../consensus/{batch_id}_{sample_id}.fasta",
         base_dir = base_dir,
         output_dir = "{out_base}/{batch_id}_{sample_id}/consensus/",
-        #sequencing_summary_file = "{out_base}/{batch_id}_sequencing_summary.txt"
         sequencing_summary_file = sequencing_summary_file
     threads: 4
     shell: """
-
-
-
 
     # Check that artic minion can run, so we are sure that we are not creating a blank output due to dependency errors.
     artic minion -h > /dev/null 2> /dev/null && echo "artic minion in itself runs fine."
@@ -443,19 +435,18 @@ rule minion:
     artic minion \
         --normalise 200 \
         --threads 4 \
-        --scheme-directory artic-ncov2019/primer_schemes \
-        --scheme-version 3_VarSkipShort \
+        --scheme-directory primer_schemes \
+        --scheme-version 1 \
         --read-file {input.fastq} \
         --fast5-directory {params.base_dir}/fast5_pass \
         --sequencing-summary {params.sequencing_summary_file} \
-        nCoV-2019/V3 {wildcards.batch_id}_{wildcards.sample_id} \
+        ONT-Midnight-nCoV-2019 {wildcards.batch_id}_{wildcards.sample_id} \
         || echo ">{wildcards.batch_id}_{wildcards.sample_id}_notenoughdata" > {output.consensus} \
             && cat scripts/29903N.txt >> {output.consensus} \
             && touch {wildcards.batch_id}_{wildcards.sample_id}.coverage_mask.txt.1.depths \
             && touch {wildcards.batch_id}_{wildcards.sample_id}.coverage_mask.txt.2.depths
 
     # If there is not enough data, the job should exit gracefully and create a blank output file with 29903 N's
-
 
     # I have considered that it should only or-exit gracefully when the sample type is "positive_control" or "negative_control". But I think it is very possible that normal samples can also fail, which should not halt the complete batch in terms of the pipeline.
 
@@ -560,7 +551,7 @@ rule pangolin:
 
 
         pangolin {input.consensuses} --outfile {output}
-        pangolin {input.consensuses} --max-ambig 0.168 --outfile {output}
+        pangolin {input.consensuses} --max-ambig 0.1672 --outfile {output}
 
 
         # This output should be pivoted.
@@ -878,9 +869,7 @@ rule batch_report:
         metadata_init="{out_base}/{batch_id}/{batch_id}_metadata_init.tsv"
     output: "{out_base}/{batch_id}/{batch_id}_batch_report.html"
     params:
-        markdown_template_rmd = "scripts/batch_report.rmd",
         markdown_template_html = "scripts/batch_report.html"
-        #mail_list_batch_report = mail_list_batch_report
     conda: "configs/tidyverse.yaml"
     shell: """
 
@@ -904,23 +893,23 @@ rule batch_report:
 # lentofni@rm.dk,rimyje@rm.dk,bennic@rm.dk,johals@rm.dk,annesowi@rm.dk,tine.ebsen@rm.dk 
 
 # Send csv file to the party responsible for mads upload 
-rule mail_run_complete:
-    input: 
-        batch_report = "{out_base}/{batch_id}/{batch_id}_batch_report.html",
-        mads_output = "{out_base}/{batch_id}/{batch_id}_mads.csv"
-    output: touch("{out_base}/flags/{batch_id}_output_mail_sent.flag")
-    params: mail_list = mail_list
-    shell: """
-    cp {out_base}/{batch_id}/{batch_id}_batch_report.html '/run/user/1000/gvfs/smb-share:server=onerm.dk,share=nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit Molekyl. og Serologi/NanoPore/pappenheim_output'/{batch_id}_batch_report.html
-    cp {out_base}/{batch_id}/{batch_id}_mads.csv '/run/user/1000/gvfs/smb-share:server=onerm.dk,share=nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit Molekyl. og Serologi/NanoPore/pappenheim_output'/{batch_id}_mads.csv
-
-     echo "Genererede WGS-mads-svar og batch report for nanopore-sekventerings-batch-id: {wildcards.batch_id}. 
-(Bemærk at batch-id'et kun relaterer sig løst til prøvernes sekventeringsdato) 
-
-Filerne er kopieret til fællesdrevet: smb://onerm.dk/nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit%20Molekyl.%20og%20Serologi/NanoPore/pappenheim_output
-
-Disse svar er ajour med 'Typningstabel version 29112021'." > email_body.txt 
-
-    mail -s 'Automail: WGS-svar {wildcards.batch_id}' {params.mail_list} < email_body.txt
-                
-    """
+#rule mail_run_complete:
+#    input: 
+#        batch_report = "{out_base}/{batch_id}/{batch_id}_batch_report.html",
+#        mads_output = "{out_base}/{batch_id}/{batch_id}_mads.csv"
+#    output: touch("{out_base}/flags/{batch_id}_output_mail_sent.flag")
+#    params: mail_list = mail_list
+#    shell: """
+#    cp {out_base}/{batch_id}/{batch_id}_batch_report.html '/run/user/1000/gvfs/smb-share:server=onerm.dk,share=nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit Molekyl. og Serologi/NanoPore/#pappenheim_output'/{batch_id}_batch_report.html
+#    cp {out_base}/{batch_id}/{batch_id}_mads.csv '/run/user/1000/gvfs/smb-share:server=onerm.dk,share=nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit Molekyl. og Serologi/NanoPore/#pappenheim_output'/{batch_id}_mads.csv
+#
+#     echo "Genererede WGS-mads-svar og batch report for nanopore-sekventerings-batch-id: {wildcards.batch_id}. 
+#(Bemærk at batch-id'et kun relaterer sig løst til prøvernes sekventeringsdato) 
+#
+#Filerne er kopieret til fællesdrevet: smb://onerm.dk/nfpdata/Afdeling/AUHKLMIK/AUH/Afdelingen/Afsnit%20Molekyl.%20og%20Serologi/NanoPore/pappenheim_output
+#
+#Disse svar er ajour med 'Typningstabel version 29112021'." > email_body.txt 
+#
+#    mail -s 'Automail: WGS-svar {wildcards.batch_id}' {params.mail_list} < email_body.txt
+#                
+#    """
