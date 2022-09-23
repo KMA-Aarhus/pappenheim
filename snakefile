@@ -185,6 +185,13 @@ if not len(df_mini["sample_id"]) == len(set(df_mini["sample_id"])):
     raise Exception(f"{nl}One or more sample_id's are duplicated. Each sample_id may only be used once:{nl}{sid_counts}")
 print("✓")
 
+print("Checking that the sample id's are okay ...           ", end = "", flush = True)
+for sample_id in df["sample_id"]:
+    if "_" in sample_id:
+        raise Exception(f"{nl}One or more sample_id's contain underscores (_). Sample_ids should consist only of numbers and letters. If a seperator is required, use -")
+    if " " in sample_id:
+        raise Exception(f"{nl}One or more sample_id's contain spaces. Sample_ids should consist only of numbers and letters. If a seperator is required, use -")
+print("✓")
 
 
 
@@ -249,12 +256,6 @@ fastq_pass_base = fastq_pass_bases[0]
 del fastq_pass_bases
 print(f"Found the following fastq_pass base which will be given to rampart: {nl}  {fastq_pass_base}{nl}")
 
-
-
-
-
-
-
 # base_dir is the place where fastq_pass, fast5_pass and the sequencing summary resides.
 base_dir = os.path.dirname(fastq_pass_base) # This only works because there is NOT a trailing slash on the fastq_pass_base
 print(f"This is the batch base directory:{nl}  {base_dir}")
@@ -282,7 +283,6 @@ print(f"This is the parsed batch_id:", batch_id)
 
 out_base = os.path.join(base_dir, "pappenheim_output") # out_base is the directory where the pipeline will write its output to.
 
-print("DOES FLAG EXIST:", exists("~/pappenheim/CoverMon.flag"))
 
 if config["run_monitoring"] and exists(expanduser("~/pappenheim/CoverMon.flag")):
     # Now we have all resources to start monitoring in the background
