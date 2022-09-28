@@ -6,7 +6,7 @@ reference: "~/pappenheim/primer_schemes/ONT-Midnight-nCoV-2019/V1/ONT-Midnight-n
 regions: "~/pappenheim/primer_schemes/ONT-Midnight-nCoV-2019/V1/ONT-Midnight-nCoV-2019.insert.bed"
 threshold: 20
 maxDepth: 400
-run_monitoring: False
+run_monitoring: True
 
 # pappenheim-reciever
 
